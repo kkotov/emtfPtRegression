@@ -1,26 +1,235 @@
-#source("corr.R")
 require(caret)
+require(ranger)
+# mode_inv=15 (mode=15): 1-2-3-4
+# mode_inv=14 (mode=7):    2-3-4
+# mode_inv=13 (mode=11): 1- -3-4
+# mode_inv=12 (mode=3):      3-4
+# mode_inv=11 (mode=13): 1-2- -4
+# mode_inv=10 (mode=5):    2- -4
+# mode_inv=9  (mode=9):  1-   -4
+# mode_inv=7  (mode=14): 1-2-3
+# mode_inv=6  (mode=6):    2-3
+# mode_inv=5  (mode=10): 1- -3
+# mode_inv=3  (mode=12): 1-2
+
+mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
+
 df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
-d1 <- df[df[,"mode.0."]==15,]
-d2 <- df[df[,"mode.1."]==15,]
-reduced1 <- with(d1,data.frame(1/muPtGen, pt.0., muEtaGen, dPhi12.0., dPhi23.0., dPhi34.0., dTheta12.0., dTheta23.0., dTheta34.0., as.factor(clct1.0.), as.factor(clct2.0.), as.factor(clct3.0.), as.factor(clct4.0.), as.factor(fr1.0.), as.factor(fr2.0.), as.factor(fr3.0.), as.factor(fr4.0.)))
-reduced2 <- with(d2,data.frame(1/muPtGen, pt.1., muEtaGen, dPhi12.1., dPhi23.1., dPhi34.1., dTheta12.1., dTheta23.1., dTheta34.1., as.factor(clct1.1.), as.factor(clct2.1.), as.factor(clct3.1.), as.factor(clct4.1.), as.factor(fr1.1.), as.factor(fr2.1.), as.factor(fr3.1.), as.factor(fr4.1.)))
-colnames(reduced1) <- c("muPtGenInv", "ptTrg", "muEtaGen", "dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
-colnames(reduced2) <- c("muPtGenInv", "ptTrg", "muEtaGen", "dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
-reduced <- rbind(reduced1,reduced2)
-part <- createDataPartition(y=reduced$muPtGen, p=0.75, list=F)
-trainSet <- reduced[part,]
-testSet <- reduced[-part,]
-POI <- which(colnames(reduced)=="muPtGenInv")
 
-modelFit <- ranger(muPtGenInv ~ dPhi12+dPhi23+dPhi34+dTheta12+dTheta23+dTheta34+clct1+clct2+clct3+clct4+fr1+fr2+fr3+fr4, data=trainSet)
+train <- function(mode_inv){
+
+    if( mode[mode_inv] == 0 ){
+        print("Problem")
+        return(NULL)
+    }
+
+    d1 <- df[df[,"mode.0."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".0.",colnames(df),fixed=T) ) ]
+    d2 <- df[df[,"mode.1."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".1.",colnames(df),fixed=T) ) ]
+
+    colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
+    colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
+
+    d <- rbind(d1,d2)
+
+    # https://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/EMTFPtAssignmentEngine.cc#L145-L329
+    if( mode_inv == 15 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi12,
+                                   dPhi23,
+                                   dPhi34,
+                                   dTheta12,
+                                   dTheta23,
+                                   dTheta34,
+                                   as.factor(clct1),
+                                   as.factor(clct2),
+                                   as.factor(clct3),
+                                   as.factor(clct4),
+                                   as.factor(fr1),
+                                   as.factor(fr2),
+                                   as.factor(fr3),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 14 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi23,
+                                   dPhi34,
+                                   dTheta23,
+                                   dTheta34,
+                                   as.factor(clct2),
+                                   as.factor(clct3),
+                                   as.factor(clct4),
+                                   as.factor(fr2),
+                                   as.factor(fr3),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi23", "dPhi34", "dTheta23", "dTheta34", "clct2", "clct3", "clct4", "fr2", "fr3", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 13 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi13,
+                                   dPhi34,
+                                   dTheta13,
+                                   dTheta34,
+                                   as.factor(clct1),
+                                   as.factor(clct3),
+                                   as.factor(clct4),
+                                   as.factor(fr1),
+                                   as.factor(fr3),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi13", "dPhi34", "dTheta13", "dTheta34", "clct1", "clct3", "clct4", "fr1", "fr3", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 12 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi34,
+                                   dTheta34,
+                                   as.factor(clct3),
+                                   as.factor(clct4),
+                                   as.factor(fr3),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi34", "dTheta34", "clct3", "clct4", "fr3", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 11 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi12,
+                                   dPhi24,
+                                   dTheta12,
+                                   dTheta24,
+                                   as.factor(clct1),
+                                   as.factor(clct2),
+                                   as.factor(clct4),
+                                   as.factor(fr1),
+                                   as.factor(fr2),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi12", "dPhi24", "dTheta12", "dTheta24", "clct1", "clct2", "clct4", "fr1", "fr2", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 10 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi24,
+                                   dTheta24,
+                                   as.factor(clct2),
+                                   as.factor(clct4),
+                                   as.factor(fr2),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi24", "dTheta24", "clct2", "clct4", "fr2", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 9 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi14,
+                                   dTheta14,
+                                   as.factor(clct1),
+                                   as.factor(clct4),
+                                   as.factor(fr1),
+                                   as.factor(fr4)
+                                 )
+                         )
+        predictors <- c("dPhi14", "dTheta14", "clct1", "clct4", "fr1", "fr4")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 7 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi12,
+                                   dPhi23,
+                                   dTheta12,
+                                   dTheta23,
+                                   as.factor(clct1),
+                                   as.factor(clct2),
+                                   as.factor(clct3),
+                                   as.factor(fr1),
+                                   as.factor(fr2),
+                                   as.factor(fr3)
+                                 )
+                         )
+        predictors <- c("dPhi12", "dPhi23", "dTheta12", "dTheta23", "clct1", "clct2", "clct3", "fr1", "fr2", "fr3")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 6 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi23,
+                                   dTheta23,
+                                   as.factor(clct2),
+                                   as.factor(clct3),
+                                   as.factor(fr2),
+                                   as.factor(fr3)
+                                 )
+                         )
+        predictors <- c("dPhi23", "dTheta23", "clct2", "clct3", "fr2", "fr3")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 5 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi13,
+                                   dTheta13,
+                                   as.factor(clct1),
+                                   as.factor(clct3),
+                                   as.factor(fr1),
+                                   as.factor(fr3)
+                                 )
+                         )
+        predictors <- c("dPhi13", "dTheta13", "clct1", "clct3", "fr1", "fr3")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    } else if( mode_inv == 3 ){
+        vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   dPhi12,
+                                   dTheta12,
+                                   as.factor(clct1),
+                                   as.factor(clct2),
+                                   as.factor(fr1),
+                                   as.factor(fr2)
+                                 )
+                         )
+        predictors <- c("dPhi12", "dTheta12", "clct1", "clct2", "fr1", "fr2")
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+    }
+
+    part <- createDataPartition(y=vars$muPtGenInv, p=0.75, list=F)
+    trainSet <- vars[part,]
+    testSet <- vars[-part,]
+    POI <- which(colnames(vars)=="muPtGenInv")
+
+    f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+    modelFit <- ranger(f, data=trainSet)
+
+    # evaluate overal performance
+    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
+    print( paste("RMSE for reference:", RMSE(1/testSet[,POI], testSet[,"ptTrg"]) ) )
+    print( paste("R2 for myModel:",     R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) ) )
+    print( paste("R2 for reference:",   R2(1/testSet[,POI], testSet[,"ptTrg"]) ) ) 
+
+    list(modelFit, testSet, POI)
+}
+
 #modelFit <- train(muPtGenInv ~ dPhi12+dPhi23+dPhi34+dTheta12+dTheta23+dTheta34+clct1+clct2+clct3+clct4+fr1+fr2+fr3+fr4, method="rf", data=trainSet, trControl=trainControl(method="cv",number=10,verboseIter=T))
-
-# evaluate performance
-print( RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) )
-print( RMSE(1/testSet[,POI], testSet[,"ptTrg"]) )
-print( R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) )
-print( R2(1/testSet[,POI], testSet[,"ptTrg"]) ) # 
 
 ### Try out neural networks
 #fitNNet1  <- avNNet(muPtGenInv ~ dPhi12+dPhi23+dPhi34+dTheta12+dTheta23+dTheta34+clct1+clct2+clct3+clct4+fr, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)
