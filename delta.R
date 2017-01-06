@@ -1,32 +1,54 @@
-delta <- function(modelFit, binning = seq(-2,5,0.1), inverse=F){ 
+require("gridExtra")
+
+plot.residuals <- function(modelFit, cutoff=30, binning = seq(-2,5,0.1), inverse=F){ 
     results <- data.frame( ptTrue = 1/testSet$muPtGenInv,
                            myPt   = 1/predict(modelFit,testSet[,-POI])$predictions,
                            refPt  = testSet[,"ptTrg"]
                )
 
     if( inverse ){
-        reference <- data.frame( delta = with(results, ptTrue/refPt-1) )
-        myModel   <- data.frame( delta = with(results, ptTrue/myPt -1) )
+        reference <- data.frame( observable = 1/results$ptTrue,
+                                 fitted     = 1/results$refPt,
+                                 delta      = with(results, 1/refPt - 1/ptTrue),
+                                 deltaRel   = with(results, ptTrue/refPt-1)
+                               )
+        myModel   <- data.frame( observable = 1/results$ptTrue,
+                                 fitted     = 1/results$myPt,
+                                 delta      = with(results, 1/myPt - 1/ptTrue),
+                                 deltaRel   = with(results, ptTrue/myPt -1)
+                               )
+        reference <- reference[ reference$observable>cutoff, ]
+        myModel   <- myModel  [   myModel$observable>cutoff, ]
     } else {
-        reference <- data.frame( delta = with(results, (refPt-ptTrue)/ptTrue) )
-        myModel   <- data.frame( delta = with(results, (myPt -ptTrue)/ptTrue) )
+        reference <- data.frame( observable = results$ptTrue,
+                                 fitted     = results$refPt,
+                                 delta      = with(results,  refPt-ptTrue),
+                                 deltaRel   = with(results, (refPt-ptTrue)/ptTrue)
+                               )
+        myModel   <- data.frame( observable = results$ptTrue,
+                                 fitted     = results$myPt,
+                                 delta      = with(results,  myPt -ptTrue),
+                                 deltaRel   = with(results, (myPt -ptTrue)/ptTrue)
+                               )
+        reference <- reference[ reference$observable<cutoff, ]
+        myModel   <- myModel  [   myModel$observable<cutoff, ]
     }
 
     print( paste("Standard diviation for the reference: ",sd( reference$delta)) )
     print( paste("Standard diviation for my model: ",sd( myModel$delta)) )
 
     xLabel <- ifelse(inverse,
-                     expression((1/p[T] ^{predict} - 1/p[T] ^{true}) / 1/p[T] ^{true}),
-                     expression((p[T] ^{predict} - p[T] ^{true}) / p[T] ^{true})
+                     expression((1/p[T] ^{fit} - 1/p[T] ^{true}) / (1/p[T] ^{true})),
+                     expression((p[T] ^{fit} - p[T] ^{true}) / p[T] ^{true})
               )
 
-    ggplot() +
+    p1 <- ggplot() +
          geom_histogram(data = reference,
 #                        binwidth = binWidth,
                         breaks = binning,
                         alpha = 0.2,
-                        aes( x = delta,
-#                             y = (..count..)/sum(..count..),
+                        aes( x = deltaRel,
+                             y = (..count..)/sum(..count..),
                              colour = "r",
                              fill = "r"
                         )
@@ -35,8 +57,8 @@ delta <- function(modelFit, binning = seq(-2,5,0.1), inverse=F){
 #                        binwidth = binWidth,
                         breaks = binning,
                         alpha = 0.2,
-                        aes( x = delta,
-#                             y = (..count..)/sum(..count..),
+                        aes( x = deltaRel,
+                             y = (..count..)/sum(..count..),
                              colour = "b",
                              fill = "b"
                         )
@@ -48,12 +70,18 @@ delta <- function(modelFit, binning = seq(-2,5,0.1), inverse=F){
          labs(x = xLabel,
               y = "density",
               title = ifelse(inverse,
-                             expression(paste("Accuracy of the ",1/p[T]," assignment")),
-                             expression(paste("Accuracy of the ",p[T]," assignment"))
+                             expression(paste("Residuals for the ",1/p[T]," assignment")),
+                             expression(paste("Residuals of the ",p[T]," assignment"))
                       )
          ) +
          scale_colour_manual(name = "Models", values=c("r" = "red", "b"="blue"), labels=c("b"="myModel", "r"="reference")) +
          scale_fill_manual(name = "Models",   values=c("r" = "red", "b"="blue"), labels=c("b"="myModel", "r"="reference"))
+
+
+    p2 <- ggplot() +
+         geom_point(data = reference, col="red",  aes(x=observable,y=delta)) +
+         geom_point(data = reference, col="blue", aes(x=observable,y=delta))
+
 
 #         scale_fill_manual('Group', breaks = c("myPt","refPt"),
 #                               values = c("myPt" = "red", "refPt" = "blue"),
@@ -63,4 +91,7 @@ delta <- function(modelFit, binning = seq(-2,5,0.1), inverse=F){
 #         theme(legend.position=c(0.85,0.8),  legend.text=element_text(size=15), legend.background = element_rect(fill=alpha('white',0.00001)))
 #    require(reshape2)
 #    results.m <- melt(results, measure.vars = c("myPt","refPt"))
+
+
+    grid.arrange(p1,p2)
 }
