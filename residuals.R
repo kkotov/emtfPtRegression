@@ -79,8 +79,11 @@ plot.residuals <- function(modelFit, cutoff=30, binning = seq(-2,5,0.1), inverse
 
 
     p2 <- ggplot() +
-         geom_point(data = reference, col="red",  aes(x=observable,y=delta)) +
-         geom_point(data = reference, col="blue", aes(x=observable,y=delta))
+         geom_point(data = reference, col="red",  aes(x=observable,y=delta),size=0.01) +
+         geom_point(data = myModel,   col="blue", aes(x=observable,y=delta),size=0.01) +
+         labs(x = "fitted value",
+              y = "fitted - true")
+
 
 
 #         scale_fill_manual('Group', breaks = c("myPt","refPt"),
