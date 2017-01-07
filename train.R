@@ -16,6 +16,8 @@ mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
 
 df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
 
+set.seed(1)
+
 train <- function(mode_inv){
 
     if( mode[mode_inv] == 0 ){
@@ -31,7 +33,7 @@ train <- function(mode_inv){
 
     d <- rbind(d1,d2)
 
-    # https://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/EMTFPtAssignmentEngine.cc#L145-L329
+    # http://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/EMTFPtAssignmentEngine.cc#L145-L329
     if( mode_inv == 15 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -53,6 +55,7 @@ train <- function(mode_inv){
                                  )
                          )
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+#        predictors <- c("dPhi12", "dPhi34", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "fr1", "fr2")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
     } else if( mode_inv == 14 ){
         vars <- with(d,data.frame( 1/muPtGen,
