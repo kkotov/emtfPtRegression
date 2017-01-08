@@ -1,0 +1,52 @@
+mode_inv == 15 : 160994+150352 = 311346  ->  1
+mode_inv == 14 : 23175+19610   = 42785   ->  001
+mode_inv == 13 : 22856+19621   = 42477   ->  011
+mode_inv == 12 : 22907+13419   = 36326   ->  0100
+mode_inv == 11 : 16761+23462   = 40223   ->  0101
+mode_inv == 10 : 3993+2928     = 6921    ->  000001
+mode_inv ==  9 : 260+1097      = 1357    ->  000000001
+mode_inv ==  7 : 14200+19191   = 33391   ->  0001
+mode_inv ==  6 : 15550+15545   = 31095   ->  00001
+mode_inv ==  5 : 685+1041      = 1726    ->  0000001
+mode_inv ==  4 : 35+79         = 114     ->  00000000
+
+Huffman encoding:
+
+((4 + 9) + 5) + 10) + 6) + 7 _+_ 14
+(11 + 12) _+_ 13 
+
+                       O
+                     /   \
+                   15      O
+                         /   \
+                       O       O
+                     /   \    /  \
+                   13     O  14   O
+                        /   \    / \
+                      11    12  7   O
+                                   / \
+                                  6   O
+                                     / \
+                                   10   O
+                                       / \
+                                      5   O
+                                         / \
+                                        9   4
+
+Because modes never goes consequently in one word -> no prefix-free requirement!
+First bit is 1 -> mode_inv == 15, otherwise second bit is 1 ->  use remaining 2 bits to code 4 modes: 7,11,13,14;
+otherwise use 3 bits to code remaining 6 modes: 12,10,6,9,5,3
+For example:
+15 -> 1
+14 -> 0111
+13 -> 0110
+11 -> 0101
+7  -> 0100
+12 -> 00111
+10 -> 00110
+6  -> 00101
+9  -> 00100
+5  -> 00011
+3  -> 00010
+and invalid modes are 00001 and 00000
+

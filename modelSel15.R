@@ -7,6 +7,69 @@ colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
 colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
 d <- rbind(d1,d2)
 
+require(leaps)
+vars <- with(d,data.frame( 1/muPtGen,
+                                   muEtaGen,
+                                   pt,
+                                   sat(abs(dPhi12),7),
+                                   sat(abs(dPhi23),7),
+                                   sat(abs(dPhi34),7),
+                                   abs(dTheta12),
+                                   abs(dTheta23),
+                                   abs(dTheta34),
+                                   as.factor(clct1),
+                                   as.factor(clct2),
+                                   as.factor(clct3),
+                                   as.factor(clct4),
+                                   as.factor(fr1),
+                                   as.factor(fr2),
+                                   as.factor(fr3),
+                                   as.factor(fr4)
+                                 )
+                         )
+predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+regfit.full <- regsubsets(f,data=vars,nvmax=39) #method="forward" #- for nested sets
+regfit.summary <- summary(regfit.full)
+which.min(regfit.summary$cp)
+plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
+plot(regfit.full,scale="Cp")
+coef(regfit.full,10)
+
+part <- sample(seq(nrow(d)), as.integer(nrow(d)*0.75), replace=F)
+regfit.fwd <- regsubsets(f,data=vars[part,],nvmax=39,method="forward") # for nested sets
+val.errors2 <- rep(NA,39)
+x.test <- model.matrix(f,data=vars[-part,])
+for(i in 1:39){
+  coefi <- coef(regfit.fwd ,id=i)
+  pred  <- x.test[,names(coefi)]%*%coefi
+  val.errors[i] <- RMSE(vars[-part,"muPtGenInv"],pred)^2 #mean((vars[-part,"muPtGenInv"]-pred)^2)
+}
+
+plot(sqrt(val.errors))
+points(sqrt(regfit.fwd$rss[-1]/nrow(d)/0.79),pch=20,col="red")
+
+########################
+
+folds <- sample(rep(1:10,length=nrow(d)))
+table(folds)
+cv.errors <- matrix(NA,10,39)
+for(k in 1:10){
+  best.fit <- regsubsets(f,data=vars[folds!=k,],nvmax=39,method="forward")
+  mod <- model.matrix(f,data=vars[folds==k,])
+  for(i in 1:39){
+    coefi <- coef(best.fit ,id=i)
+    pred  <- mod[,names(coefi)]%*%coefi
+    cv.errors[k,i] <- mean((vars[folds==k,"muPtGenInv"]-pred)^2)
+  }
+}
+rmse.cv <- sqrt(apply(cv.errors,2,mean))
+plot(rmse.cv,pch=19,type="b")
+# so you didn't exhaust the predictors
+
+########################
+
 dphi12 <- as.formula( 1/muPtGen ~ abs(dPhi12) )
 anova( lm(dphi12, data = d) ) # this is significant F-statistics
 dphi123 <- update( dphi12, ~ . + abs(dPhi23) )
