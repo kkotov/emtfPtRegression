@@ -16,8 +16,6 @@ mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
 
 df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
 
-set.seed(1)
-
 train <- function(mode_inv){
 
     if( mode[mode_inv] == 0 ){
@@ -38,29 +36,37 @@ train <- function(mode_inv){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
-                                   sat(dPhi12,7),
-                                   sat(dPhi23,7),
-                                   sat(dPhi34,7),
-                                   dTheta12,
-                                   dTheta23,
-                                   dTheta34,
-                                   as.factor(clct1),
-                                   as.factor(clct2),
-                                   as.factor(clct3),
-                                   as.factor(clct4),
+                                   sat(abs(dPhi12),7),
+                                   sat(abs(dPhi23),7),
+                                   sat(abs(dPhi34),7),
+                                   as.factor(round(runif(nrow(d)))), #ifelse(dPhi12>=0,0,1)),
+                                   as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                                   as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                                   sat(abs(dTheta12),2),
+                                   sat(abs(dTheta23),2),
+                                   sat(abs(dTheta34),2),
+                                   as.factor(  round(runif(nrow(d)))), #ifelse(dTheta23*dTheta34>=0,0,1)),
+                                   as.factor(c(0,0,0,0,0,1,0,2,0,3)[clct1]),
+                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct2]),
+                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct3]),
+                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct4]),
                                    as.factor(fr1),
                                    as.factor(fr2),
                                    as.factor(fr3),
                                    as.factor(fr4)
                                  )
                          )
-        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+        predictors <- c("dPhi12", "dPhi23", "dPhi34", "sPhi12", "sPhi23", "sPhi34", "dTheta12", "dTheta23", "dTheta34", "sTheta234", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
 #        predictors <- c("dPhi12", "dPhi34", "clct1", "fr1")
-        q <- address2predictors15( predictors2address15(vars) )
-#        vars[,predictors] <- q[,predictors]
+#        q <- address2predictors15( predictors2address15(vars) )
 #        vars[,c("dPhi12", "dPhi34")] <- q[,c("dPhi12", "dPhi34")]
-        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "dTheta12", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr4")
+        predictors <- c("dPhi12", "dPhi23", "dPhi34", "sPhi12", "sPhi23", "sPhi34", "dTheta23", "sTheta234", "clct1") #, "fr1", "fr2", "fr4")
+#        vars[, c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23")] <- q[, c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23")]
+#        vars$clct1 <- as.factor(q$clct1)
+#        vars$fr1   <- as.factor(q$fr1)
+#        vars$fr2   <- as.factor(q$fr2)
+#        vars$fr4   <- as.factor(q$fr4)
 
     } else if( mode_inv == 14 ){
         vars <- with(d,data.frame( 1/muPtGen,
@@ -221,6 +227,9 @@ train <- function(mode_inv){
     }
 
 #    part <- createDataPartition(y=vars$muPtGenInv, p=0.75, list=F)
+
+    set.seed(1)
+
     part <- sample(seq(nrow(vars)), as.integer(nrow(vars)*0.75), replace=F)
     trainSet <- vars[part,]
     testSet <- vars[-part,]
