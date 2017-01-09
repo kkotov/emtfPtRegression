@@ -1,4 +1,4 @@
-require(caret)
+#require(caret)
 require(ranger)
 # mode_inv=15 (mode=15): 1-2-3-4
 # mode_inv=14 (mode=7):    2-3-4
@@ -38,9 +38,9 @@ train <- function(mode_inv){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
-                                   dPhi12,
-                                   dPhi23,
-                                   dPhi34,
+                                   sat(dPhi12,7),
+                                   sat(dPhi23,7),
+                                   sat(dPhi34,7),
                                    dTheta12,
                                    dTheta23,
                                    dTheta34,
@@ -55,8 +55,13 @@ train <- function(mode_inv){
                                  )
                          )
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
-#        predictors <- c("dPhi12", "dPhi34", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "fr1", "fr2")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+#        predictors <- c("dPhi12", "dPhi34", "clct1", "fr1")
+        q <- address2predictors15( predictors2address15(vars) )
+#        vars[,predictors] <- q[,predictors]
+#        vars[,c("dPhi12", "dPhi34")] <- q[,c("dPhi12", "dPhi34")]
+        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "dTheta12", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr4")
+
     } else if( mode_inv == 14 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -215,7 +220,8 @@ train <- function(mode_inv){
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
     }
 
-    part <- createDataPartition(y=vars$muPtGenInv, p=0.75, list=F)
+#    part <- createDataPartition(y=vars$muPtGenInv, p=0.75, list=F)
+    part <- sample(seq(nrow(vars)), as.integer(nrow(vars)*0.75), replace=F)
     trainSet <- vars[part,]
     testSet <- vars[-part,]
     POI <- which(colnames(vars)=="muPtGenInv")
@@ -224,10 +230,10 @@ train <- function(mode_inv){
     modelFit <- ranger(f, data=trainSet)
 
     # evaluate overal performance
-    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
-    print( paste("RMSE for reference:", RMSE(1/testSet[,POI], testSet[,"ptTrg"]) ) )
-    print( paste("R2 for myModel:",     R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) ) )
-    print( paste("R2 for reference:",   R2(1/testSet[,POI], testSet[,"ptTrg"]) ) ) 
+#    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
+#    print( paste("RMSE for reference:", RMSE(1/testSet[,POI], testSet[,"ptTrg"]) ) )
+#    print( paste("R2 for myModel:",     R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) ) )
+#    print( paste("R2 for reference:",   R2(1/testSet[,POI], testSet[,"ptTrg"]) ) ) 
 
     list(modelFit, testSet, POI)
 }
