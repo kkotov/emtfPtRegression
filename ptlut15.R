@@ -53,7 +53,7 @@ generatePtLUT15 <- function(){
     df$dPhi23    <- df$dPhi23 * ifelse( bitwAnd(bitwShiftR(address_high,0),  0x1)==1, -1, 1)
     df$dPhi34    <- df$dPhi34 * ifelse( bitwAnd(bitwShiftR(address_high,0+1),0x1)==1, -1, 1)
     df$dTheta23  <- bitwAnd(bitwShiftR(address_high,0+1+1),0x3)
-    df$clct1     <- factor(bitwAnd(bitwShiftR(address_high,0+1+1+2),0x3),levels=c(0,1,2,3) )#+1
+    df$clct1     <- factor( c(9,6,8,10)[bitwAnd(bitwShiftR(address_high,0+1+1+2),0x3)+1], levels=c(9,6,8,10) )#+1
 
 #    if( predictors2address15() )
 
