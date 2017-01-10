@@ -13,7 +13,7 @@ predictors2address15 <- function(df){
   address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi23*df$dPhi12>=0,0,1),0+7+7+7) )
   address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi34*df$dPhi12>=0,0,1),0+7+7+7+1) )
   address <- bitwOr(address, bitwShiftL(sat(abs(df$dTheta23),2),0+7+7+7+1+1) )
-  address <- bitwOr(address, bitwShiftL(c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(df$clct1,0xF)+1],0+7+7+7+1+1+2) ) #+1
+  address <- bitwOr(address, bitwShiftL(c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1],0+7+7+7+1+1+2) ) # factor with integer levels is ok here
   address
 }
 
@@ -28,7 +28,7 @@ address2predictors15 <- function(address){
   df$dTheta12 <- 0
   df$dTheta23 <- bitwAnd(bitwShiftR(address,0+7+7+7+1+1),0x3)
   df$dTheta34 <- 0
-  df$clct1 <- c(9,6,8,10)[bitwAnd(bitwShiftR(address,0+7+7+7+1+1+2),0x3)+1] #+1
+  df$clct1 <- factor( c(9,6,8,10)[bitwAnd(bitwShiftR(address,0+7+7+7+1+1+2),0x3)+1], levels=c(9,6,8,10))
   df$clct2 <- 0
   df$clct3 <- 0
   df$clct4 <- 0
@@ -53,10 +53,12 @@ generatePtLUT15 <- function(){
     df$dPhi23    <- df$dPhi23 * ifelse( bitwAnd(bitwShiftR(address_high,0),  0x1)==1, -1, 1)
     df$dPhi34    <- df$dPhi34 * ifelse( bitwAnd(bitwShiftR(address_high,0+1),0x1)==1, -1, 1)
     df$dTheta23  <- bitwAnd(bitwShiftR(address_high,0+1+1),0x3)
-    df$clct1     <- bitwAnd(bitwShiftR(address_high,0+1+1+2),0x3) #+1
+    df$clct1     <- factor(bitwAnd(bitwShiftR(address_high,0+1+1+2),0x3),levels=c(0,1,2,3) )#+1
+
+#    if( predictors2address15() )
 
     print(paste("sPhi23=",df[1,"sPhi23"],"sPhi34=",df[1,"sPhi34"],"dTheta23=",df[1,"dTheta23"]," clct1=",df[1,"clct1"]))
-    write.table(file=paste("lut15_",address_high,".txt",sep=""), x = cbind(space, round(1/predict(modelFit15,df)$predictions,2)),header=F )
+    write.table(file=paste("lut15_",address_high,".txt",sep=""), x = cbind(space, round(1/predict(modelFit15,df)$predictions,2)), row.names=F, col.names=F )
     print(paste("Finished ",address_high) )
 
     df$dPhi23 <- orig23

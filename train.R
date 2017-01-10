@@ -42,31 +42,26 @@ train <- function(mode_inv){
                                    sat(dTheta12,2),
                                    sat(dTheta23,2),
                                    sat(dTheta34,2),
-                                   as.factor(c(0,0,0,0,0,1,0,2,0,3)[clct1]),
+#                                   as.factor(c(0,0,0,0,0,1,0,2,0,3)[clct1]),
 #                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct2]),
 #                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct3]),
 #                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct4]),
-                                   as.factor(clct1),
-                                   as.factor(clct2),
-                                   as.factor(clct3),
-                                   as.factor(clct4),
-                                   as.factor(fr1),
-                                   as.factor(fr2),
-                                   as.factor(fr3),
-                                   as.factor(fr4)
+#                                   factor(c(9,9,9,9,9,6,9,8,9,10)[clct1],levels=c(9,6,8,10)),
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
                                  )
                          )
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
-#        predictors <- c("dPhi12", "dPhi34", "clct1", "fr1")
         q <- address2predictors15( predictors2address15(vars) )
-#        vars[,c("dPhi12", "dPhi34")] <- q[,c("dPhi12", "dPhi34")]
-        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "clct1") #, "fr1", "fr2", "fr4")
-        vars[, c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23")] <- q[, c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23")]
-        vars$clct1 <- as.factor(q$clct1)
-#        vars$fr1   <- as.factor(q$fr1)
-#        vars$fr2   <- as.factor(q$fr2)
-#        vars$fr4   <- as.factor(q$fr4)
+        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "clct1")
+        vars[, predictors] <- q[, predictors]
 
     } else if( mode_inv == 14 ){
         vars <- with(d,data.frame( 1/muPtGen,
