@@ -7,4 +7,4 @@ lsb <- function(x, n){ bitwAnd(x, bitwShiftL(1L,n)-1) }
 msb <- function(x, n, m){ bitwAnd(bitwShiftR(x,m), bitwShiftL(1L,n+1-m)-1) }
 
 # saturate - once overflow, stick to the max
-sat <- function(x, n){ m <- bitwShiftL(1L,n)-1 ; y <- x ; y[ y>m ] = m ; y }
+sat <- function(x, n){ m <- bitwShiftL(1L,n)-1 ; y <- x ; y[ y>m ] = m ; y[ y < -m ] = -m ; y }
