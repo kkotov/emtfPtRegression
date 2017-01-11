@@ -36,4 +36,16 @@ std::tuple<int,int,int,int,int,int,int,int,int,int,int,int,int,int> predictors2a
   return std::make_tuple(dPhi12,dPhi23,dPhi34,dTheta12,dTheta23,dTheta34,clct1,clct2,clct3,clct4,fr1,fr2,fr3,fr4);
 }
 
+unsigned int predictors2address14(int dPhi23, int dPhi34, int dTheta23, int dTheta34, int clct2, int clct3, int clct4, int fr2=0, int fr3=0, int fr4=0){
+  unsigned int address = 0;
+  // set highest bit [29:26] to indicate this was mode_inv=14
+  // address |= 0x1C000000;
+  // ignore all of the signs
+  address |= (sat(abs(dPhi23),10)&0x3FF) << (0);
+  address |= (sat(abs(dPhi34),10)&0x3FF) << (0+10);
+  address |= ((const int[]){0,0,0,0,0,0,0,0,1,2,3,0,0,0,0,0,0})[(clct2&0xF)] << (10+10);
+  address |= ((const int[]){0,0,0,0,0,0,0,0,1,2,3,0,0,0,0,0,0})[(clct3&0xF)] << (10+10+2);
+  address |= ((const int[]){0,0,0,0,0,0,0,0,1,2,3,0,0,0,0,0,0})[(clct4&0xF)] << (10+10+2+2);
+  return address;
+}
 

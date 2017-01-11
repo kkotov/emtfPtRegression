@@ -63,38 +63,46 @@ train <- function(mode_inv){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
-                                   dPhi23,
-                                   dPhi34,
-                                   dTheta23,
-                                   dTheta34,
-                                   as.factor(clct2),
-                                   as.factor(clct3),
-                                   as.factor(clct4),
-                                   as.factor(fr2),
-                                   as.factor(fr3),
-                                   as.factor(fr4)
+                                   sat(dPhi23,10),
+                                   sat(dPhi34,10),
+                                   sat(dTheta23,7),
+                                   sat(dTheta34,7),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
                                  )
                          )
         predictors <- c("dPhi23", "dPhi34", "dTheta23", "dTheta34", "clct2", "clct3", "clct4", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+        q <- address2predictors14( predictors2address14(vars) ) # this will truncate the unnecessary clct levels
+        predictors <- c("dPhi23", "dPhi34", "clct2", "clct3", "clct4")
+        vars[, predictors] <- q[, predictors]
+
     } else if( mode_inv == 13 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
-                                   dPhi13,
-                                   dPhi34,
-                                   dTheta13,
-                                   dTheta34,
-                                   as.factor(clct1),
-                                   as.factor(clct3),
-                                   as.factor(clct4),
-                                   as.factor(fr1),
-                                   as.factor(fr3),
-                                   as.factor(fr4)
+                                   sat(dPhi13,9),
+                                   sat(dPhi34,9),
+                                   sat(dTheta13,7),
+                                   sat(dTheta34,7),
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
                                  )
                          )
         predictors <- c("dPhi13", "dPhi34", "dTheta13", "dTheta34", "clct1", "clct3", "clct4", "fr1", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+        q <- address2predictors13( predictors2address13(vars) ) # this will truncate the unnecessary clct levels
+        predictors <- c("dPhi13", "dPhi34", "clct1", "clct3", "clct4", "fr1")
+        vars[, predictors] <- q[, predictors]
+
     } else if( mode_inv == 12 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
