@@ -36,17 +36,13 @@ train <- function(mode_inv){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
+                                   mypt,
                                    sat(dPhi12,7),
                                    sat(dPhi23,7),
                                    sat(dPhi34,7),
                                    sat(dTheta12,2),
                                    sat(dTheta23,2),
                                    sat(dTheta34,2),
-#                                   as.factor(c(0,0,0,0,0,1,0,2,0,3)[clct1]),
-#                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct2]),
-#                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct3]),
-#                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct4]),
-#                                   factor(c(9,9,9,9,9,6,9,8,9,10)[clct1],levels=c(9,6,8,10)),
                                    factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
                                    factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
                                    factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
@@ -58,8 +54,8 @@ train <- function(mode_inv){
                                  )
                          )
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
-        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
-        q <- address2predictors15( predictors2address15(vars) )
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", "mypt", predictors )
+        q <- address2predictors15( predictors2address15(vars) ) # this will truncate the unnecessary clct levels
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "clct1")
         vars[, predictors] <- q[, predictors]
 
