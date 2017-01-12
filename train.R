@@ -16,7 +16,7 @@ mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
 
 df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
 
-train <- function(mode_inv){
+trainModel <- function(mode_inv){
 
     if( mode[mode_inv] == 0 ){
         print("Problem")
@@ -63,6 +63,7 @@ train <- function(mode_inv){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
                                    pt,
+                                   mypt,
                                    sat(dPhi23,10),
                                    sat(dPhi34,10),
                                    sat(dTheta23,7),
@@ -76,7 +77,7 @@ train <- function(mode_inv){
                                  )
                          )
         predictors <- c("dPhi23", "dPhi34", "dTheta23", "dTheta34", "clct2", "clct3", "clct4", "fr2", "fr3", "fr4")
-        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
+        colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", "mypt", predictors )
         q <- address2predictors14( predictors2address14(vars) ) # this will truncate the unnecessary clct levels
         predictors <- c("dPhi23", "dPhi34", "clct2", "clct3", "clct4")
         vars[, predictors] <- q[, predictors]
@@ -235,18 +236,19 @@ train <- function(mode_inv){
     POI <- which(colnames(vars)=="muPtGenInv")
 
     f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
-    modelFit <- ranger(f, data=trainSet)
+
+    modelFit <- train(f, method="rf", data=trainSet, trControl=trainControl(method="cv",number=3,verboseIter=T))
+    #fitNNet1  <- avNNet(f, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)
+#    modelFit <- ranger(f, data=trainSet)
 
     # evaluate overal performance
 #    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
 #    print( paste("RMSE for reference:", RMSE(1/testSet[,POI], testSet[,"ptTrg"]) ) )
-    print( paste("R2 for myModel:",     R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) ) )
-    print( paste("R2 for reference:",   R2(1/testSet[,POI], testSet[,"ptTrg"]) ) ) 
+#    print( paste("R2 for myModel:",     R2(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions ) ) )
+#    print( paste("R2 for reference:",   R2(1/testSet[,POI], testSet[,"ptTrg"]) ) ) 
 
     list(modelFit, testSet, POI)
 }
-
-#modelFit <- train(muPtGenInv ~ dPhi12+dPhi23+dPhi34+dTheta12+dTheta23+dTheta34+clct1+clct2+clct3+clct4+fr1+fr2+fr3+fr4, method="rf", data=trainSet, trControl=trainControl(method="cv",number=10,verboseIter=T))
 
 ### Try out neural networks
 #fitNNet1  <- avNNet(muPtGenInv ~ dPhi12+dPhi23+dPhi34+dTheta12+dTheta23+dTheta34+clct1+clct2+clct3+clct4+fr, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)

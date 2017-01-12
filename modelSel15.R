@@ -6,7 +6,7 @@ d2 <- df[df[,"mode.1."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),inve
 colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
 colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
 d <- rbind(d1,d2)
-source("utils.R")
+source("../emtfPtRegression/utils.R")
 require(leaps)
 vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -21,20 +21,20 @@ vars <- with(d,data.frame( 1/muPtGen,
                                    sat(abs(dTheta23),2),
                                    sat(abs(dTheta34),2),
                                    as.factor(ifelse(dTheta23*dTheta34>=0,0,1)),
-                                   as.factor(c(0,0,0,0,0,1,0,2,0,3)[clct1]),
-                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct2]),
-                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct3]),
-                                   as.factor(c(0,0,0,0,0,0,0,1,1,1)[clct4]),
-                                   as.factor(fr1),
-                                   as.factor(fr2),
-                                   as.factor(fr3),
-                                   as.factor(fr4)
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
                                  )
                          )
 predictors <- c("dPhi12", "dPhi23", "dPhi34", "sPhi12", "sPhi23", "sPhi34", "dTheta12", "dTheta23", "dTheta34", "sTheta234", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
 colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
 f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
-regfit.full <- regsubsets(f,data=vars,nvmax=39) #method="forward" #- for nested sets
+regfit.full <- regsubsets(f,data=vars,nvmax=39) #method="forward") #- for nested sets
 regfit.summary <- summary(regfit.full)
 which.min(regfit.summary$cp)
 plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
