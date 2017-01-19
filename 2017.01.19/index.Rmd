@@ -1,0 +1,293 @@
+---
+title       : "EMTF $p_T$ Regression"
+subtitle    :
+author      : Khristian Kotov
+job         :
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      #
+github:
+  user: kkotov
+  repo: talks
+url:
+  lib:    ../../../../monohiggs/plots/libraries
+  assets: ../../../../monohiggs/plots/assets
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+---
+
+## Outline
+
+1. Input data
+  - generation steps
+  - regressors and response
+
+2. Model selection
+  - standard in-sample metricts for models comparison
+  - linear model ("all models are wrong, but some are useful") 
+
+3. Trees
+  - boosting (BDT), bagging (Random Forest)
+  - predictors' importance
+  - residuals and turn-on curves
+  - ROCs and efficiency vs. rate curves
+
+--- .class #id
+
+## Training data
+
+* [Generated]() 300$k$ di-muons uniformly in $0.9 < |\eta| < 2.4$ and $0 < p_T < 100~GeV$
+* Re-emulated EMTF with Jia Fu's new code [1](https://github.com/jiafulow/DataFormatsSep2016),[2](https://github.com/jiafulow/L1TriggerSep2016) (default switches)
+* Produced csv file with my [ntuplizer](https://github.com/kkotov/framework)
+
+The 20 predictors (no input from RPC system yet):
+
+     type        |    trait    |  measurements with 4 stations |   allowed values
+-----------------|-------------|-------------------------------|----------------------
+ $\Delta\phi$    | continuous  | 1-2, 1-3, 1-4, 2-3, 2-4, 3-4  |    [-512 - +512]
+ $\Delta\theta$  | continuous  | 1-2, 1-3, 1-4, 2-3, 2-4, 3-4  |     [-7  -  +7]
+ CLCT_Pattern    | categorical |          1, 2, 3, 4           | [2,3,4,5,6,7,8,9,10]
+ FrontRear       | categorical |          1, 2, 3, 4           |        [0,1]
+
+<br>
+
+Response variable: $1/p_T$ to rank up accuracy of low $p_T$ regression
+
+--- .class #id
+
+## Simplest performace metrics
+
+* Residual sum of squares ($RSS$) and Root Mean Squared Error ($RMSE$):
+
+\[ RSS = \Sigma^N_{i=0} (y_i - \hat{y}_i)^2, RMSE = \sqrt{\frac{1}{N}\Sigma^N_{i=0}(y_i - \hat{y}_i)^2} \]
+
+* Fraction of variance explained ($R^2$):
+  \[ R^2 = 1 - \frac{RSS}{TSS}, TSS = \Sigma^N_{i=0} (y_i - \bar{y}_i)^2 \]
+  * 0 - no better than the baseline $\hat{y} = \bar{y}$ model, 1 - ideal model
+  * for simple linear regression $y \sim x$, $R$ is just a correlation between $x$ and $y$
+
+The more predictors (freedoms) one uses to build a model the better it fits training data
+
+Metrices above will always favor more complex models fitting in-sample noise
+
+
+--- .class #id
+
+## In-sample performace and model complexity
+
+* $F$-statistics (lack-of-fit sum-of-squares over pure error sum-of-squares): 
+$$ F = \frac{(RSS_0-RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1-1)} \sim F_{p_1-p_0,N-p_1-1} \rightarrow \chi^2_{p_1-p_0}/(p_1-p_0) $$
+  + tests if model with $p_1$ parameters is better than nested model with $p_0$ parameters
+  + $z$-score of a coefficient is equivalent to $F$-statistics for dropping this coefficient out
+  + unlike the $z$-score, $F$-statistics can also handle categorical predictors
+
+* Adjusted $R^2$ (regular $R^2$ penalazed for model complexity): 
+
+\[ Adjusted~R^2 = 1 - \frac{RSS/(N-p-1)}{TSS/(N-1)} \]
+
+* Mallow's $C_p = \frac{1}{N}(RSS + 2d\hat{\sigma}_{\epsilon(y)}^2)$, ($d < p$ - number of predictors used)
+  + second term (form for linear model) compensates against in-sample overfitting
+  + $C_p$ is commonly used for best subset and stepwise model selections
+
+--- .class #id
+
+## Ranging predictors for linear model
+
+```{r comment = NA, message = F, echo = F}
+mode_inv <- 15
+mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
+df <- read.csv(file="../muonGunPt3_100_emtf.csv",header=T,sep=',')
+d1 <- df[df[,"mode.0."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".0.",colnames(df),fixed=T) ) ]
+d2 <- df[df[,"mode.1."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".1.",colnames(df),fixed=T) ) ]
+colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
+colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
+d <- rbind(d1,d2)
+v <- with(d, data.frame(muPtGen, dPhi12, dPhi13, dPhi14, dPhi23, dPhi24, dPhi34))
+colnames(v) <- c("pt","dPhi12","dPhi13","dPhi14","dPhi23","dPhi24","dPhi34")
+b <- function(x, n, m){ bitwShiftL( bitwAnd( bitwShiftR(x,m), bitwShiftL(1L,n+1-m)-1 ), m ) }
+require(glmnet)
+```
+
+```{r comment = NA, message = F, echo = F}
+m1 = as.formula(1/pt ~ abs(dPhi12)); m2 = update( m1, ~ . + abs(dPhi23))
+m3 = update( m2, ~ . + abs(dPhi34)); m4 = update( m3, ~ . + abs(dPhi13))
+m5 = update( m4, ~ . + abs(dPhi14)); m6 = update( m5, ~ . + abs(dPhi24)); 
+anova( lm(m1,v), lm(m2,v), lm(m3,v), lm(m4,v), lm(m5,v), lm(m6,v) )
+```
+
+--- &twocol
+
+## Visualizing some of the linear fits
+
+Linear fit does not do well for dPhi23 (also seen as low $F$-statistics above):
+
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = T}
+plot(abs(v$dPhi12), 1/v$pt, cex=.1)
+abline(lm(1/pt~abs(dPhi12),v),col="red")
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = T}
+plot(abs(v$dPhi23), 1/v$pt, cex=.1)
+abline(lm(1/pt~abs(dPhi23),v),col="red")
+```
+
+*** =fullwidth
+
+--- .class #id
+
+## Independent view with lasso regularization 
+
+Lasso calculates model parameters $\beta$ by minimizing loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
+
+```{r, fig.height=4., fig.width=7., fig.align = 'center', comment = NA, message = F, echo = T}
+x = model.matrix(1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) - 1, v)
+plot( glmnet(x, 1/d$pt), xvar="lambda", label=T )
+```
+
+dPhi12 (#1) is the last suppressed with growing $\lambda$, while dPhi23 (#2) is sacrificed first
+
+--- .class #id
+
+## Scaling up number of predictors in linear model
+
+Best subset selection "switches on" (shades of gray) predictors as follows:
+```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+require(leaps)
+vars <- with(d,data.frame( 1/muPtGen,
+                                   abs(dPhi12),
+                                   abs(dPhi13),
+                                   abs(dPhi14),
+                                   abs(dPhi23),
+                                   abs(dPhi24),
+                                   abs(dPhi34),
+                                   as.factor(ifelse(dPhi12>=0,0,1)),
+                                   as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                                   as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                                   abs(dTheta12),
+                                   abs(dTheta23),
+                                   abs(dTheta34),
+                                   as.factor(ifelse(dTheta23*dTheta34>=0,0,1)),
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
+                                 )
+                         )
+predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "sPhi12_", "sPhi23_", "sPhi34_", "dTheta12", "dTheta23", "dTheta34", "sTheta234_", "clct1_", "clct2_", "clct3_", "clct4_", "fr1_", "fr2_", "fr3_", "fr4_")
+colnames(vars) <- c("muPtGenInv", predictors )
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+regfit.full <- regsubsets(f,data=vars,nvmax=59) #,method="forward") #- for nested sets
+plot(regfit.full,scale="Cp")
+
+#coef(regfit.full,10)
+#regfit.summary <- summary(regfit.full)
+#which.min(regfit.summary$cp)
+#plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
+```
+
+The most important preditors in a linear model (of my choise) are dPhi, clct1 and fr1
+
+--- .class #id
+
+## Tree-based methods
+
+Simple decision tree: just crude partitioning of the predictor space
+
+Boosting (in BDT):
+  - iteratively fit $(x,r)$, where residuals $r_0 = y$ and $r_k = r_{k-1} - \lambda\hat{f}_{k-1}(x)$
+  - output of the boosted model with complex decision boundary: $\hat{f}(x) = \Sigma_{k=1}^K\lambda \hat{f}_k(x)$
+
+Bagging or Bootstrap aggregation (in Random Forest or RF used through the rest of this study):
+  - resample input data multiple times leaving a part of randomly choosen events out 
+  - each time fit a collection of small $mtry$-sized trees of randomly choosen predictors
+  - average these (largely *de-corelated*) noisy but unbiased models to reduce variance 
+  - along the way construct out-of-bag (OOB) error estimate with the left out data
+
+Cross-validation (repetitive testing of a model on data never seen before) is part of RF training
+
+--- .class #id
+
+## Selecting best predictors in trees
+
+Absolute predictor's importance = difference in predictive measure (e.g. MSE) with the original
+training dataset and a dataset with this predictor being randomly 'permuted':
+
+```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+require(ranger)
+vars <- with(d,data.frame( 1/muPtGen,
+                                   pt,
+                                   mypt,
+                                   dPhi12,
+                                   dPhi13,
+                                   dPhi14,
+                                   dPhi23,
+                                   dPhi24,
+                                   dPhi34,
+                                   dTheta12,
+                                   dTheta23,
+                                   dTheta34,
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
+                                 )
+                         )
+predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+colnames(vars) <- c("muPtGenInv", "pt", "mypt", predictors )
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+modelFit <- ranger(f, data=vars, importance='impurity')
+barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+```
+
+dPhi predictors are the winners (with the first station been most important) followed by clct1
+
+--- .class #id
+
+## Input compression
+
+We need to fit the model above into our 2Gb Look Up Table addressed with 30 bits
+
+Let us use the following sub-optimal scheme of bits assignment:
+
+  dPhi12 | dPhi13 | dPhi14 | dPhi23 | dPhi24 | dPhi34 
+---------|--------|--------|--------|--------|---------
+  [6:0]  |   --   |   --   | [6:0]  |   --   |  [6:0]
+
+sign( dPhi23*dPhi12 ) | sign( dPhi34*dPhi12 ) | dTheta23 | clct1
+----------------------|-----------------------|----------|-------
+      [1]             |           [1]         |   [1:0]  | [1:0] 
+
+c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)
+
+--- .class #id
+
+## Other performance metrics: residuals
+
+Plots of residuals
+
+$R^2$
+
+--- .class #id
+
+## Other performance metrics: turn-on curves
+
+
+
+--- .class #id
+
+## Summary
+
+
+
