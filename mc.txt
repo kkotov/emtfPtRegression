@@ -1,0 +1,6 @@
+cmsrel CMSSW_8_0_24
+cd CMSSW_8_0_24/src/
+cmsenv
+cmsDriver.py Configuration/Generator/python/DoubleMuPt10Extended_pythia8_cfi.py -s GEN,SIM,DIGI,L1,DIGI2RAW --fileout=/tmp/OUTPUT.root --conditions 80X_mcRun2_design_Queue --era Run2_2016 --datamix NODATAMIXER --eventcontent GENRAW --datatier GEN-SIM --no_exec -n 10000
+# don't forget to change random seeds for the batch submissions
+cmsRun DoubleMuPt10Extended_pythia8_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW.py
