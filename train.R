@@ -1,5 +1,7 @@
+require(doMC)
 require(caret)
 require(ranger)
+require(randomForest)
 # mode_inv=15 (mode=15): 1-2-3-4
 # mode_inv=14 (mode=7):    2-3-4
 # mode_inv=13 (mode=11): 1- -3-4
@@ -16,7 +18,9 @@ mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
 
 df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
 
-trainModel <- function(mode_inv){
+registerDoMC(3)
+
+trainModel <- function(mode_inv, truncate=T){
 
     if( mode[mode_inv] == 0 ){
         print("Problem")
@@ -55,10 +59,11 @@ trainModel <- function(mode_inv){
                          )
         predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", "mypt", predictors )
-        q <- address2predictors15( predictors2address15(vars) ) # this will truncate the unnecessary clct levels
-        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "clct1")
-        vars[, predictors] <- q[, predictors]
-
+        if( truncate ){
+            q <- address2predictors15( predictors2address15(vars) ) # this will truncate the unnecessary clct levels
+            predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta23", "clct1")
+            vars[, predictors] <- q[, predictors]
+        }
     } else if( mode_inv == 14 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -78,10 +83,11 @@ trainModel <- function(mode_inv){
                          )
         predictors <- c("dPhi23", "dPhi34", "dTheta23", "dTheta34", "clct2", "clct3", "clct4", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", "mypt", predictors )
-        q <- address2predictors14( predictors2address14(vars) ) # this will truncate the unnecessary clct levels
-        predictors <- c("dPhi23", "dPhi34", "clct2", "clct3", "clct4")
-        vars[, predictors] <- q[, predictors]
-
+        if( truncate ){
+            q <- address2predictors14( predictors2address14(vars) ) # this will truncate the unnecessary clct levels
+            predictors <- c("dPhi23", "dPhi34", "clct2", "clct3", "clct4")
+            vars[, predictors] <- q[, predictors]
+        }
     } else if( mode_inv == 13 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -100,10 +106,11 @@ trainModel <- function(mode_inv){
                          )
         predictors <- c("dPhi13", "dPhi34", "dTheta13", "dTheta34", "clct1", "clct3", "clct4", "fr1", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", predictors )
-        q <- address2predictors13( predictors2address13(vars) ) # this will truncate the unnecessary clct levels
-        predictors <- c("dPhi13", "dPhi34", "clct1", "clct3", "clct4", "fr1")
-        vars[, predictors] <- q[, predictors]
-
+        if( truncate ){
+            q <- address2predictors13( predictors2address13(vars) ) # this will truncate the unnecessary clct levels
+            predictors <- c("dPhi13", "dPhi34", "clct1", "clct3", "clct4", "fr1")
+            vars[, predictors] <- q[, predictors]
+        }
     } else if( mode_inv == 12 ){
         vars <- with(d,data.frame( 1/muPtGen,
                                    muEtaGen,
@@ -237,9 +244,10 @@ trainModel <- function(mode_inv){
 
     f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
 
-    modelFit <- train(f, method="rf", data=trainSet, trControl=trainControl(method="cv",number=3,verboseIter=T))
+#    modelFit <- randomForest(f, importance=T, data=trainSet) #mtry=7, 
+#    modelFit <- train(f, method="rf", importance=T, data=trainSet, trControl=trainControl(method="cv",number=3,verboseIter=T))
     #fitNNet1  <- avNNet(f, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)
-#    modelFit <- ranger(f, data=trainSet)
+    modelFit <- ranger(f, data=trainSet, importance="impurity") #case.weights
 
     # evaluate overal performance
 #    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
