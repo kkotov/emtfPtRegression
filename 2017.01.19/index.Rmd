@@ -193,7 +193,7 @@ plot(regfit.full,scale="Cp")
 #plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
 ```
 
-The most important preditors in a linear model (of my choise) seems to be dPhi, clct1 and fr1
+The most important preditors in a linear model (of my choise) are dPhi, clct1 and fr1
 
 --- .class #id
 
@@ -213,46 +213,81 @@ Bagging or Bootstrap aggregation (in Random Forest or RF used through the rest o
 
 Cross-validation (repetitive testing of a model on data never seen before) is part of RF training
 
+--- .class #id
+
+## Selecting best predictors in trees
+
+Absolute predictor's importance = difference in predictive measure (e.g. MSE) with the original
+training dataset and a dataset with this predictor being randomly 'permuted':
+
+```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+require(ranger)
+vars <- with(d,data.frame( 1/muPtGen,
+                                   pt,
+                                   mypt,
+                                   dPhi12,
+                                   dPhi13,
+                                   dPhi14,
+                                   dPhi23,
+                                   dPhi24,
+                                   dPhi34,
+                                   dTheta12,
+                                   dTheta23,
+                                   dTheta34,
+                                   factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                                   factor(fr1,levels=c(0,1)),
+                                   factor(fr2,levels=c(0,1)),
+                                   factor(fr3,levels=c(0,1)),
+                                   factor(fr4,levels=c(0,1))
+                                 )
+                         )
+predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+colnames(vars) <- c("muPtGenInv", "pt", "mypt", predictors )
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+modelFit <- ranger(f, data=vars, importance='impurity')
+barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+```
+
+dPhi predictors are the winners (with the first station been most important) followed by clct1
 
 --- .class #id
 
-## Performace metric for trees-based models
+## Input compression
+
+We need to fit the model above into our 2Gb Look Up Table addressed with 30 bits
+
+Let us use the following sub-optimal scheme of bits assignment:
+
+  dPhi12 | dPhi13 | dPhi14 | dPhi23 | dPhi24 | dPhi34 
+---------|--------|--------|--------|--------|---------
+  [6:0]  |   --   |   --   | [6:0]  |   --   |  [6:0]
+
+sign( dPhi23*dPhi12 ) | sign( dPhi34*dPhi12 ) | dTheta23 | clct1
+----------------------|-----------------------|----------|-------
+      [1]             |           [1]         |   [1:0]  | [1:0] 
+
+c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)
+
+--- .class #id
+
+## Other performance metrics: residuals
+
+Plots of residuals
+
+$R^2$
+
+--- .class #id
+
+## Other performance metrics: turn-on curves
 
 
 
 --- .class #id
 
+## Summary
 
 
-## Response variable
-
-choise of the : 1/pT to rank up low-pT assignment
-?loss function?
-
---- .class #id
-
-## Model Selection
-
-"All models are wrong, but some are useful"
-Let's look at the linear model
-
-responce 1/pT (sagitta) is proportional to dPhi, let's assume linearity
-
-* regmodels
-
-* anova
-
-RF: randomForest::rfcv
-
-importance
-
-http://stats.stackexchange.com/questions/12605/measures-of-variable-importance-in-random-forests
-
-http://stats.stackexchange.com/questions/112556/random-forest-need-help-understanding-the-rfcv-function
-http://stats.stackexchange.com/questions/92419/relative-importance-of-a-set-of-predictors-in-a-random-forests-classification-in
-http://rmarkdown.rstudio.com/authoring_basics.html
-
---- .class #id
-
-## Model Selection
 
