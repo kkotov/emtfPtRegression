@@ -25,9 +25,12 @@ mode        : selfcontained # {standalone, draft}
 2. Model selection
   - standard in-sample metricts for models comparison
   - linear model ("all models are wrong, but some are useful") 
-  - trees
 
-3. 
+3. Trees
+  - boosting (BDT), bagging (Random Forest)
+  - predictors' importance
+  - residuals and turn-on curves
+  - ROCs and efficiency vs. rate curves
 
 --- .class #id
 
@@ -65,7 +68,7 @@ Response variable: $1/p_T$ to rank up accuracy of low $p_T$ regression
 
 The more predictors (freedoms) one uses to build a model the better it fits training data
 
-The metrices above will always favor more complex models fitting in-sample noise
+Metrices above will always favor more complex models fitting in-sample noise
 
 
 --- .class #id
@@ -138,7 +141,7 @@ abline(lm(1/pt~abs(dPhi23),v),col="red")
 
 ## Independent view with lasso regularization 
 
-Lasso calculates model parameters $\beta$ by minimizing $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
+Lasso calculates model parameters $\beta$ by minimizing loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
 
 ```{r, fig.height=4., fig.width=7., fig.align = 'center', comment = NA, message = F, echo = T}
 x = model.matrix(1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) - 1, v)
@@ -151,7 +154,7 @@ dPhi12 (#1) is the last suppressed with growing $\lambda$, while dPhi23 (#2) is 
 
 ## Scaling up number of predictors in linear model
 
-Forward stepwise regression "switches in" (shades of gray) predictors as follows:
+Best subset selection "switches on" (shades of gray) predictors as follows:
 ```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
 require(leaps)
 vars <- with(d,data.frame( 1/muPtGen,
@@ -181,7 +184,7 @@ vars <- with(d,data.frame( 1/muPtGen,
 predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "sPhi12_", "sPhi23_", "sPhi34_", "dTheta12", "dTheta23", "dTheta34", "sTheta234_", "clct1_", "clct2_", "clct3_", "clct4_", "fr1_", "fr2_", "fr3_", "fr4_")
 colnames(vars) <- c("muPtGenInv", predictors )
 f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
-regfit.full <- regsubsets(f,data=vars,nvmax=59,method="forward") #- for nested sets
+regfit.full <- regsubsets(f,data=vars,nvmax=59) #,method="forward") #- for nested sets
 plot(regfit.full,scale="Cp")
 
 #coef(regfit.full,10)
@@ -190,20 +193,26 @@ plot(regfit.full,scale="Cp")
 #plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
 ```
 
-The most important preditors seems to be dPhi and clct1 (!)
+The most important preditors in a linear model (of my choise) seems to be dPhi, clct1 and fr1
 
 --- .class #id
 
-## Trees
+## Tree-based methods
 
-Boosting (BDT)
+Simple decision tree: just crude partitioning of the predictor space
 
-Bagging (Random Forests)
+Boosting (in BDT):
+  - iteratively fit $(x,r)$, where residuals $r_0 = y$ and $r_k = r_{k-1} - \lambda\hat{f}_{k-1}(x)$
+  - output of the boosted model with complex decision boundary: $\hat{f}(x) = \Sigma_{k=1}^K\lambda \hat{f}_k(x)$
 
+Bagging or Bootstrap aggregation (in Random Forest or RF used through the rest of this study):
+  - resample input data multiple times leaving a part of randomly choosen events out 
+  - each time fit a collection of small $mtry$-sized trees of randomly choosen predictors
+  - average these (largely *de-corelated*) noisy but unbiased models to reduce variance 
+  - along the way construct out-of-bag (OOB) error estimate with the left out data
 
-Out-of-sample persormance 
+Cross-validation (repetitive testing of a model on data never seen before) is part of RF training
 
-Cross-validation vs. analitical test error estimate
 
 --- .class #id
 
