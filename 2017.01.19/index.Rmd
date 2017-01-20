@@ -8,10 +8,9 @@ highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      #
 github:
   user: kkotov
-  repo: talks
+  repo: emtfPtRegression
 url:
   lib:    ../../../../monohiggs/plots/libraries
-  assets: ../../../../monohiggs/plots/assets
 widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
@@ -36,7 +35,7 @@ mode        : selfcontained # {standalone, draft}
 
 ## Training data
 
-* [Generated]() 300$k$ di-muons uniformly in $0.9 < |\eta| < 2.4$ and $0 < p_T < 100~GeV$
+* [Generated](https://github.com/kkotov/emtfPtRegression/blob/master/mc.txt) 300$k$ di-muons uniformly in $0.9 < |\eta| < 2.4$ and $0 < p_T < 100~GeV$
 * Re-emulated EMTF with Jia Fu's new code [1](https://github.com/jiafulow/DataFormatsSep2016),[2](https://github.com/jiafulow/L1TriggerSep2016) (default switches)
 * Produced csv file with my [ntuplizer](https://github.com/kkotov/framework)
 
@@ -215,12 +214,11 @@ Cross-validation (repetitive testing of a model on data never seen before) is pa
 
 --- .class #id
 
-## Selecting best predictors in trees
+## Selecting best predictors for trees
 
 Absolute predictor's importance = difference in predictive measure (e.g. MSE) with the original
 training dataset and a dataset with this predictor being randomly 'permuted':
-
-```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
 require(ranger)
 vars <- with(d,data.frame( 1/muPtGen,
                                    pt,
@@ -257,37 +255,95 @@ dPhi predictors are the winners (with the first station been most important) fol
 
 ## Input compression
 
-We need to fit the model above into our 2Gb Look Up Table addressed with 30 bits
+I need to fit the model above into our 2Gb Look Up Table addressed with just 30 bits
 
-Let us use the following sub-optimal scheme of bits assignment:
+Required transformations: 
+  * use mode [compression](https://github.com/kkotov/emtfPtRegression/blob/master/modeCoding.txt): "heaviest" 4-station measurement is indexed with one bit
+  * make all predictors unsigned; "saturate" them to max value when they are too big
+  * assign a bit per relevant relative sign (e.g. sign($\Delta\phi_{2-3}*\Delta\phi_{1-2}$) $\equiv$ S($\Delta\phi_{2-3/1-2}$))
+  * strip non-informative CLCT levels (linear model suggest clct=6,8,10 most important ones)
 
-  dPhi12 | dPhi13 | dPhi14 | dPhi23 | dPhi24 | dPhi34 
----------|--------|--------|--------|--------|---------
-  [6:0]  |   --   |   --   | [6:0]  |   --   |  [6:0]
+Following (potentially sub-optimal) scheme, inspired by [current code](https://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/EMTFPtAssignmentEngine.cc#L305-L325), is used in next slides:
 
-sign( dPhi23*dPhi12 ) | sign( dPhi34*dPhi12 ) | dTheta23 | clct1
-----------------------|-----------------------|----------|-------
-      [1]             |           [1]         |   [1:0]  | [1:0] 
+  $\Delta\phi_{1-2}$ | $\Delta\phi_{1-3}$ | $\Delta\phi_{1-4}$ | $\Delta\phi_{2-3}$ | $\Delta\phi_{2-4}$ | $\Delta\phi_{3-4}$ | S($\Delta\phi_{2-3/1-2}$) | S($\Delta\phi_{3-4/1-2}$) | $\Delta\theta_{1-2}$ | clct1 
+---------------------|--------------------|--------------------|--------------------|--------------------|--------------------|-------------------------------------------|---------------------------------------------|----------------------|-------
+          [6:0]      |         --         |         --         |        [6:0]       |         --         |        [6:0]       |                    [0]                    |                   [0]                       |          [1:0]       | [1:0]
 
-c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)
+--- &twocol
 
---- .class #id
+## Residuals
 
-## Other performance metrics: residuals
+```{r, comment = NA, message = F, echo = F}
+source("../utils.R")
+source("../ptlut15.R")
+source("../turnOn.R")
+source("../train.R")
+source("../residuals.R")
+require(ggplot2)
 
-Plots of residuals
+res <- trainModel(15)
+modelFit <- res[[1]]; testSet <- res[[2]]; POI <- res[[3]]
+```
 
-$R^2$
+*** =left
+
+```{r, fig.height=6., fig.width=6., fig.align = 'center', comment = NA, message = F, echo = F}
+ plot.residuals(modelFit,inverse=T,cutoff=0.1)
+
+```
+
+*** =right
+
+```{r, fig.height=6., fig.width=6., fig.align = 'center', comment = NA, message = F, echo = F}
+ plot.residuals(modelFit)
+```
+
+*** =fullwidth
 
 --- .class #id
 
 ## Other performance metrics: turn-on curves
 
-
+```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+turnOn(modelFit,shift=9)
+```
 
 --- .class #id
 
 ## Summary
 
+Ranking predictors by their importance is an easy job, fitting them in 30 bits is difficult
 
+--- .class #id
+
+##
+
+<br><br><br>
+
+\[ \Large Backup \]
+
+--- .class #id
+
+## 2-3-4 station tracks (mode_inv=14)
+
+ $\Delta\phi_{2-3}$ | $\Delta\phi_{2-4}$ | $\Delta\phi_{3-4}$ | clct2 | clct3 | clct4
+--------------------|--------------------|--------------------|-------|-------|-------
+        [6:0]       |         --         |        [6:0]       | [1:0] | [1:0] | [1:0]
+
+
+```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+source("..//ptlut14.R")
+res <- trainModel(14)
+modelFit14 <- res[[1]]; testSet <- res[[2]]; POI <- res[[3]]
+turnOn(modelFit14,shift=9)
+```
+
+--- .class #id
+
+## CLCT Patterns
+
+```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
+hist(d$clct1)
+
+```
 
