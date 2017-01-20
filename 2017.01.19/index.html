@@ -158,7 +158,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>In-sample performance + model complexity</h2>
+    <h2>Accounting for model complexity</h2>
   </hgroup>
   <article data-timings="">
     <ul>
@@ -190,7 +190,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>Ranging predictors for linear model</h2>
+    <h2>Ranking predictors for linear model</h2>
   </hgroup>
   <article data-timings="">
     <pre><code>Analysis of Variance Table
@@ -246,10 +246,10 @@ abline(lm(1/pt~abs(dPhi23),v),col=&quot;red&quot;)
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>Independent view with lasso regularization</h2>
+    <h2>Ranking predictors with lasso</h2>
   </hgroup>
   <article data-timings="">
-    <p>Lasso calculates model parameters \(\beta\) by minimizing loss \(RSS + \lambda\Sigma_{i=1}^p|\beta_i|\)</p>
+    <p>Lasso calculates model parameters \(\beta\) by minimizing regularized loss \(RSS + \lambda\Sigma_{i=1}^p|\beta_i|\)</p>
 
 <pre><code class="r">x = model.matrix(1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) - 1, v)
 plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
@@ -265,7 +265,7 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>Scaling up number of predictors in linear model</h2>
+    <h2>Choosing best predictors in linear model</h2>
   </hgroup>
   <article data-timings="">
     <p>Best subset selection &quot;switches on&quot; (shades of gray) predictors as follows:

@@ -88,7 +88,7 @@ $$ F = \frac{(RSS_0-RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1-1)} \sim F_{p_1-p_0,N-p_1-1} 
 
 --- .class #id
 
-## Ranging predictors for linear model
+## Ranking predictors for linear model
 
 ```{r comment = NA, message = F, echo = F}
 mode_inv <- 15
@@ -136,9 +136,9 @@ abline(lm(1/pt~abs(dPhi23),v),col="red")
 
 --- .class #id
 
-## Independent view with lasso regularization 
+## Ranking predictors with lasso
 
-Lasso calculates model parameters $\beta$ by minimizing loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
+Lasso calculates model parameters $\beta$ by minimizing regularized loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
 
 ```{r, fig.height=4., fig.width=7., fig.align = 'center', comment = NA, message = F, echo = T}
 x = model.matrix(1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) - 1, v)
@@ -149,7 +149,7 @@ dPhi12 (#1) is the last suppressed with growing $\lambda$, while dPhi23 (#2) is 
 
 --- .class #id
 
-## Scaling up number of predictors in linear model
+## Choosing best predictors in linear model
 
 Best subset selection "switches on" (shades of gray) predictors as follows:
 ```{r, fig.height=6., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
