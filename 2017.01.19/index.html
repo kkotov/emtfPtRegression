@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/default.css" media="all" >
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/phone.css" 
     media="only screen and (max-device-width: 480px)" >
-  <link rel="stylesheet" href="./slidify.css" >
+  <link rel="stylesheet" href="slidify.css" >
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/highlighters/highlight.js/css/tomorrow.css" />
   <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
   
@@ -55,7 +55,7 @@
 <li><p>Model selection</p>
 
 <ul>
-<li>standard in-sample metricts for models comparison</li>
+<li>standard in-sample metrics for models comparison</li>
 <li>linear model (&quot;all models are wrong, but some are useful&quot;) </li>
 </ul></li>
 <li><p>Trees</p>
@@ -129,7 +129,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>Simplest performace metrics</h2>
+    <h2>Simplest performance metrics</h2>
   </hgroup>
   <article data-timings="">
     <ul>
@@ -150,7 +150,7 @@
 
 <p>The more predictors (freedoms) one uses to build a model the better it fits training data</p>
 
-<p>Metrices above will always favor more complex models fitting in-sample noise</p>
+<p>Metrics above will always favor more complex models fitting in-sample noise</p>
 
   </article>
   <!-- Presenter Notes -->
@@ -158,7 +158,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>In-sample performace + model complexity</h2>
+    <h2>In-sample performance + model complexity</h2>
   </hgroup>
   <article data-timings="">
     <ul>
@@ -170,7 +170,7 @@
 <li>\(z\)-score of a coefficient is equivalent to \(F\)-statistics for dropping this coefficient out</li>
 <li>unlike the \(z\)-score, \(F\)-statistics can also handle categorical predictors</li>
 </ul></li>
-<li><p>Adjusted \(R^2\) (regular \(R^2\) penalazed for model complexity): </p></li>
+<li><p>Adjusted \(R^2\) (regular \(R^2\) penalized for model complexity): </p></li>
 </ul>
 
 <p>\[ Adjusted~R^2 = 1 - \frac{RSS/(N-p-1)}{TSS/(N-1)} \]</p>
@@ -224,7 +224,7 @@ Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&
   <article data-timings="">
     <p>Linear fit does not do well for dPhi23 (also seen as low \(F\)-statistics above):</p>
 
-<div style='float:left;width:48%;'>
+<div style='float:left;width:48%;' class='centered'>
   <pre><code class="r">plot(abs(v$dPhi12), 1/v$pt, cex=.1)
 abline(lm(1/pt~abs(dPhi12),v),col=&quot;red&quot;)
 </code></pre>
@@ -265,13 +265,13 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>More predictors in linear model</h2>
+    <h2>Scaling up number of predictors in linear model</h2>
   </hgroup>
   <article data-timings="">
     <p>Best subset selection &quot;switches on&quot; (shades of gray) predictors as follows:
 <img src="assets/fig/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
 
-<p>The most important preditors in a linear model (of my choise) are dPhi, clct1 and fr1</p>
+<p>The most important predictors in a linear model (of my choice) are dPhi, clct1 and fr1</p>
 
   </article>
   <!-- Presenter Notes -->
@@ -294,9 +294,9 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
 <p>Bagging or Bootstrap aggregation (in Random Forest or RF used through the rest of this study):</p>
 
 <ul>
-<li>resample input data multiple times leaving a part of randomly choosen events out </li>
-<li>each time fit a collection of small \(mtry\)-sized trees of randomly choosen predictors</li>
-<li>average these (largely <em>de-corelated</em>) noisy but unbiased models to reduce variance </li>
+<li>resample input data multiple times leaving a part of randomly chosen events out </li>
+<li>each time fit a collection of small \(mtry\)-sized trees of randomly chosen predictors</li>
+<li>average these (largely <em>de-correlated</em>) noisy but unbiased models to reduce variance </li>
 <li>along the way construct out-of-bag (OOB) error estimate with the left out data</li>
 </ul>
 
@@ -312,9 +312,8 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
   </hgroup>
   <article data-timings="">
     <p>Absolute predictor&#39;s importance = difference in predictive measure (e.g. MSE) with the original
-training dataset and a dataset with this predictor being randomly &#39;permuted&#39;:</p>
-
-<p><img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+training dataset and a dataset with this predictor being randomly &#39;permuted&#39;:
+<img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
 
 <p>dPhi predictors are the winners (with the first station been most important) followed by clct1</p>
 
@@ -377,19 +376,13 @@ training dataset and a dataset with this predictor being randomly &#39;permuted&
     <h2>Residuals</h2>
   </hgroup>
   <article data-timings="">
-
-<div style='float:left;width:48%;'>
-  <pre><code>[1] &quot;Sd for the reference:  0.038&quot;
-[1] &quot;Sd for my model:  0.042&quot;
-</code></pre>
+    
+<div style='float:left;width:48%;' class='centered'>
 
 <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
-  <pre><code>[1] &quot;Sd for the reference:  18.&quot;
-[1] &quot;Sd for my model:  9.29&quot;
-</code></pre>
 
 <p><img src="assets/fig/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" /></p>
 
@@ -403,7 +396,9 @@ training dataset and a dataset with this predictor being randomly &#39;permuted&
     <h2>Other performance metrics: turn-on curves</h2>
   </hgroup>
   <article data-timings="">
-    <p><img src="assets/fig/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" /></p>
+    <p><br></p>
+
+<p><img src="assets/fig/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" /></p>
 
   </article>
   <!-- Presenter Notes -->
@@ -422,8 +417,7 @@ training dataset and a dataset with this predictor being randomly &#39;permuted&
 
 <slide class="class" id="id" style="background:;">
   <article data-timings="">
-
-<p><br><br><br></p>
+    <p><br><br><br></p>
 
 <p>\[ \Large Backup \]</p>
 
@@ -455,6 +449,8 @@ training dataset and a dataset with this predictor being randomly &#39;permuted&
 <td>[1:0]</td>
 </tr>
 </tbody></table>
+
+<p><br></p>
 
 <p><img src="assets/fig/unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" style="display: block; margin: auto;" /></p>
 
@@ -491,13 +487,13 @@ training dataset and a dataset with this predictor being randomly &#39;permuted&
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=3 title='Simplest performace metrics'>
+        data-slide=3 title='Simplest performance metrics'>
          3
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=4 title='In-sample performace and model complexity'>
+        data-slide=4 title='In-sample performance and model complexity'>
          4
       </a>
     </li>

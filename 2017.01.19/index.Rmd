@@ -20,7 +20,7 @@ mode        : selfcontained # {standalone, draft}
   - regressors and response
 
 2. Model selection
-  - standard in-sample metricts for models comparison
+  - standard in-sample metrics for models comparison
   - linear model ("all models are wrong, but some are useful") 
 
 3. Trees
@@ -52,7 +52,7 @@ Response variable: $1/p_T$ to rank up accuracy of low $p_T$ regression
 
 --- .class #id
 
-## Simplest performace metrics
+## Simplest performance metrics
 
 * Residual sum of squares ($RSS$) and Root Mean Squared Error ($RMSE$):
 
@@ -65,12 +65,12 @@ Response variable: $1/p_T$ to rank up accuracy of low $p_T$ regression
 
 The more predictors (freedoms) one uses to build a model the better it fits training data
 
-Metrices above will always favor more complex models fitting in-sample noise
+Metrics above will always favor more complex models fitting in-sample noise
 
 
 --- .class #id
 
-## In-sample performace and model complexity
+## In-sample performance and model complexity
 
 * $F$-statistics (lack-of-fit sum-of-squares over pure error sum-of-squares): 
 $$ F = \frac{(RSS_0-RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1-1)} \sim F_{p_1-p_0,N-p_1-1} \rightarrow \chi^2_{p_1-p_0}/(p_1-p_0) $$
@@ -78,7 +78,7 @@ $$ F = \frac{(RSS_0-RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1-1)} \sim F_{p_1-p_0,N-p_1-1} 
   + $z$-score of a coefficient is equivalent to $F$-statistics for dropping this coefficient out
   + unlike the $z$-score, $F$-statistics can also handle categorical predictors
 
-* Adjusted $R^2$ (regular $R^2$ penalazed for model complexity): 
+* Adjusted $R^2$ (regular $R^2$ penalized for model complexity): 
 
 \[ Adjusted~R^2 = 1 - \frac{RSS/(N-p-1)}{TSS/(N-1)} \]
 
@@ -190,7 +190,7 @@ plot(regfit.full,scale="Cp")
 #plot(regfit.summary$cp,xlab="num of vars",ylab="Cp")
 ```
 
-The most important preditors in a linear model (of my choise) are dPhi, clct1 and fr1
+The most important predictors in a linear model (of my choice) are dPhi, clct1 and fr1
 
 --- .class #id
 
@@ -203,9 +203,9 @@ Boosting (in BDT):
   - output of the boosted model with complex decision boundary: $\hat{f}(x) = \Sigma_{k=1}^K\lambda \hat{f}_k(x)$
 
 Bagging or Bootstrap aggregation (in Random Forest or RF used through the rest of this study):
-  - resample input data multiple times leaving a part of randomly choosen events out 
-  - each time fit a collection of small $mtry$-sized trees of randomly choosen predictors
-  - average these (largely *de-corelated*) noisy but unbiased models to reduce variance 
+  - resample input data multiple times leaving a part of randomly chosen events out 
+  - each time fit a collection of small $mtry$-sized trees of randomly chosen predictors
+  - average these (largely *de-correlated*) noisy but unbiased models to reduce variance 
   - along the way construct out-of-bag (OOB) error estimate with the left out data
 
 Cross-validation (repetitive testing of a model on data never seen before) is part of RF training
@@ -302,6 +302,8 @@ modelFit <- res[[1]]; testSet <- res[[2]]; POI <- res[[3]]
 
 ## Other performance metrics: turn-on curves
 
+<br>
+
 ```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
 turnOn(modelFit,shift=9)
 ```
@@ -313,8 +315,6 @@ turnOn(modelFit,shift=9)
 Ranking predictors by their importance is an easy job, fitting them in 30 bits is difficult
 
 --- .class #id
-
-##
 
 <br><br><br>
 
@@ -328,6 +328,7 @@ Ranking predictors by their importance is an easy job, fitting them in 30 bits i
 --------------------|--------------------|--------------------|-------|-------|-------
         [6:0]       |         --         |        [6:0]       | [1:0] | [1:0] | [1:0]
 
+<br>
 
 ```{r, fig.height=5., fig.width=11., fig.align = 'center', comment = NA, message = F, echo = F}
 source("..//ptlut14.R")
