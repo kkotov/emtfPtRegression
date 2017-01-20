@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/default.css" media="all" >
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/phone.css" 
     media="only screen and (max-device-width: 480px)" >
-  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="./slidify.css" >
   <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/highlighters/highlight.js/css/tomorrow.css" />
   <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
   
@@ -35,9 +35,6 @@
     <h2></h2>
     <p>Khristian Kotov<br/></p>
   </hgroup>
-    <a href="https://github.com/kkotov/emtfPtRegression/zipball/gh-pages" class="example">
-     Download
-    </a>
   <article></article>  
 </slide>
     
@@ -45,7 +42,7 @@
     <!-- SLIDES -->
     <slide class="" id="slide-1" style="background:;">
   <hgroup>
-    <h3>Outline</h3>
+    <h2>Outline</h2>
   </hgroup>
   <article data-timings="">
     <ol>
@@ -77,7 +74,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h4>Training data</h4>
+    <h2>Training data</h2>
   </hgroup>
   <article data-timings="">
     <ul>
@@ -100,13 +97,13 @@
 <td>\(\Delta\phi\)</td>
 <td>continuous</td>
 <td>1-2, 1-3, 1-4, 2-3, 2-4, 3-4</td>
-<td>[-512 - +512]</td>
+<td>[-512 &#8211; +512]</td>
 </tr>
 <tr>
 <td>\(\Delta\theta\)</td>
 <td>continuous</td>
 <td>1-2, 1-3, 1-4, 2-3, 2-4, 3-4</td>
-<td>[-7  -  +7]</td>
+<td>[-7  &#8211;  +7]</td>
 </tr>
 <tr>
 <td>CLCT_Pattern</td>
@@ -161,7 +158,7 @@
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>In-sample performace and model complexity</h2>
+    <h2>In-sample performace + model complexity</h2>
   </hgroup>
   <article data-timings="">
     <ul>
@@ -202,10 +199,9 @@ Model 1: 1/pt ~ abs(dPhi12)
 Model 2: 1/pt ~ abs(dPhi12) + abs(dPhi23)
 Model 3: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34)
 Model 4: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13)
-Model 5: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + 
-    abs(dPhi14)
-Model 6: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + 
-    abs(dPhi14) + abs(dPhi24)
+Model 5: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + abs(dPhi14)
+Model 6: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + abs(dPhi14) + 
+    abs(dPhi24)
   Res.Df    RSS Df Sum of Sq         F    Pr(&gt;F)    
 1 311344 169.88                                     
 2 311343 169.87  1    0.0107    23.072 1.562e-06 ***
@@ -269,7 +265,7 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>Scaling up number of predictors in linear model</h2>
+    <h2>More predictors in linear model</h2>
   </hgroup>
   <article data-timings="">
     <p>Best subset selection &quot;switches on&quot; (shades of gray) predictors as follows:
@@ -317,44 +313,6 @@ plot( glmnet(x, 1/d$pt), xvar=&quot;lambda&quot;, label=T )
   <article data-timings="">
     <p>Absolute predictor&#39;s importance = difference in predictive measure (e.g. MSE) with the original
 training dataset and a dataset with this predictor being randomly &#39;permuted&#39;:</p>
-
-<pre><code>Growing trees.. Progress: 0%. Estimated remaining time: 5 hours, 32 minutes, 40 seconds.
-Growing trees.. Progress: 3%. Estimated remaining time: 39 minutes, 20 seconds.
-Growing trees.. Progress: 5%. Estimated remaining time: 31 minutes, 32 seconds.
-Growing trees.. Progress: 9%. Estimated remaining time: 24 minutes, 10 seconds.
-Growing trees.. Progress: 12%. Estimated remaining time: 21 minutes, 50 seconds.
-Growing trees.. Progress: 15%. Estimated remaining time: 19 minutes, 57 seconds.
-Growing trees.. Progress: 18%. Estimated remaining time: 18 minutes, 28 seconds.
-Growing trees.. Progress: 21%. Estimated remaining time: 17 minutes, 32 seconds.
-Growing trees.. Progress: 23%. Estimated remaining time: 16 minutes, 49 seconds.
-Growing trees.. Progress: 27%. Estimated remaining time: 15 minutes, 32 seconds.
-Growing trees.. Progress: 29%. Estimated remaining time: 15 minutes, 22 seconds.
-Growing trees.. Progress: 32%. Estimated remaining time: 14 minutes, 36 seconds.
-Growing trees.. Progress: 35%. Estimated remaining time: 13 minutes, 46 seconds.
-Growing trees.. Progress: 37%. Estimated remaining time: 13 minutes, 20 seconds.
-Growing trees.. Progress: 40%. Estimated remaining time: 12 minutes, 45 seconds.
-Growing trees.. Progress: 42%. Estimated remaining time: 12 minutes, 10 seconds.
-Growing trees.. Progress: 45%. Estimated remaining time: 11 minutes, 33 seconds.
-Growing trees.. Progress: 48%. Estimated remaining time: 10 minutes, 46 seconds.
-Growing trees.. Progress: 51%. Estimated remaining time: 10 minutes, 22 seconds.
-Growing trees.. Progress: 54%. Estimated remaining time: 9 minutes, 29 seconds.
-Growing trees.. Progress: 57%. Estimated remaining time: 8 minutes, 59 seconds.
-Growing trees.. Progress: 59%. Estimated remaining time: 8 minutes, 35 seconds.
-Growing trees.. Progress: 62%. Estimated remaining time: 7 minutes, 54 seconds.
-Growing trees.. Progress: 64%. Estimated remaining time: 7 minutes, 29 seconds.
-Growing trees.. Progress: 67%. Estimated remaining time: 6 minutes, 57 seconds.
-Growing trees.. Progress: 69%. Estimated remaining time: 6 minutes, 21 seconds.
-Growing trees.. Progress: 72%. Estimated remaining time: 5 minutes, 53 seconds.
-Growing trees.. Progress: 74%. Estimated remaining time: 5 minutes, 19 seconds.
-Growing trees.. Progress: 77%. Estimated remaining time: 4 minutes, 44 seconds.
-Growing trees.. Progress: 80%. Estimated remaining time: 4 minutes, 2 seconds.
-Growing trees.. Progress: 83%. Estimated remaining time: 3 minutes, 30 seconds.
-Growing trees.. Progress: 86%. Estimated remaining time: 2 minutes, 50 seconds.
-Growing trees.. Progress: 89%. Estimated remaining time: 2 minutes, 9 seconds.
-Growing trees.. Progress: 92%. Estimated remaining time: 1 minute, 35 seconds.
-Growing trees.. Progress: 96%. Estimated remaining time: 53 seconds.
-Growing trees.. Progress: 98%. Estimated remaining time: 19 seconds.
-</code></pre>
 
 <p><img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
 
@@ -419,25 +377,18 @@ Growing trees.. Progress: 98%. Estimated remaining time: 19 seconds.
     <h2>Residuals</h2>
   </hgroup>
   <article data-timings="">
-    <pre><code>Growing trees.. Progress: 9%. Estimated remaining time: 5 minutes, 13 seconds.
-Growing trees.. Progress: 25%. Estimated remaining time: 3 minutes, 6 seconds.
-Growing trees.. Progress: 39%. Estimated remaining time: 2 minutes, 27 seconds.
-Growing trees.. Progress: 54%. Estimated remaining time: 1 minute, 47 seconds.
-Growing trees.. Progress: 70%. Estimated remaining time: 1 minute, 5 seconds.
-Growing trees.. Progress: 89%. Estimated remaining time: 22 seconds.
-</code></pre>
 
 <div style='float:left;width:48%;'>
-  <pre><code>[1] &quot;Standard diviation for the reference:  0.0384502209678907&quot;
-[1] &quot;Standard diviation for my model:  0.0416256175683441&quot;
+  <pre><code>[1] &quot;Sd for the reference:  0.038&quot;
+[1] &quot;Sd for my model:  0.042&quot;
 </code></pre>
 
 <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
-  <pre><code>[1] &quot;Standard diviation for the reference:  17.9980400950663&quot;
-[1] &quot;Standard diviation for my model:  9.2854886658628&quot;
+  <pre><code>[1] &quot;Sd for the reference:  18.&quot;
+[1] &quot;Sd for my model:  9.29&quot;
 </code></pre>
 
 <p><img src="assets/fig/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" /></p>
@@ -471,7 +422,6 @@ Growing trees.. Progress: 89%. Estimated remaining time: 22 seconds.
 
 <slide class="class" id="id" style="background:;">
   <article data-timings="">
-    <p>##</p>
 
 <p><br><br><br></p>
 
