@@ -88,7 +88,7 @@ $$ F = \frac{(RSS_0-RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1-1)} \sim F_{p_1-p_0,N-p_1-1} 
 
 --- .class #id
 
-## Ranging predictors for linear model
+## Ranking predictors for linear model
 
 
 
@@ -100,10 +100,8 @@ Model 1: 1/pt ~ abs(dPhi12)
 Model 2: 1/pt ~ abs(dPhi12) + abs(dPhi23)
 Model 3: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34)
 Model 4: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13)
-Model 5: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + 
-    abs(dPhi14)
-Model 6: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + 
-    abs(dPhi14) + abs(dPhi24)
+Model 5: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + abs(dPhi14)
+Model 6: 1/pt ~ abs(dPhi12) + abs(dPhi23) + abs(dPhi34) + abs(dPhi13) + abs(dPhi14) + abs(dPhi24)
   Res.Df    RSS Df Sum of Sq         F    Pr(>F)    
 1 311344 169.88                                     
 2 311343 169.87  1    0.0107    23.072 1.562e-06 ***
@@ -145,9 +143,9 @@ abline(lm(1/pt~abs(dPhi23),v),col="red")
 
 --- .class #id
 
-## Independent view with lasso regularization 
+## Ranking predictors with lasso
 
-Lasso calculates model parameters $\beta$ by minimizing loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
+Lasso calculates model parameters $\beta$ by minimizing regularized loss $RSS + \lambda\Sigma_{i=1}^p|\beta_i|$
 
 
 ```r
@@ -161,7 +159,7 @@ dPhi12 (#1) is the last suppressed with growing $\lambda$, while dPhi23 (#2) is 
 
 --- .class #id
 
-## Scaling up number of predictors in linear model
+## Choosing best predictors in linear model
 
 Best subset selection "switches on" (shades of gray) predictors as follows:
 <img src="assets/fig/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
