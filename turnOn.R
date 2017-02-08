@@ -1,7 +1,8 @@
 #source("train.R")
 
 turnOn <- function(modelFit, threshold = 30, binWidth = 2, shift = 0){
-    testSet$res <- predict(modelFit,testSet[,-POI]) #$predictions
+#    testSet$res <- predict(modelFit,testSet[,-POI])$predictions # works for ranger
+    testSet$res <- predict(modelFit,testSet[,-POI],n.trees=10000) # Gradient Boosting Machines
 #    testSet$res <- predict(modelFit,address2predictors15(predictors2address15(testSet[,-POI])))$predictions
 
     testSet$bin <- factor( as.integer(1/testSet$muPtGenInv / binWidth ), levels=seq(0,as.integer(100/binWidth),1) )

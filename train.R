@@ -2,6 +2,7 @@ require(doMC)
 require(caret)
 require(ranger)
 require(randomForest)
+require(gbm)
 # mode_inv=15 (mode=15): 1-2-3-4
 # mode_inv=14 (mode=7):    2-3-4
 # mode_inv=13 (mode=11): 1- -3-4
@@ -16,7 +17,7 @@ require(randomForest)
 
 mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
 
-df <- read.csv(file="muonGunPt3_100_emtf.csv",header=T,sep=',')
+df <- read.csv(file="SingleMu_Pt1To1000_FlatRandomOneOverPt.csv",header=T,sep=',')
 
 registerDoMC(3)
 
@@ -41,12 +42,18 @@ trainModel <- function(mode_inv, truncate=T){
                                    muEtaGen,
                                    pt,
                                    mypt,
-                                   sat(dPhi12,7),
-                                   sat(dPhi23,7),
-                                   sat(dPhi34,7),
-                                   sat(dTheta12,2),
-                                   sat(dTheta23,2),
-                                   sat(dTheta34,2),
+                                   dPhi12,
+                                   dPhi13,
+                                   dPhi14,
+                                   dPhi23,
+                                   dPhi24,
+                                   dPhi34,
+                                   dTheta12,
+                                   dTheta13,
+                                   dTheta14,
+                                   dTheta23,
+                                   dTheta24,
+                                   dTheta34,
                                    factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
                                    factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
                                    factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
@@ -57,7 +64,7 @@ trainModel <- function(mode_inv, truncate=T){
                                    factor(fr4,levels=c(0,1))
                                  )
                          )
-        predictors <- c("dPhi12", "dPhi23", "dPhi34", "dTheta12", "dTheta23", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+        predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "dTheta12", "dTheta13", "dTheta14", "dTheta23", "dTheta24", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
         colnames(vars) <- c("muPtGenInv", "muEtaGen", "ptTrg", "mypt", predictors )
         if( truncate ){
             q <- address2predictors15( predictors2address15(vars) ) # this will truncate the unnecessary clct levels
@@ -246,8 +253,12 @@ trainModel <- function(mode_inv, truncate=T){
 
 #    modelFit <- randomForest(f, importance=T, data=trainSet) #mtry=7, 
 #    modelFit <- train(f, method="rf", importance=T, data=trainSet, trControl=trainControl(method="cv",number=3,verboseIter=T))
-    #fitNNet1  <- avNNet(f, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)
-    modelFit <- ranger(f, data=trainSet, importance="impurity") #case.weights
+#    fitNNet1  <- avNNet(f, data=trainSet, repeats=25, size=20, decay=0.1, linout=T)
+#    modelFit <- ranger(f, data=trainSet, importance="impurity") #case.weights
+    modelFit <- gbm(f,data=trainSet,distribution="gaussian",n.trees=1000,shrinkage=0.01,interaction.depth=4)
+
+#    print( summary(modelFit) )
+#    plot(modelFit,i="dPhi12")
 
     # evaluate overal performance
 #    print( paste("RMSE for myModel:",   RMSE(1/testSet[,POI], 1/predict(modelFit,testSet[,-POI])$predictions) ) )
