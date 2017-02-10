@@ -9,8 +9,6 @@ hitheme     : tomorrow      #
 github:
   user: kkotov
   repo: emtfPtRegression
-url:
-  lib:    ../../../../monohiggs/plots/libraries
 widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
@@ -20,13 +18,10 @@ mode        : selfcontained # {standalone, draft}
 1. New input data
 
 2. Model selection
-  - 
+  - using all predictors
+  - sign 
 
-3. Trees
-  - boosting (BDT), bagging (Random Forest)
-  - predictors' importance
-  - residuals and turn-on curves
-  - ROCs and efficiency vs. rate curves
+3. 
 
 --- &twocol
 
@@ -151,6 +146,130 @@ barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las
 
 *** =fullwidth
 
+Before doing forward/backward stepwise selection, I'll truncate the dPhi, dTheta precision
+
+--- &twocol
+
+## Compressing dPhi, dTheta, and theta
+
+Let's leave 5 bits per dPhi, 3 bits per dTheta and theta:
+
+```{r, comment = NA, message = F, echo = F}
+
+sat <- function(x, n){ m <- bitwShiftL(1L,n)-1 ; y <- x ; y[ y>m ] = m ; y[ y < -m ] = -m ; y }
+
+vars <- with(d,data.frame( 1/muPtGen,
+                           sat(2*atan(exp(-muEtaGen)),3),
+                           pt,
+                           mypt,
+                           sat(dPhi12,5),
+                           as.factor(ifelse(dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi13*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi14*dPhi12>=0,0,1)),
+                           sat(dPhi23,5),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi24*dPhi12>=0,0,1)),
+                           sat(dPhi34,5),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           sat(dTheta12,3),
+                           as.factor(ifelse(dTheta12>=0,0,1)),
+                           as.factor(ifelse(dTheta13*dTheta12>=0,0,1)),
+                           as.factor(ifelse(dTheta14*dTheta12>=0,0,1)),
+                           sat(dTheta23,3),
+                           as.factor(ifelse(dTheta23*dTheta12>=0,0,1)),
+                           as.factor(ifelse(dTheta24*dTheta12>=0,0,1)),
+                           sat(dTheta34,3),
+                           as.factor(ifelse(dTheta34*dTheta12>=0,0,1)),
+                           factor(clct1,levels=c(2,3,4,5,6,7,8,9,10)),
+                           factor(clct2,levels=c(2,3,4,5,6,7,8,9,10)),
+                           factor(clct3,levels=c(2,3,4,5,6,7,8,9,10)),
+                           factor(clct4,levels=c(2,3,4,5,6,7,8,9,10)),
+                           factor(fr1,levels=c(0,1)),
+                           factor(fr2,levels=c(0,1)),
+                           factor(fr3,levels=c(0,1)),
+                           factor(fr4,levels=c(0,1))
+                           )
+            )
+
+predictors <- c("dPhi12", "sPhi12", "sPhi1213", "sPhi1214", "dPhi23", "sPhi1223", "sPhi1224", "dPhi34", "sPhi1234", "dTheta12", "sTheta12", "sTheta1213", "sTheta1214", "dTheta23", "sTheta1223", "sTheta1224", "dTheta34", "sTheta1234", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+colnames(vars) <- c("muPtGenInv", "theta", "ptTrg", "mypt", predictors )
+predictors <- c("theta", predictors)
+
+derivatives <- data.frame(
+    dPhi13 = vars$dPhi12 + ifelse(vars$sPhi1213==1,-1,1) * vars$dPhi23, 
+    dPhi14 = vars$dPhi12 + ifelse(vars$sPhi1213==1,-1,1) * vars$dPhi23 + ifelse(vars$sPhi1234==1,-1,1) * vars$dPhi34,
+    dPhi24 = vars$dPhi23 + ifelse(as.numeric(as.character(vars$sPhi1223))+as.numeric(as.character(vars$sPhi1224))==1,-1,1) * vars$dPhi34
+)
+
+vars <- cbind(vars,derivatives)
+
+set.seed(1)
+
+part <- sample(seq(nrow(vars)), as.integer(nrow(vars)*0.75), replace=F)
+trainSet <- vars[part,]
+testSet <- vars[-part,]
+POI <- which(colnames(vars)=="muPtGenInv")
+
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+
+invisible( capture.output( modelFit2 <- ranger(f, data=trainSet, importance="impurity") ) )
+
+```
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+turnOn(modelFit2,shift=13)
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+```
+
+*** =fullwidth
+
 --- .class #id
 
-## qwe
+## dPhi12, dPhi23, dPhi34, theta, clct1, dTheta12
+
+```{r, comment = NA, message = F, echo = F}
+
+sat <- function(x, n){ m <- bitwShiftL(1L,n)-1 ; y <- x ; y[ y>m ] = m ; y[ y < -m ] = -m ; y }
+
+vars <- with(d,data.frame( 1/muPtGen,
+                           sat(2*atan(exp(-muEtaGen)),3),
+                           sat(dPhi12,5),
+                           sat(dPhi23,5),
+                           sat(dPhi34,5),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           sat(dTheta12,3),
+                           factor(clct1,levels=c(2,3,4,5,6,7,8,9,10))
+                           )
+            )
+
+predictors <- c("dPhi12", "dPhi23", "dPhi34", "sPhi1234", "dTheta12", "clct1")
+colnames(vars) <- c("muPtGenInv", "theta", predictors )
+predictors <- c("theta", predictors)
+
+derivatives <- data.frame(
+    dPhi13 = vars$dPhi12 + ifelse(vars$sPhi1213==1,-1,1) * vars$dPhi23, 
+    dPhi14 = vars$dPhi12 + ifelse(vars$sPhi1213==1,-1,1) * vars$dPhi23 + ifelse(vars$sPhi1234==1,-1,1) * vars$dPhi34,
+    dPhi24 = vars$dPhi23 + ifelse(as.numeric(as.character(vars$sPhi1223))+as.numeric(as.character(vars$sPhi1224))==1,-1,1) * vars$dPhi34
+)
+
+vars <- cbind(vars,derivatives)
+
+set.seed(1)
+
+part <- sample(seq(nrow(vars)), as.integer(nrow(vars)*0.75), replace=F)
+trainSet <- vars[part,]
+testSet <- vars[-part,]
+POI <- which(colnames(vars)=="muPtGenInv")
+
+f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
+
+invisible( capture.output( modelFit2 <- ranger(f, data=trainSet, importance="impurity") ) )
+
+```
+
