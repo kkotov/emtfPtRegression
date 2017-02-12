@@ -15,10 +15,10 @@ individual track segments, as well as other potentially useful track's parameter
 The effect of multiple scattering that affects particle's trajectory renders impossible
 analytical calculation of the pT LUT. Instead, the table is constructed using Monte
 Carlo simulation and standard machine learning techniques. The best model selection
-is based on the application specific metrics (e.g. turn-ons or rate vs. efficiency
+is based on the application-specific metrics (e.g. turn-ons or rate vs. efficiency
 curves).
 
 This repository includes a collection of tools for training the pT LUT models and
 comparing their performance. Findings are summarized by the date:
 [2017.01.19](https://kkotov.github.io/emtfPtRegression/2017.01.19/handout.html),
-[2017.02.10](https://kkotov.github.io/emtfPtRegression/2017.01.19/) (incomplete).
+[2017.02.10](https://kkotov.github.io/emtfPtRegression/2017.02.10/) (incomplete).
