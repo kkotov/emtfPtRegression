@@ -1,4 +1,4 @@
-## Introduction
+## Short description
 
 The [EMTF](http://iopscience.iop.org/1748-0221/8/12/C12034) is one of the custom-built
 electronic systems of the CMS Level-1 Trigger (L1T). By means of pattern recognition EMTF
