@@ -71,14 +71,18 @@ metrics <- function(modelFit,
     myModelRate   <- drop(rateShapeBinned %*% (myModelCount   / pSpec$count))
     referenceRate <- drop(rateShapeBinned %*% (referenceCount / pSpec$count))
 
+    # let's introduce names for the turn-ons 
+    myModelTurnOn   <- myModelCount   / pSpec$count
+    referenceTurnOn <- referenceCount / pSpec$count
+
     # true-/false-positives are given by a similar convolution over
     # [threshold_pT_bin <= true_pT_bin] / [0 < true_pT_bin < threshold_pT_bin]
-    myModelTruePos    <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% (myModelCount[x:nBins,x] / pSpec$count[x:nBins])))
-    myModelFalsePos   <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% (myModelCount[1:x,x+1] / pSpec$count[1:x])))
-    referenceTruePos  <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% (referenceCount[x:nBins,x] / pSpec$count[x:nBins])))
-    referenceFalsePos <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% (referenceCount[1:x,x+1] / pSpec$count[1:x])))
+    myModelTruePos    <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% myModelTurnOn[x:nBins,x]))
+    myModelFalsePos   <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% myModelTurnOn[1:x,x+1]))
+    referenceTruePos  <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% referenceTurnOn[x:nBins,x]))
+    referenceFalsePos <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% referenceTurnOn[1:x,x+1]))
 
-    # finally, pack everything in one DF
+    # finally, pack everything in one data frame
     myModelROCdf <- data.frame( truePos  = myModelTruePos/normForTruePos,
                                 falsePos = myModelFalsePos/normForFalsePos,
                                 model    = rep("myModel",nBins)
@@ -95,6 +99,7 @@ metrics <- function(modelFit,
     rocDF <- rbind(myModelROCdf,referenceROCdf)
     rocDF$model <- factor(rocDF$model)
 
+    # ... and plot this data frame
     roc <- ggplot(rocDF, aes(x = truePos, y = falsePos, group = model, colour = model)) + 
 #        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
         geom_line() +
@@ -107,7 +112,38 @@ metrics <- function(modelFit,
         labs( x="true positive",
               y="false positive",
               title="ROC curve"
+        ) + scale_y_log10()
+
+    # now, plot some of the turn-ons for completeness
+    benchmarkThrs <- c(15, 20, 25, 30)
+
+    myModelTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrs]),
+                                   threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
+                                   true_pT = rep(binning, length(benchmarkThrs)),
+                                   model = rep("myModel",length(benchmarkThrs)*nBins)
+                                 )
+    referenceTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrs]),
+                                     threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
+                                     true_pT = rep(binning, length(benchmarkThrs)),
+                                     model = rep("reference",length(benchmarkThrs)*nBins)
+                                   )
+
+    turnOnDF <- rbind(myModelTurnOnDF,referenceTurnOnDF)
+    turnOnDF$model <- factor(turnOnDF$model)
+
+    turnOn <- ggplot(turnOnDF[turnOnDF$threshold_pT==15,], aes(x = true_pT, y = eff, group = model, colour = model)) +
+#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+        geom_line() +
+        geom_point() +
+        geom_vline(xintercept = benchmarkThrs, colour = "red") +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
+              y="efficiency"#,
+#              title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
         )
 
-    roc
 }
