@@ -1,0 +1,113 @@
+# The conventional trigger turn-on curve, constructed with a certain threshold_pT
+# in mind, presents the probability that responce_pT > threshold_pT as a function
+# of true_pT. The main limitation of the turn-on metric is that the model curves
+# have to be visually compared for a series of thresholds, which a rather labour-
+# intensive exercise. Moreover, such metric also does not offer a good quantitative
+# way to account for the prevalence: due to abundance of low true_pT events a sharp
+# turn-on with a long left tail may do better as well as do worse compared to wide
+# turn-on with a smaller tail. The Receiver Operating Characteristic (ROC) curve
+# is free from such limitations, incorporate the prevalence, and can be quantified
+# with a simple integral-under-the-curve parameter.
+#
+# Before introducing the ROC metric let me start with the prevalence and call it
+# rate. For some given threshold_pT the convolution of turn-on with the rate in
+# the range of [0 < true_pT < threshold_pT] gives a number of false-positive events
+# and in the range of [threshold_pT < true_pT < inf] gives true-positives. These
+# numbers, normalized by the integrals of the rate in the two regions, give the
+# true-/false-positive probabilities. In this scenario the "natural parameter"
+# identifying a point on the ROC curve is the threshold_pT. In the code below
+# I generate the ROC curve runnig over the grid of threshold_pT defined by the
+# binning array.
+
+# simple helper function
+findBin <- function(val, binning, start=1, end=length(binning)){
+    # Assuming binning is a sorted vector of N bin boundaries
+    #  this function returns [1:N-1] bin number
+    #  or N - overflow and 0 - underflow
+    if( length(binning) < 1 || end < start ) return(-1) # error
+    # underflow and overflow goes to the first and last bins
+    if( val <  binning[start] ) return(start-1) # underflow
+    if( val >= binning[end]   ) return(end)     # overflow
+    # partition at the middle element
+    center <- as.integer((end-start)/2) + start
+    # got lucky
+    if( val >= binning[center] && val < binning[center+1] ) return(center)
+    # binary search
+    if( val < binning[center] )
+        return(findBin(val, binning, start, center))
+    else 
+        return(findBin(val, binning, center+1, end))
+}
+
+metrics <- function(modelFit,
+                    testSet,
+                    rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
+                    binning = seq(0,100,2) # example of binning: pT from 0 to 100 GeV/c in steps of 2 GeV/c
+                   )
+{
+    # first, predict responce_pT of the model on the test data
+    testSet$res <- 1/predict(modelFit,testSet)$predictions
+    # assign every true_pT to a bin
+    testSet$trueBin <- sapply(1/testSet$muPtGenInv, findBin, binning)
+    # construct a proto-spectrum where every true_pT_bin aggregates responce_pT lists
+    pSpec <- aggregate(testSet, by=list(bin=testSet$trueBin), function(x) x )
+    # a simple histogram of true_pT would be just number of events in every true_pT_bin
+    pSpec$count <- sapply(pSpec$res,length)
+
+    # for turn-ons I use the matricies indexed by [true_pT_bin,threshold_pT_bin]
+    #  they represent number of events with the responce_pT > threshold_pT_bin in every true_pT_bin
+    myModelCount   <- t(sapply(pSpec$res,  function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
+    referenceCount <- t(sapply(pSpec$ptTrg,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
+
+    # create a simple histogram from the rateShape
+    rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
+
+    # normalization integrals
+    nBins <- length(binning)
+    normForTruePos  <- sapply(1: nBins,   function(x) sum(rateShapeBinned[x:nBins]) )
+    normForFalsePos <- sapply(0:(nBins-1),function(x) sum(rateShapeBinned[0:x]) )
+
+    # convolution of the rateShape with turn-ons (efficiencies) over all true_pT_bin
+    myModelRate   <- drop(rateShapeBinned %*% (myModelCount   / pSpec$count))
+    referenceRate <- drop(rateShapeBinned %*% (referenceCount / pSpec$count))
+
+    # true-/false-positives are given by a similar convolution over
+    # [threshold_pT_bin <= true_pT_bin] / [0 < true_pT_bin < threshold_pT_bin]
+    myModelTruePos    <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% (myModelCount[x:nBins,x] / pSpec$count[x:nBins])))
+    myModelFalsePos   <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% (myModelCount[1:x,x+1] / pSpec$count[1:x])))
+    referenceTruePos  <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% (referenceCount[x:nBins,x] / pSpec$count[x:nBins])))
+    referenceFalsePos <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% (referenceCount[1:x,x+1] / pSpec$count[1:x])))
+
+    # finally, pack everything in one DF
+    myModelROCdf <- data.frame( truePos  = myModelTruePos/normForTruePos,
+                                falsePos = myModelFalsePos/normForFalsePos,
+                                model    = rep("myModel",nBins)
+                              )
+    if( normForFalsePos[1] == 0 ) myModelROCdf <- myModelROCdf[2:nBins,]
+
+    referenceROCdf <- data.frame(
+                              truePos  = referenceTruePos/normForTruePos,
+                              falsePos = referenceFalsePos/normForFalsePos,
+                              model    = rep("reference",nBins)
+                          )
+    if( normForFalsePos[1] == 0 ) referenceROCdf <- referenceROCdf[2:nBins,]
+
+    rocDF <- rbind(myModelROCdf,referenceROCdf)
+    rocDF$model <- factor(rocDF$model)
+
+    roc <- ggplot(rocDF, aes(x = truePos, y = falsePos, group = model, colour = model)) + 
+#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+        geom_line() +
+        geom_point() +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x="true positive",
+              y="false positive",
+              title="ROC curve"
+        )
+
+    roc
+}
