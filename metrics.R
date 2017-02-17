@@ -39,11 +39,12 @@ findBin <- function(val, binning, start=1, end=length(binning)){
         return(findBin(val, binning, center+1, end))
 }
 
-metrics <- function(modelFit,
-                    testSet,
-                    rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
-                    binning = seq(0,100,2) # example of binning: pT from 0 to 100 GeV/c in steps of 2 GeV/c
-                   )
+# calculate the standard turn-ons and rate shape distribution
+preProcess <- function(modelFit,
+                       testSet,
+                       rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
+                       binning = seq(0,100,2) # example of binning: pT from 0 to 100 GeV/c in steps of 2 GeV/c
+                      )
 {
     # first, predict responce_pT of the model on the test data
     testSet$res <- 1/predict(modelFit,testSet)$predictions
@@ -62,18 +63,33 @@ metrics <- function(modelFit,
     # create a simple histogram from the rateShape
     rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
 
+    # let's introduce names for the turn-ons 
+    myModelTurnOn   <- myModelCount   / pSpec$count
+    referenceTurnOn <- referenceCount / pSpec$count
+
+    getBinning <- function() binning
+    getRateShapeBinned <- function() rateShapeBinned
+    getMyTurnOn  <- function() myModelTurnOn
+    getRefTurnOn <- function() referenceTurnOn
+
+    list(getBinning = getBinning,
+         getRateShapeBinned = getRateShapeBinned,
+         getMyTurnOn  = getMyTurnOn,
+         getRefTurnOn = getRefTurnOn
+    )
+}
+
+rocMetric <- function(pp, ...){
+    # get precomputed parameters
+    rateShapeBinned <- pp$getRateShapeBinned()
+    myModelTurnOn   <- pp$getMyTurnOn()
+    referenceTurnOn <- pp$getRefTurnOn()
+    binning         <- pp$getBinning()
+
     # normalization integrals
     nBins <- length(binning)
     normForTruePos  <- sapply(1: nBins,   function(x) sum(rateShapeBinned[x:nBins]) )
     normForFalsePos <- sapply(0:(nBins-1),function(x) sum(rateShapeBinned[0:x]) )
-
-    # convolution of the rateShape with turn-ons (efficiencies) over all true_pT_bin
-    myModelRate   <- drop(rateShapeBinned %*% (myModelCount   / pSpec$count))
-    referenceRate <- drop(rateShapeBinned %*% (referenceCount / pSpec$count))
-
-    # let's introduce names for the turn-ons 
-    myModelTurnOn   <- myModelCount   / pSpec$count
-    referenceTurnOn <- referenceCount / pSpec$count
 
     # true-/false-positives are given by a similar convolution over
     # [threshold_pT_bin <= true_pT_bin] / [0 < true_pT_bin < threshold_pT_bin]
@@ -86,14 +102,14 @@ metrics <- function(modelFit,
     myModelROCdf <- data.frame( truePos  = myModelTruePos/normForTruePos,
                                 falsePos = myModelFalsePos/normForFalsePos,
                                 model    = rep("myModel",nBins)
-                              )
+                    )
     if( normForFalsePos[1] == 0 ) myModelROCdf <- myModelROCdf[2:nBins,]
 
     referenceROCdf <- data.frame(
                               truePos  = referenceTruePos/normForTruePos,
                               falsePos = referenceFalsePos/normForFalsePos,
                               model    = rep("reference",nBins)
-                          )
+                      )
     if( normForFalsePos[1] == 0 ) referenceROCdf <- referenceROCdf[2:nBins,]
 
     rocDF <- rbind(myModelROCdf,referenceROCdf)
@@ -114,40 +130,64 @@ metrics <- function(modelFit,
               title="ROC curve"
         ) + scale_y_log10()
 
-###################################################################
-    # now, plot some of the turn-ons for completeness
-    benchmarkThrs     <- c(15, 20, 25, 30)
-    benchmarkThrBins <- sapply(benchmarkThrs, findBin, binning)
-
-    myModelTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrBins]),
-                                   threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
-                                   true_pT = rep(binning, length(benchmarkThrs)),
-                                   model = rep("myModel",length(benchmarkThrs)*nBins)
-                                 )
-    referenceTurnOnDF <- data.frame( eff = as.vector(referenceTurnOn[,benchmarkThrBins]),
-                                     threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
-                                     true_pT = rep(binning*1.4, length(benchmarkThrs)),
-                                     model = rep("reference",length(benchmarkThrs)*nBins)
-                                   )
-
-    turnOnDF <- rbind(myModelTurnOnDF,referenceTurnOnDF)
-    turnOnDF$model <- factor(turnOnDF$model)
-
-    turnOn <- ggplot(subset(turnOnDF,threshold_pT==15), aes(x = true_pT, y = eff, group = model, colour = model)) +
-#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
-        geom_line() +
-        geom_point() +
-        geom_vline(xintercept = 15, colour = "red") +
-        theme(
-            title = element_text(size=20),
-            axis.title.x = element_text(size=20),
-            axis.text.x  = element_text(size=15)
-        ) +
-        labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
-              y="efficiency",
-              title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(benchmarkThrs) ~ " GeV/c)")
-        ) + xlim(binning[1], binning[nBins])
-###################################################################
-
-    roc #turnOn
+    roc
 }
+
+
+# present some of the turn-ons for completeness
+turnOns <- function(pp, ...){
+    # get precomputed parameters
+    rateShapeBinned <- pp$getRateShapeBinned()
+    myModelTurnOn   <- pp$getMyTurnOn()
+    referenceTurnOn <- pp$getRefTurnOn()
+    binning         <- pp$getBinning()
+
+    turnOns <- list()
+
+    for(threshold in seq(5,30,5)){
+
+        thrBin <- findBin(threshold,binning)
+
+        turnOnDF <-       data.frame(true_pT = binning,
+                                     eff    = myModelTurnOn[,thrBin],
+                                     thr_pT = threshold,
+                                     model  = factor(rep("myModel",nBins),
+                                                     levels=c("myModel","reference")
+                                                    )
+                                    )
+
+        turnOnDF <- rbind(turnOnDF,
+                          data.frame(true_pT = binning*1.4, # put reference on the same scale
+                                     eff    = referenceTurnOn[,thrBin],
+                                     thr_pT = threshold,
+                                     model  = factor(rep("reference",nBins),
+                                                     levels=c("myModel","reference")
+                                                    )
+                                    )
+                         )
+
+        turnOns[[as.character(threshold)]] <-
+            ggplot(turnOnDF, aes(x=true_pT, y=eff, group=model, colour=model)) +
+#                geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+                geom_line() +
+                geom_point() +
+                geom_vline(xintercept = threshold, colour = "red") +
+                theme(
+                    title = element_text(size=20),
+                    axis.title.x = element_text(size=20),
+                    axis.text.x  = element_text(size=15)
+                ) +
+                labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
+                      y="efficiency",
+                      title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
+                ) + xlim(binning[1], binning[nBins])
+    }
+
+    turnOns
+}
+
+    # convolution of the rateShape with turn-ons (efficiencies) over all true_pT_bin
+#    myModelRate   <- drop(rateShapeBinned %*% myModelTurnOn)
+#    referenceRate <- drop(rateShapeBinned %*% referenceTurnOn)
+
+
