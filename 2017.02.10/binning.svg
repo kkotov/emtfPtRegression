@@ -1,0 +1,122 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: fig2dev Version 3.2 Patchlevel 5e -->
+<!-- CreationDate: Fri Feb 17 13:57:36 2017 -->
+<!-- Magnification: 1.050 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="2.3in" height="1.8in"
+	viewBox="696 129 2728 2158">
+<g style="stroke-width:.025in; fill:none">
+<!-- Line: box -->
+<rect x="1653" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="1417" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="1181" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="2125" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="2362" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="2598" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="2834" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="3070" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<!--  1  -->
+<rect x="944" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<!--  1  -->
+<rect x="708" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="1889" y="1653" width="236" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="1889,1653
+944,708
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="2125,1653
+3070,708
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="944" y="472" width="2125" height="236" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Text -->
+<text xml:space="preserve" x="1511" y="2220" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">true pT bin</text>
+<!-- Text -->
+<text xml:space="preserve" x="992" y="614" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">...</text>
+<!-- Text -->
+<text xml:space="preserve" x="2881" y="614" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">...</text>
+<!-- Text -->
+<text xml:space="preserve" x="755" y="1842" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">1</text>
+<!-- Text -->
+<text xml:space="preserve" x="1937" y="1842" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">x</text>
+<!-- Text -->
+<!--  N  -->
+<text xml:space="preserve" x="3118" y="1842" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">N</text>
+<!-- Text -->
+<text xml:space="preserve" x="1228" y="614" fill="#00ff00"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">35.7</text>
+<!-- Text -->
+<text xml:space="preserve" x="1464" y="614" fill="#ff0000"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">7.6</text>
+<!-- Text -->
+<text xml:space="preserve" x="1700" y="614" fill="#00ff00"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">27.3</text>
+<!-- Text -->
+<text xml:space="preserve" x="1937" y="614" fill="#ff0000"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">23.1</text>
+<!-- Text -->
+<text xml:space="preserve" x="2173" y="614" fill="#ff0000"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">11.7</text>
+<!-- Text -->
+<text xml:space="preserve" x="2409" y="614" fill="#00ff00"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">30.2</text>
+<!-- Text -->
+<text xml:space="preserve" x="2645" y="614" fill="#ff0000"  font-family="Times" font-style="normal" font-weight="normal" font-size="89" text-anchor="start">15.2</text>
+<!-- Text -->
+<text xml:space="preserve" x="1464" y="283" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="start">response pT</text>
+<!-- Text -->
+<text xml:space="preserve" x="1181" y="897" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="126" text-anchor="start">for threshold pT=25 GeV</text>
+<!-- Text -->
+<text xml:space="preserve" x="1370" y="1086" fill="#00ff00"  font-family="Times" font-style="normal" font-weight="normal" font-size="126" text-anchor="start">greens are accepted</text>
+<!-- Text -->
+<text xml:space="preserve" x="1700" y="1275" fill="#ff0000"  font-family="Times" font-style="normal" font-weight="normal" font-size="126" text-anchor="start">reds fail</text>
+</g>
+</svg>

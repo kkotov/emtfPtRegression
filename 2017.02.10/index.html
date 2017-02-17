@@ -17,7 +17,7 @@
   
   <!-- Grab CDN jQuery, fall back to local if offline -->
   <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
-  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script>window.jQuery || document.write('<script src="../../../../monohiggs/plots/libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
   <script data-main="../../../../monohiggs/plots/libraries/frameworks/io2012/js/slides" 
     src="../../../../monohiggs/plots/libraries/frameworks/io2012/js/require-1.0.8.min.js">
   </script>
@@ -40,6 +40,33 @@
     
 
     <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Outline</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>New input data</p>
+
+<ul>
+<li>numbers and shapes</li>
+</ul></li>
+<li><p>ROC metric</p>
+
+<ul>
+<li>rate against efficiency</li>
+<li>examples with various rate assumptions</li>
+</ul></li>
+<li><p>Model building</p>
+
+<ul>
+<li>using all predictors</li>
+</ul></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
 
 <slide class="" id="slide-2" style="background:;">
   <hgroup>
@@ -67,7 +94,37 @@
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="" id="slide-3" style="background:;">
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Turn-on curve</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>For some threshold see what part of events was accepted in every bin of true pT </p>
+
+<p><img class=center src=binning.svg height=400> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>ROC curve</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><p>Convolute efficiency (or turn-on) with rate and see % of under-the-threshold (false positives)
+and % of over-the-threshold (true positives) rate accepted for a given threshold</p></li>
+<li><p>Move threshold and plot false positive vs. true positive rates </p></li>
+</ul>
+
+<p><img class=center src=convolve.svg height=400> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
   <hgroup>
     <h2>Model with all predictors included</h2>
   </hgroup>
@@ -85,7 +142,7 @@
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="" id="slide-4" style="background:;">
+<slide class="" id="slide-6" style="background:;">
   <hgroup>
     <h2>Compressing dPhi, dTheta, and theta</h2>
   </hgroup>
@@ -100,6 +157,18 @@
   <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
 
 </div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>dPhi12, dPhi23, dPhi34, theta, clct1, dTheta12</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code>Error in data.frame(..., check.names = FALSE): arguments imply differing number of rows: 312202, 0
+</code></pre>
+
   </article>
   <!-- Presenter Notes -->
 </slide>
@@ -122,20 +191,32 @@
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=3 title='Model with all predictors included'>
+        data-slide=3 title='Turn-on curve'>
          3
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=4 title='Compressing dPhi, dTheta, and theta'>
+        data-slide=4 title='ROC curve'>
          4
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=5 title='qwe'>
+        data-slide=5 title='Model with all predictors included'>
          5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Compressing dPhi, dTheta, and theta'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='dPhi12, dPhi23, dPhi34, theta, clct1, dTheta12'>
+         7
       </a>
     </li>
   </ul>

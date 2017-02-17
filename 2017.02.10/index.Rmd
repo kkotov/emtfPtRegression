@@ -16,12 +16,14 @@ mode        : selfcontained # {standalone, draft}
 ## Outline
 
 1. New input data
+  - numbers and shapes
 
-2. Model selection
+2. ROC metric
+  - rate against efficiency
+  - examples with various rate assumptions
+
+3. Model building
   - using all predictors
-  - sign 
-
-3. 
 
 --- &twocol
 
@@ -81,10 +83,28 @@ ggplot(df, aes(x=muEtaGen)) +
 
 *** =fullwidth
 
+--- .class #id
+
+## Turn-on curve
+
+For some threshold see what part of events was accepted in every bin of true pT 
+
+<img class=center src=binning.svg height=400> 
+
+--- .class #id
+
+## ROC curve
+
+* Convolute efficiency (or turn-on) with rate and see % of under-the-threshold (false positives)
+and % of over-the-threshold (true positives) rate accepted for a given threshold
+
+* Move threshold and plot false positive vs. true positive rates 
+
+<img class=center src=convolve.svg height=400> 
+
 --- &twocol
 
 ## Model with all predictors included
-
 
 ```{r, comment = NA, message = F, echo = F}
 
@@ -141,7 +161,11 @@ turnOn(modelFit,shift=14)
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+
+source("../metrics.R")
+metrics(modelFit,testSet)
+
+#barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
 ```
 
 *** =fullwidth
