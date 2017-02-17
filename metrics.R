@@ -114,36 +114,40 @@ metrics <- function(modelFit,
               title="ROC curve"
         ) + scale_y_log10()
 
+###################################################################
     # now, plot some of the turn-ons for completeness
-    benchmarkThrs <- c(15, 20, 25, 30)
+    benchmarkThrs     <- c(15, 20, 25, 30)
+    benchmarkThrBins <- sapply(benchmarkThrs, findBin, binning)
 
-    myModelTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrs]),
+    myModelTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrBins]),
                                    threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
                                    true_pT = rep(binning, length(benchmarkThrs)),
                                    model = rep("myModel",length(benchmarkThrs)*nBins)
                                  )
-    referenceTurnOnDF <- data.frame( eff = as.vector(myModelTurnOn[,benchmarkThrs]),
+    referenceTurnOnDF <- data.frame( eff = as.vector(referenceTurnOn[,benchmarkThrBins]),
                                      threshold_pT = factor(as.vector(sapply(benchmarkThrs, rep, nBins))),
-                                     true_pT = rep(binning, length(benchmarkThrs)),
+                                     true_pT = rep(binning*1.4, length(benchmarkThrs)),
                                      model = rep("reference",length(benchmarkThrs)*nBins)
                                    )
 
     turnOnDF <- rbind(myModelTurnOnDF,referenceTurnOnDF)
     turnOnDF$model <- factor(turnOnDF$model)
 
-    turnOn <- ggplot(turnOnDF[turnOnDF$threshold_pT==15,], aes(x = true_pT, y = eff, group = model, colour = model)) +
+    turnOn <- ggplot(subset(turnOnDF,threshold_pT==15), aes(x = true_pT, y = eff, group = model, colour = model)) +
 #        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
         geom_line() +
         geom_point() +
-        geom_vline(xintercept = benchmarkThrs, colour = "red") +
+        geom_vline(xintercept = 15, colour = "red") +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=15)
         ) +
         labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
-              y="efficiency"#,
-#              title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
-        )
+              y="efficiency",
+              title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(benchmarkThrs) ~ " GeV/c)")
+        ) + xlim(binning[1], binning[nBins])
+###################################################################
 
+    roc #turnOn
 }
