@@ -35,6 +35,8 @@
     <h2></h2>
     <p>Khristian Kotov<br/></p>
   </hgroup>
+    <a href="https://github.com/kkotov/emtfPtRegression/zipball/gh-pages" class="example">
+     Download
     </a>
   <article></article>  
 </slide>
@@ -141,7 +143,7 @@ and % of over-the-threshold (true positives) rate accepted for a given threshold
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>ROC curves for different rate shapes</h2>
+    <h2>ROC curves for different rates</h2>
   </hgroup>
   <article data-timings="">
     <p>Rate assumption has a dramatic effect on how the same performance looks in our system:</p>
@@ -207,8 +209,47 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
     <h2>Efficiency-rate metric</h2>
   </hgroup>
   <article data-timings="">
-    <p>Any new model&#39;s rate can be projected using current rate and turn-ons: \(r' = e' R = (e' e^{-1}) r\)</p>
+    <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
 
+<p>New model&#39;s rate can be projected using current rate and turn-ons: \(r' = e' R = (e' e^{-1}) r\)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Input data for rate assesement</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Use ntuples in <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch0</span></p>
+
+<p>With no codebook or a reference to the ntuplizer I cannot make sense of the plots:</p>
+
+<p><img src="assets/fig/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" /></p>
+
+<p>Why there are so many events with two seemingly identical tracks? I&#39;ll consider 1\(^{st}\) track only.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Building model with all predictors</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+
+<p><img src="assets/fig/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" /></p>
+
+</div>
+<p>New model does better (left plot), but the rate derived from matrix inversion is unstable (right)</p>
   </article>
   <!-- Presenter Notes -->
 </slide>
@@ -249,7 +290,7 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=6 title='ROC curves for different rate shapes'>
+        data-slide=6 title='ROC curves for different rates'>
          6
       </a>
     </li>
@@ -269,6 +310,18 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
       <a href="#" target="_self" rel='tooltip' 
         data-slide=9 title='Efficiency-rate metric'>
          9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Input data for rate assesement'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Building model with all predictors'>
+         11
       </a>
     </li>
   </ul>
