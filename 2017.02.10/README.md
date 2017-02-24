@@ -58,7 +58,7 @@ Turn-on is nothing else but a decision boundary, smeared due to a finite resolut
 
 It is a proportion of events surpassing a given decision threshold in every bin of true pT
 
-<img class=center src=binning.svg height=400> 
+<img class=center src=binning.png height=400> 
 
 --- .class #id
 
@@ -80,7 +80,7 @@ and % of over-the-threshold (true positives) rate accepted for a given threshold
 
 To construct the ROC scan over the threshold and plot false positive vs. true positive rates 
 
-<img class=center src=convolve.svg height=400> 
+<img class=center src=convolve.png height=400> 
 
 --- .class #id
 
