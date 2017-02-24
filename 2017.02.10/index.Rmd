@@ -222,11 +222,7 @@ rocPlot
 
 --- .class #id
 
-<<<<<<< HEAD
 ## True rate assessment
-=======
-## True rate assesement
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 
 The true rate can be measured right from the data with the current system
 
@@ -319,11 +315,7 @@ New model's rate can be projected using current rate and turn-ons: $r' = e' R = 
 
 --- .class #id
 
-<<<<<<< HEAD
 ## Input data for rate assessment
-=======
-## Input data for rate assesement
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 
 Use ntuples in <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch0</span>
 
@@ -445,10 +437,7 @@ invisible( capture.output( modelFit <- ranger(f, data=trainSet, importance="impu
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-<<<<<<< HEAD
 
-=======
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 source("../metrics.R")
 pp <- preprocess(modelFit,testSet)
 tt <- turnOns(pp)
@@ -464,11 +453,7 @@ myTurnOn  <- pp$getMyTurnOn()
 refTurnOn <- pp$getRefTurnOn()
 myRate <- myTurnOn %*% solve(refTurnOn) %*% rate
 
-<<<<<<< HEAD
 ratesPlot <- ggplot(data.frame(rate=c(rate[1:(nBins-1)],myRate[1:(nBins-1)]),
-=======
-effRate <- ggplot(data.frame(rate=c(rate[1:(nBins-1)],myRate[1:(nBins-1)]),
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 #                             eff=c(sapply(1:(nBins-1),function(i) turnOn[i,i]),sapply(1:(nBins-1),function(i) myTurnOn[i,i])),
 #                             se=c(sapply(1:(nBins-1),function(i){ eff=turnOn[i,i]; sqrt(eff*(1-eff)/norms[i]) }),
 #                                  sapply(1:(nBins-1),function(i){ eff=myTurnOn[i,i]; sqrt(eff*(1-eff)/norms[i]) })),
@@ -488,18 +473,13 @@ effRate <- ggplot(data.frame(rate=c(rate[1:(nBins-1)],myRate[1:(nBins-1)]),
               title="Rate shape"
         )
 
-<<<<<<< HEAD
 suppressWarnings( ratesPlot )
-=======
-suppressWarnings( effRate )
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 
 ```
 
 *** =fullwidth
 
 New model does better (left plot), but the rate derived from matrix inversion is unstable
-<<<<<<< HEAD
 
 --- &twocol
 
@@ -613,8 +593,6 @@ To be continued ...
 
 
 
-=======
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 
 --- &twocol
 
@@ -769,9 +747,5 @@ rrPlot <- ggplot(data.frame(x=rateShapeBinned[1:nBins-1] * r[1]/rateShapeBinned[
 
 ```
 
-<<<<<<< HEAD
 
 
-=======
-`
->>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
