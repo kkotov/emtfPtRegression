@@ -40,6 +40,42 @@
     
 
     <!-- SLIDES -->
+<<<<<<< HEAD
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Outline</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>New input data</p>
+
+<ul>
+<li>numbers and shapes</li>
+</ul></li>
+<li><p>Metrics</p>
+
+<ul>
+<li>turn-ons</li>
+<li>ROC curves and importance of true rate assumption</li>
+<li>rate-efficiency plots</li>
+</ul></li>
+<li><p>Assessing the true rate</p>
+
+<ul>
+<li>matrix method</li>
+<li>input data</li>
+<li>example with the model built using all predictors</li>
+<li>instability of the method</li>
+<li>solution: rate parametrization</li>
+</ul></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+=======
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 <slide class="" id="slide-2" style="background:;">
   <hgroup>
     <h2>New Monte Carlo simulation data</h2>
@@ -61,6 +97,9 @@
 <div style='float:right;width:48%;'>
   <p><img src="assets/fig/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
 
+</div>
+<div>
+  
 </div>
   </article>
   <!-- Presenter Notes -->
@@ -111,6 +150,7 @@ and % of over-the-threshold (true positives) rate accepted for a given threshold
 </slide>
 
 <slide class="class" id="id" style="background:;">
+<<<<<<< HEAD
   <hgroup>
     <h2>ROC curves for different rates</h2>
   </hgroup>
@@ -125,7 +165,7 @@ and % of over-the-threshold (true positives) rate accepted for a given threshold
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
-    <h2>True rate assesement</h2>
+    <h2>True rate assessment</h2>
   </hgroup>
   <article data-timings="">
     <p>The true rate can be measured right from the data with the current system</p>
@@ -168,6 +208,150 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
 
 <p>Efficiency right above threshold is a good estimate of % of true positives for vanishing spectra:
 <img class=center src="trigRates.png" height=400> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Efficiency-rate metric</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
+
+<p>New model&#39;s rate can be projected using current rate and turn-ons: \(r' = e' R = (e' e^{-1}) r\)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Input data for rate assessment</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Use ntuples in <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch0</span></p>
+
+<p>With no codebook or a reference to the ntuplizer I cannot make sense of the plots:</p>
+
+<p><img src="assets/fig/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" /></p>
+
+<p>Why there are so many events with two seemingly identical tracks? I&#39;ll consider 1\(^{st}\) track only.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Building model with all predictors</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+
+<p><img src="assets/fig/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>New model does better (left plot), but the rate derived from matrix inversion is unstable</p>
+=======
+  <hgroup>
+    <h2>ROC curves for different rates</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Rate assumption has a dramatic effect on how the same performance looks in our system:</p>
+
+<p><img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<<<<<<< HEAD
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Source of the instability</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Let&#39;s take an ideal \(1/p_T^2\) rate shape and \(atan(\alpha(p_T^{true}-p_T^{thresh}+\delta))\) for smooth turn-on</p>
+
+<p>Reconstructing true rate for different turn-on widths I see \(det(turnOn)\) vanishes</p>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Linear system becomes digenerate when threshold&#39;s step approaches the turn-on width</p>
+=======
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>True rate assesement</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The true rate can be measured right from the data with the current system</p>
+
+<p>The measured rate is a convolution of the unknown true rate and known turn-on:</p>
+
+<p>\[
+\left\{\begin{array}{lll}
+R_1 e^1_1 + R_2 e^1_2 + ... + R_N e^1_N = r_1 \\
+... \\
+R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
+\end{array}
+\right., \text{where}
+\]</p>
+
+<ul>
+<li>\(R_i\) - true rate in bins of true pT</li>
+<li>\(e^j_i\) - turn-on efficiency in \(i^{th}\) bin of true pT for threshold \(j\)</li>
+<li>\(r_j\) - measured rate above threshold \(j\)</li>
+</ul>
+
+<p>The solution in matrix form looks as follows: \(R = e^{-1} r\)</p>
+
+<p>For a step-like turn-on \(e\) is an integrator and \(e^{-1}\) is a differentiator</p>
+
+<p>Unfortunately, inverting the real turn-on matrix turned out to give a highly unstable \(R\)</p>
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+<<<<<<< HEAD
+    <h2>Parametrizing the rate shape</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The above problem can be avoided if the rate shape is parameterized with just few handles</p>
+
+<p>Now I am trying our different smooth shapes and numerical minimization of -log likelihood</p>
+
+<p>To be continued ...</p>
+=======
+    <h2>Exchanging true rate for measured</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>There may by no high pT muons in MinBias sample \(\rightarrow\) tail is made of promoted muons</p>
+
+<p>Measured rate is more relevant performance parameter than % of false positives</p>
+
+<p>Efficiency right above threshold is a good estimate of % of true positives for vanishing spectra:
+<img class=center src="trigRates.png" height=400> </p>
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
 
   </article>
   <!-- Presenter Notes -->
@@ -265,7 +449,11 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
+<<<<<<< HEAD
+        data-slide=7 title='True rate assessment'>
+=======
         data-slide=7 title='True rate assesement'>
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
          7
       </a>
     </li>
@@ -283,7 +471,11 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
+<<<<<<< HEAD
+        data-slide=10 title='Input data for rate assessment'>
+=======
         data-slide=10 title='Input data for rate assesement'>
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
          10
       </a>
     </li>
@@ -293,6 +485,21 @@ R_1 e^M_1 + R_2 e^M_2 + ... + R_N e^M_N = r_M \\
          11
       </a>
     </li>
+<<<<<<< HEAD
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Source of the instability'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Parametrizing the rate shape'>
+         13
+      </a>
+    </li>
+=======
+>>>>>>> e3193fa9e0bc45057dd39b07f702aff19c5bfa9b
   </ul>
   </div>  <!--[if IE]>
     <script 
