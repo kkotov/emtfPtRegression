@@ -18,12 +18,17 @@ mode        : selfcontained # {standalone, draft}
 1. New input data
   - numbers and shapes
 
-2. ROC metric
-  - rate against efficiency
-  - examples with various rate assumptions
+2. Metrics
+  - turn-ons
+  - ROC curves and importance of true rate assumption
+  - rate-efficiency plots
 
-3. Model building
-  - using all predictors
+3. Assessing the true rate
+  - matrix method
+  - input data
+  - example with the model built using all predictors
+  - instability of the method
+  - solution: rate parametrization
 
 --- &twocol
 
@@ -159,7 +164,7 @@ To construct the ROC scan over the threshold and plot false positive vs. true po
 
 --- .class #id
 
-## ROC curves for different rate shapes
+## ROC curves for different rates
 
 Rate assumption has a dramatic effect on how the same performance looks in our system:
 
@@ -217,7 +222,7 @@ rocPlot
 
 --- .class #id
 
-## True rate assesement
+## True rate assessment
 
 The true rate can be measured right from the data with the current system
 
@@ -270,7 +275,7 @@ Efficiency right above threshold is a good estimate of % of true positives for v
 ## and then combining the pieces with:
  files <- paste("r",seq(6,27,1),".RData",sep='')
  for(f in files[c(1,2,3,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22)]) load(f)
- r <- r6 + r7 + r8 + r12 + r13 + r14 + r15 + r17 + r18 + r19 + r20 + r21 + r22 + r23 + r24 + r25 + r26 + r27
+ rate <- r6 + r7 + r8 + r12 + r13 + r14 + r15 + r17 + r18 + r19 + r20 + r21 + r22 + r23 + r24 + r25 + r26 + r27
 #
 ## closure test - for the infinitely sharp turn-on R = -dr/dpT (up to dpT that we omit here for constant bin widt):
 # idealTurnOn <- matrix(rep(0,51*51), ncol=51, nrow=51)
@@ -280,20 +285,37 @@ Efficiency right above threshold is a good estimate of % of true positives for v
 # coarseThr    <- c(5,10,15,20,25,30)
 # coarseCounts <- t(sapply(pSpec$response_pT,function(x) sapply(coarseThr,function(y) sum(unlist(x)>y) )))
 # coarseTurnOn <- coarseCounts/norms
-# R <- qr.solve(coarseTurnOn[1:nBins-1,1:5],r[1:nBins-1])
+# R <- qr.solve(coarseTurnOn[1:nBins-1,1:5],rate[1:nBins-1])
 
-#effRate <- ggplot(data.frame(rate=r,
+effRate <- ggplot(data.frame(rate=rate[1:(nBins-1)],
+                             eff=sapply(1:(nBins-1),function(i) turnOn[i,i]),
+                             se=sapply(1:(nBins-1),function(i){ eff=turnOn[i,i]; sqrt(eff*(1-eff)/norms[i]) })
+                            ),
+                  aes(x=rate,y=eff)) +
+        geom_line() +
+        geom_point() +
+        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x="rate",
+              y="efficiency",
+              title="Efficiency-rate curve"
+        ) + scale_x_log10()
 
 ```
 
-```{r, fig.height=5., fig.width=10., fig.align = 'center', comment = NA, message = F, echo = F}
+```{r, fig.height=6., fig.width=10., fig.align = 'center', comment = NA, message = F, echo = F}
+effRate
 ```
 
-Any new model's rate can be projected using current rate and turn-ons: $r' = e' R = (e' e^{-1}) r$
+New model's rate can be projected using current rate and turn-ons: $r' = e' R = (e' e^{-1}) r$
 
 --- .class #id
 
-## Input data for the rate assesement
+## Input data for rate assessment
 
 Use ntuples in <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch0</span>
 
@@ -361,11 +383,11 @@ require("gridExtra")
 suppressWarnings( grid.arrange(nTrk,dEta,dPhi,dpT) )
 ```
 
-Why there are so many events with two seemingly identical tracks? 
+Why there are so many events with two seemingly identical tracks? I'll consider 1$^{st}$ track only.
 
 --- &twocol
 
-## Model with all predictors included
+## Building model with all predictors
 
 ```{r, comment = NA, message = F, echo = F}
 
@@ -415,23 +437,162 @@ invisible( capture.output( modelFit <- ranger(f, data=trainSet, importance="impu
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-source("../turnOn.R")
-turnOn(modelFit,shift=14)
+
+source("../metrics.R")
+pp <- preprocess(modelFit,testSet)
+tt <- turnOns(pp)
+suppressWarnings( tt[["30"]] )
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+#barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+
+myTurnOn  <- pp$getMyTurnOn()
+refTurnOn <- pp$getRefTurnOn()
+myRate <- myTurnOn %*% solve(refTurnOn) %*% rate
+
+ratesPlot <- ggplot(data.frame(rate=c(rate[1:(nBins-1)],myRate[1:(nBins-1)]),
+#                             eff=c(sapply(1:(nBins-1),function(i) turnOn[i,i]),sapply(1:(nBins-1),function(i) myTurnOn[i,i])),
+#                             se=c(sapply(1:(nBins-1),function(i){ eff=turnOn[i,i]; sqrt(eff*(1-eff)/norms[i]) }),
+#                                  sapply(1:(nBins-1),function(i){ eff=myTurnOn[i,i]; sqrt(eff*(1-eff)/norms[i]) })),
+                             type=factor(c(rep("reference",nBins-1),rep("myModel",nBins-1)))
+                            ),
+                  aes(x=c(binning[1:(nBins-1)],binning[1:(nBins-1)]),y=rate,group=type,color=type)) +
+        geom_line() +
+        geom_point() +
+#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x="pT (GeV/c)",
+              y="Rate (# of events)",
+              title="Rate shape"
+        )
+
+suppressWarnings( ratesPlot )
+
+```
+
+*** =fullwidth
+
+New model does better (left plot), but the rate derived from matrix inversion is unstable
+
+--- &twocol
+
+## Source of the instability 
+
+Let's take an ideal $1/p_T^2$ rate shape and $atan(\alpha(p_T^{true}-p_T^{thresh}+\delta))$ for smooth turn-on
+
+Reconstructing true rate for different turn-on widths I see $det(turnOn)$ vanishes
+
+*** =left
+
+```{r, comment = NA, message = F, echo = F}
+binning <- seq(1,100,0.1)
+nBins <- length(binning)
+dfXY <- data.frame( x=runif(1e8,1,1000), y=runif(1e8) )
+pt <- dfXY[ 1/dfXY$x^2 > dfXY$y,"x"]
+rm(dfXY)
+idealRateSqr <- sapply(binning, function(x) sum(pt > x) )
+
+idealTurnOn1 <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn1[thr,bin] = (atan(1*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+#for(i in 1:nBins) for(j in i:nBins) idealTurnOn[i,j] = 1 # almost similar to ^^^^^^^^^^^^^^^^
+
+idealTurnOn2 <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn2[thr,bin] = (atan(0.1*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+
+idealTurnOn3 <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn3[thr,bin] = (atan(0.01*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+```
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+require(ggplot2)
+ggplot( data.frame( pt   = rep(binning,4),
+                    y    = c(idealRateSqr/idealRateSqr[1], idealTurnOn1[50,], idealTurnOn2[50,], idealTurnOn3[50,]),
+                    type = c(rep("rate",length(binning)), rep("alpha=1",length(binning)), rep("alpha=0.1",length(binning)), rep("alpha=0.01",length(binning)))
+                  ),
+       aes(x=pt,y=y,group=type,color=type)) +
+        geom_line() +
+#        geom_point() +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x=expression(paste(p[T] ^{true}," (GeV/c)")),
+              y="Normalized rate and efficiencies"
+        ) + scale_x_log10()
 ```
 
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-source("../metrics.R")
-metrics(modelFit,testSet)
+# keep track of indexies:
+#idealTurnOn[1:5,1:4] %*% c(1,1,1,1)
+#qr.solve(idealTurnOn[1:5,1:4],c(4,3,2,1,0))
+#det(idealTurnOn)
 
-#barplot( modelFit$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+#0: alpha = Inf
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(i in 1:nBins) for(j in i:nBins) idealTurnOn[i,j] = 1
+R <- qr.solve(idealTurnOn,idealRateSqr)
+
+#1: alpha = 10
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn[thr,bin] = (atan(10*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+R10 <- qr.solve(idealTurnOn,idealRateSqr)
+
+#1: alpha = 1
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn[thr,bin] = (atan(1*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+R1 <- qr.solve(idealTurnOn,idealRateSqr)
+
+#1: alpha = 0.1
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn[thr,bin] = (atan(0.1*(bin-thr+0.5)) + 3.1415927/2.)/3.1415927
+#R01 <- qr.solve(idealTurnOn,idealRateSqr)
+
+ggplot( data.frame( pt    = rep(binning,3),
+                    rate  = c(R,R10,R1),
+                    alpha = c(rep("Inf",nBins),rep("10",nBins),rep("1",nBins))
+                  ), aes(x=pt,y=rate,group=alpha,color=alpha) ) +
+        geom_line() +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x=expression(paste(p[T] ^{true}," (GeV/c)")),
+              y="Counts",
+              title="Reconstructed rates"
+        ) + scale_x_log10()
+
 ```
 
 *** =fullwidth
 
-Before doing forward/backward stepwise selection, I'll truncate the dPhi, dTheta precision
+Linear system becomes digenerate when threshold's step approaches the turn-on width
+
+--- .class #id
+
+## Parametrizing the rate shape
+
+The above problem can be avoided if the rate shape is parameterized with just few handles
+
+Now I am trying our different smooth shapes and numerical minimization of -log likelihood
+
+To be continued ...
+
+
+
+
+
 
 --- &twocol
 
@@ -586,4 +747,5 @@ rrPlot <- ggplot(data.frame(x=rateShapeBinned[1:nBins-1] * r[1]/rateShapeBinned[
 
 ```
 
-`
+
+

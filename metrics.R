@@ -1,5 +1,5 @@
 # The conventional trigger turn-on curve, constructed with a certain threshold_pT
-# in mind, presents the probability that responce_pT > threshold_pT as a function
+# in mind, presents the probability that response_pT > threshold_pT as a function
 # of true_pT. The main limitation of the turn-on metric is that the model curves
 # have to be visually compared for a series of thresholds, which a rather labour-
 # intensive exercise. Moreover, such metric also does not offer a good quantitative
@@ -40,23 +40,23 @@ findBin <- function(val, binning, start=1, end=length(binning)){
 }
 
 # calculate the standard turn-ons and rate shape distribution
-preProcess <- function(modelFit,
+preprocess <- function(modelFit,
                        testSet,
                        rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
                        binning = seq(0,100,2) # example of binning: pT from 0 to 100 GeV/c in steps of 2 GeV/c
                       )
 {
-    # first, predict responce_pT of the model on the test data
+    # first, predict response_pT of the model on the test data
     testSet$res <- 1/predict(modelFit,testSet)$predictions
     # assign every true_pT to a bin
     testSet$trueBin <- sapply(1/testSet$muPtGenInv, findBin, binning)
-    # construct a proto-spectrum where every true_pT_bin aggregates responce_pT lists
+    # construct a proto-spectrum where every true_pT_bin aggregates response_pT lists
     pSpec <- aggregate(testSet, by=list(bin=testSet$trueBin), function(x) x )
     # a simple histogram of true_pT would be just number of events in every true_pT_bin
     pSpec$count <- sapply(pSpec$res,length)
 
     # for turn-ons I use the matricies indexed by [true_pT_bin,threshold_pT_bin]
-    #  they represent number of events with the responce_pT > threshold_pT_bin in every true_pT_bin
+    #  they represent number of events with the response_pT > threshold_pT_bin in every true_pT_bin
     myModelCount   <- t(sapply(pSpec$res,  function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
     referenceCount <- t(sapply(pSpec$ptTrg,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
 
