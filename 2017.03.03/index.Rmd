@@ -1,0 +1,102 @@
+---
+title       : "EMTF $p_T$ Regression"
+subtitle    :
+author      : Khristian Kotov
+job         :
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      #
+github:
+  user: kkotov
+  repo: emtfPtRegression
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+---
+
+## Coarse ture rate
+
+* 
+
+```{r message = F, echo = F}
+mode_inv <- 15
+mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
+df <- read.csv(file="../../pt/SingleMu_Pt1To1000_FlatRandomOneOverPt.csv",header=T,sep=',')
+d1 <- df[df[,"mode.0."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".0.",colnames(df),fixed=T) ) ]
+d2 <- df[df[,"mode.1."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".1.",colnames(df),fixed=T) ) ]
+colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
+colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
+d <- rbind(d1,d2)
+
+source("../metrics.R")
+binning <- seq(0,100,2)
+nBins   <- length(binning)
+slimDF  <- with(d, data.frame(true_pT = muPtGen, response_pT = pt) )
+slimDF$trueBin <- sapply(slimDF$true_pT, findBin, binning)
+pSpec   <- aggregate(slimDF, by=list(bin=slimDF$trueBin), function(x) x )
+norms   <- sapply(pSpec$response_pT,length)
+counts  <- t(sapply(pSpec$response_pT,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
+turnOn  <- counts/norms
+
+for(f in paste("./r_",c(1,2,3),".RData",sep='')) load(f)
+rate <- r_1 + r_2 + r_3
+
+#dfXY <- data.frame( x=runif(1e8,1,1000), y=runif(1e8) )
+#pt <- dfXY[ 1/dfXY$x^2 > dfXY$y,"x"]
+#rm(dfXY)
+#qqplot(runif(30000,0.001,1)^-1,pt) # for the power spectrum this is much more efficient generator
+## also check this out:
+# pt <- dfXY[ 1/dfXY$x^4 > dfXY$y,"x"]
+# qqplot(runif(30000,0.00001,1)^(-1/3),pt)
+
+pt3 <- runif(30000000,0.000001,1)^(-1/2)
+rate3 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
+
+pt4 <- runif(30000000,0.00001,1)^(-1/3)
+rate4 <- sapply(binning[2:nBins], function(x) sum(pt4 > x) )
+```
+
+require(ggplot2)
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+plot(binning,rate[2:nBins])
+lines(binning, (t(turnOn[2:nBins,2:nBins]) %*% rate4)*0.05,  col='red')
+lines(binning, (t(turnOn[2:nBins,2:nBins]) %*% rate3)*0.015, col='blue')
+
+
+ggplot(df, aes(x=log(muPtGen) )) +
+    geom_histogram(breaks=seq(0,7,0.1)) +
+    theme(
+        title = element_text(size=20),
+        axis.title.x = element_text(size=20),
+        axis.text.x  = element_text(size=15)
+    ) +
+    labs( x=expression(log(p[T])),
+          y="count",
+          title=expression(paste("Transformed ", p[T], " spectrum"))
+    )
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+ggplot(df, aes(x=muEtaGen)) +
+    geom_histogram(breaks=seq(-2.6,2.6,0.1)) +
+    theme(
+        title = element_text(size=20),
+        axis.title.x = element_text(size=20),
+        axis.text.x  = element_text(size=15)
+    ) +
+    labs( x=expression(eta),
+          y="count",
+          title="Pseudorapidity spectrum"
+    )
+```
+
+*** =fullwidth
+
+--- .class #id
+
+## Turn-on curve
+
