@@ -13,7 +13,7 @@ widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
 
-## Coarse ture rate
+## Coarse ture rate assessment
 
 * 
 
@@ -37,8 +37,13 @@ norms   <- sapply(pSpec$response_pT,length)
 counts  <- t(sapply(pSpec$response_pT,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
 turnOn  <- counts/norms
 
-for(f in paste("./r_",c(1,2,3),".RData",sep='')) load(f)
-rate <- r_1 + r_2 + r_3
+for(f in paste("../../pt/s",c(0,1,2,3),".RData",sep='')) load(f)
+zb <- s0
+zb <- rbind(zb,s1)
+zb <- rbind(zb,s2)
+zb <- rbind(zb,s3)
+
+ptMes <- zb$ptEMTF
 
 #dfXY <- data.frame( x=runif(1e8,1,1000), y=runif(1e8) )
 #pt <- dfXY[ 1/dfXY$x^2 > dfXY$y,"x"]
@@ -53,45 +58,21 @@ rate3 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
 
 pt4 <- runif(30000000,0.00001,1)^(-1/3)
 rate4 <- sapply(binning[2:nBins], function(x) sum(pt4 > x) )
-```
 
 require(ggplot2)
+```
+
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-
-plot(binning,rate[2:nBins])
-lines(binning, (t(turnOn[2:nBins,2:nBins]) %*% rate4)*0.05,  col='red')
-lines(binning, (t(turnOn[2:nBins,2:nBins]) %*% rate3)*0.015, col='blue')
-
-
-ggplot(df, aes(x=log(muPtGen) )) +
-    geom_histogram(breaks=seq(0,7,0.1)) +
-    theme(
-        title = element_text(size=20),
-        axis.title.x = element_text(size=20),
-        axis.text.x  = element_text(size=15)
-    ) +
-    labs( x=expression(log(p[T])),
-          y="count",
-          title=expression(paste("Transformed ", p[T], " spectrum"))
-    )
+qqplot(runif(30000,0.00001,1)^(-1/3),ptMes)
 ```
 
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-ggplot(df, aes(x=muEtaGen)) +
-    geom_histogram(breaks=seq(-2.6,2.6,0.1)) +
-    theme(
-        title = element_text(size=20),
-        axis.title.x = element_text(size=20),
-        axis.text.x  = element_text(size=15)
-    ) +
-    labs( x=expression(eta),
-          y="count",
-          title="Pseudorapidity spectrum"
-    )
+ggplot( data.frame(qqplot(x=pt4, y=ptMes, plot.it=FALSE)) ) + geom_point(aes(x=x, y=y))
+
 ```
 
 *** =fullwidth
