@@ -13,6 +13,10 @@ widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
 
+## Outline
+
+--- &twocol
+
 ## Coarse ture rate assessment
 
 * 
@@ -54,10 +58,13 @@ ptMes <- zb$ptEMTF
 # qqplot(runif(30000,0.00001,1)^(-1/3),pt)
 
 pt3 <- runif(30000000,0.000001,1)^(-1/2)
-rate3 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
+rate3 <- sapply(binning[2:nBins], function(x) sum(pt0.33 > x) )
 
 pt4 <- runif(30000000,0.00001,1)^(-1/3)
-rate4 <- sapply(binning[2:nBins], function(x) sum(pt4 > x) )
+rate4 <- sapply(binning[2:nBins], function(x) sum(pt0.25 > x) )
+
+pt3.2 <- runif(30000000,0.00001,1)^(-0.45)
+rate3.2 <- sapply(binning[2:nBins], function(x) sum(pt0.45 > x) )
 
 require(ggplot2)
 ```
@@ -65,15 +72,27 @@ require(ggplot2)
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-qqplot(runif(30000,0.00001,1)^(-1/3),ptMes)
+
+#qqplot(pt0.45,ptMes)
+# ggplot2 equivalent of the build-in above:
+
+qqggPlot <- ggplot( data.frame(qqplot(x=pt3, y=ptMes, plot.it=FALSE)) ) +
+        geom_point(aes(x=x, y=y)) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15)
+        ) +
+        labs( x=expression(paste(p[T] ^3, " spectrum")),
+              y="measured rate",
+              title="Quantile-Quantile (distribution similarity) plot"
+        ) #+ scale_x_log10()
+
+qqggPlot
 ```
 
 *** =right
 
-```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-ggplot( data.frame(qqplot(x=pt4, y=ptMes, plot.it=FALSE)) ) + geom_point(aes(x=x, y=y))
-
-```
 
 *** =fullwidth
 
