@@ -17,9 +17,7 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Coarse ture rate assessment
-
-* 
+## Measured rate properties
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -58,6 +56,9 @@ ptMes <- zb$ptEMTF
 # qqplot(runif(30000,0.00001,1)^(-1/3),pt)
 # so the scale-formula is b = 1/(a+1), e.g. a = -4 => b = -1/3, a = -2 => b = -1
 
+pt2.7 <- runif(30000000,0.00001,1)^(-1/1.7)
+rate2.7 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
+
 pt3 <- runif(30000000,0.00001,1)^(-1/2)
 rate3 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
 
@@ -73,28 +74,69 @@ require(ggplot2)
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-#qqplot(pt0.45,ptMes)
-# ggplot2 equivalent of the build-in above:
-
-qqggPlot <- ggplot( data.frame(qqplot(x=pt3, y=ptMes, plot.it=FALSE)) ) +
-        geom_point(aes(x=x, y=y)) +
+qqPlot <- ggplot() +
+        geom_freqpoly( data=data.frame(pT=pt2.7),
+                        breaks=seq(2,257,2),
+                        alpha = 0.2,
+                        position = "identity",
+                        aes( x = pT,
+                             y = (..count..)/sum(..count..),
+                             colour = "r",
+                             fill = "r"
+                        )
+                      ) +
+        geom_freqpoly( data=data.frame(pT=ptMes),
+                        breaks=seq(2,257,2),
+                        alpha = 0.2,
+                        position = "identity",
+                        aes( x = pT,
+                             y = (..count..)/sum(..count..),
+                             colour = "b",
+                             fill = "b"
+                        )
+                      ) +
         theme(
             title = element_text(size=20),
-            axis.title.x = element_text(size=20),
-            axis.text.x  = element_text(size=15)
+            axis.title.x = element_text(size=15),
+            axis.text.x  = element_text(size=20)
         ) +
-        labs( x=expression(paste(1/p[T] ^3, "spectrum")),
-              y=expression(paste("measured" p[T] "rate (Gev/c)")),
-              title="Distribution similarity (q-q)"
-        ) #+ scale_x_log10()
+        labs( x=expression(paste(p[T], " (GeV/c)")),
+              y="density",
+              title="Rate"
+        ) +
+        scale_colour_manual(name = "", values=c("r" = "red", "b"="blue"), labels=c("b"="EMTF", "r"=expression(1/p[T] ^2.7))) +
+        scale_fill_manual(name = "",   values=c("r" = "red", "b"="blue"), labels=c("b"="EMTF", "r"=expression(1/p[T] ^2.7))) +
+        scale_y_log10()
 
-qqggPlot
+qqPlot
 ```
 
 *** =right
 
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+#qqplot(pt0.45,ptMes)
+# ggplot2 equivalent of the build-in above:
+
+qqPlot <- ggplot( data.frame(qqplot(x=pt2.7, y=ptMes, plot.it=FALSE)) ) +
+        geom_point(aes(x=x, y=y)) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=0),
+            axis.title.y = element_text(size=20),
+            axis.text.y  = element_text(size=20)
+        ) +
+        labs( x=expression(paste(1/p[T] ^2.7, " spectrum")),
+              y=expression(paste("measured ", p[T], " rate (Gev/c)")),
+              title="Distribution similarity (q-q)"
+        ) #+ scale_x_log10()
+
+qqPlot
+```
 
 *** =fullwidth
+
+Clearly seen are two components meeting at $\sim$100 GeV/$c$ (and the EMTF pT saturation)
 
 --- .class #id
 
