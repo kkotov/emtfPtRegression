@@ -57,16 +57,7 @@ ptMes <- zb$ptEMTF
 # so the scale-formula is b = 1/(a+1), e.g. a = -4 => b = -1/3, a = -2 => b = -1
 
 pt2.7 <- runif(30000000,0.00001,1)^(-1/1.7)
-rate2.7 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
-
-pt3 <- runif(30000000,0.00001,1)^(-1/2)
-rate3 <- sapply(binning[2:nBins], function(x) sum(pt3 > x) )
-
-pt4 <- runif(30000000,0.00001,1)^(-1/3)
-rate4 <- sapply(binning[2:nBins], function(x) sum(pt4 > x) )
-
-pt3.2 <- runif(30000000,0.00001,1)^(-0.45)
-rate3.2 <- sapply(binning[2:nBins], function(x) sum(pt3.2 > x) )
+rate2.7 <- sapply(binning[2:nBins], function(x) sum(pt2.7 > x) )
 
 require(ggplot2)
 ```
@@ -74,10 +65,11 @@ require(ggplot2)
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
 qqPlot <- ggplot() +
         geom_freqpoly( data=data.frame(pT=pt2.7),
                         breaks=seq(2,257,2),
-                        alpha = 0.2,
+#                        alpha = 0.2,
                         position = "identity",
                         aes( x = pT,
                              y = (..count..)/sum(..count..),
@@ -87,7 +79,7 @@ qqPlot <- ggplot() +
                       ) +
         geom_freqpoly( data=data.frame(pT=ptMes),
                         breaks=seq(2,257,2),
-                        alpha = 0.2,
+#                        alpha = 0.2,
                         position = "identity",
                         aes( x = pT,
                              y = (..count..)/sum(..count..),
@@ -98,7 +90,11 @@ qqPlot <- ggplot() +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=15),
-            axis.text.x  = element_text(size=20)
+            axis.text.x  = element_text(size=20),
+            legend.position = c(.6, .7),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
         labs( x=expression(paste(p[T], " (GeV/c)")),
               y="density",
@@ -117,17 +113,17 @@ qqPlot
 #qqplot(pt0.45,ptMes)
 # ggplot2 equivalent of the build-in above:
 
-qqPlot <- ggplot( data.frame(qqplot(x=pt2.7, y=ptMes, plot.it=FALSE)) ) +
+qqPlot <- ggplot( data.frame(qqplot(x=ptMes, y=pt2.7, plot.it=FALSE)) ) +
         geom_point(aes(x=x, y=y)) +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
-            axis.text.x  = element_text(size=0),
+            axis.text.x  = element_text(size=20),
             axis.title.y = element_text(size=20),
-            axis.text.y  = element_text(size=20)
+            axis.text.y  = element_text(size=0)
         ) +
-        labs( x=expression(paste(1/p[T] ^2.7, " spectrum")),
-              y=expression(paste("measured ", p[T], " rate (Gev/c)")),
+        labs( y=expression(paste(1/p[T] ^2.7, " spectrum")),
+              x=expression(paste("measured ", p[T], " rate (Gev/c)")),
               title="Distribution similarity (q-q)"
         ) #+ scale_x_log10()
 
@@ -138,7 +134,114 @@ qqPlot
 
 Clearly seen are two components meeting at $\sim$100 GeV/$c$ (and the EMTF pT saturation)
 
+Since all of the thresholds of interest are < 100 GeV/$c$ let's zoom in to the first component
+
+--- &twocol
+
+## Low $p_T$ part of the measured spectrum
+
+Simple power law is a rather crude approximation, exponent + power law works better:
+
+```{r message = F, echo = F}
+# let's fit a binned likelihood
+
+binning <- seq(2,80,1)
+rateThr <- sapply(binning, function(x) sum(ptMes > x) )
+rateBin <- sapply(1:(length(binning)-1), function(x) sum(ptMes > binning[x] & ptMes < binning[x+1]) )
+
+binLikelihood <- function(par, rate) {
+    norm1     <- par[1]
+    powerLaw1 <- par[2]
+    norm2     <- par[3]
+    powerLaw2 <- par[4]
+    shift     <- par[5]
+    estRate   <- sapply(binning[1:(length(binning)-1)],function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+#    estRate   <- sapply(binning,function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+    sum( (rate - estRate)^2 )
+}
+
+#invisible( capture.output( ) )
+#suppressWarnings( fitMes <- nlm(binLikelihood, c(1,2,1,1,10), rate = rateThr, hessian=T) )
+suppressWarnings( fitMes <- nlm(binLikelihood, c(1.8,1.2,17,3.1,3), rate = rateBin, hessian=T) )
+#solve(fitMes$hessian) # to get covariance matrix if needed
+
+norm1     <- fitMes$estimate[1]
+powerLaw1 <- fitMes$estimate[2]
+norm2     <- fitMes$estimate[3]
+powerLaw2 <- fitMes$estimate[4]
+shift     <- fitMes$estimate[5]
+approxRate <- sapply(binning[1:(length(binning)-1)],function(x) rateBin[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+#approxRate <- sapply(binning,function(x) rateThr[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+
+#twoComps <- function(x,norm1,powerLaw1,norm2,powerLaw2,shift) norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)
+#MASS::fitdistr(ptMes, twoComps, list(norm1 = 3, powerLaw1 = 0.6, norm2 = 1, powerLaw2 = 1, shift = 10))$estimate
+```
+
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+rrPlot <- ggplot() +
+        geom_line( data = data.frame(pT = binning[1:(length(binning)-1)], cnt = rateBin) ,
+                        aes( x = pT,
+                             y = cnt,
+                             colour = "r",
+                             fill = "r"
+                        )
+                  ) +
+        geom_line( data = data.frame(pT = binning[1:(length(binning)-1)], cnt = approxRate),
+                        aes( x = pT,
+                             y = cnt,
+                             colour = "b",
+                             fill = "b"
+                        )
+                  ) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=15),
+            axis.text.x  = element_text(size=20),
+            legend.position = c(.50, .85),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        labs( x=expression(paste(p[T], " (GeV/c)")),
+              y="conuts",
+              title="Rate"
+        ) +
+        scale_colour_manual(name = "",
+                            values = c("r" = "red", "b"="blue"),
+                            labels = c("r"="EMTF",
+                                       "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
+                                      )
+                           ) +
+        scale_fill_manual(name = "",
+                          values = c("r" = "red", "b"="blue"),
+                          labels = c("r"="EMTF",
+                                     "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
+                                    )
+                         ) +
+        scale_y_log10()
+
+rrPlot
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+#qqPlot <- ggplot( data.frame(x=ptMesCut80), aes(sample=x)) +
+#         stat_qq( distribution = function(x,norm1,powerLaw1,norm2,powerLaw2,shift) norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2),
+#                  dparams = list("norm1" = norm1, "powerLaw1" = powerLaw1, "powerLaw2" = powerLaw2, "shift" = shift)
+#         )
+#qqPlot
+```
+
+*** =fullwidth
+
+The $1/p_T^{2.4}$, although, not ideal, seems to be a good 
+
 --- .class #id
 
-## Turn-on curve
+## Low $p_T$ part of the measured spectrum
+
 
