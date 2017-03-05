@@ -17,7 +17,7 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Measured rate properties
+## Properties of the measured rate
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -138,9 +138,7 @@ Since all of the thresholds of interest are < 100 GeV/$c$ let's zoom in to the f
 
 --- &twocol
 
-## Low $p_T$ part of the measured spectrum
-
-Simple power law is a rather crude approximation, exponent + power law works better:
+## Low $p_T$ part of the measured rate 
 
 ```{r message = F, echo = F}
 # let's fit a binned likelihood
@@ -211,7 +209,7 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, sh
         ) +
         theme(
             title = element_text(size=20),
-            axis.title.x = element_text(size=15),
+            axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=20),
             legend.position = c(.50, .85),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
@@ -236,29 +234,55 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, sh
 
 *** =left
 
+Power law is a rather crude approximation, exponent + power law works better:
+
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+#makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, poserLaw2_a, shift_a, "Integrated rate above threshold")
 makeRRplot(rateOrig_d, rateFit_d, norm1_d, powerLaw1_d, norm2_d, poserLaw2_d, shift_d, "Rate")
 ```
 
 *** =right
 
-```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-#qqPlot <- ggplot( data.frame(x=ptMesCut80), aes(sample=x)) +
-#         stat_qq( distribution = function(x,norm1,powerLaw1,norm2,powerLaw2,shift) norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2),
-#                  dparams = list("norm1" = norm1, "powerLaw1" = powerLaw1, "powerLaw2" = powerLaw2, "shift" = shift)
-#         )
-#qqPlot
+But quantile-quantile plot is not diagonal $\rightarrow$ the fit is still not ideal of course:
 
-makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, poserLaw2_a, shift_a, "Integrated rate above threshold")
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+ratePDF <- function(x, norm1, powerLaw1, norm2, powerLaw2, shift) norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)
+
+pTvals <- seq(2,80,0.01)
+rProbs <- ratePDF(pTvals, norm1_d, powerLaw1_d, norm2_d, powerLaw2_d, shift_d)
+
+rateCDF <- cumsum(rProbs)
+
+# invert CDF with approxfun to get quantile function
+rateQuantiles <- approxfun(x=rateCDF/sum(rProbs), y=pTvals, yleft=2, yright=80)
+
+qqPlot <- ggplot( data.frame(x=sort(ptMes[ptMes<80 & ptMes>=2])), aes(sample=x)) +
+        stat_qq(distribution = function(p) rateQuantiles(v=p) ) +
+        labs( x="fit",
+              y="measured",
+              title="Quantile-quantile plot"
+        ) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=20)
+        )
+
+qqPlot
 ```
 
 *** =fullwidth
 
-
-qwe The $1/p_T^{2.4}$, although, not ideal, seems to be a good 
+qwe For the moment I'll stick with these fit keeping in mind the excluded [1-2] GeV/$c$ bin
 
 --- .class #id
 
-## Low $p_T$ part of the measured spectrum
+## "Deconvoluting" the ideal spectrum
+
+Using the fit above and turn-ons from last  
 
 
+```{r message = F, echo = F}
+erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
+```
