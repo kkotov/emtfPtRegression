@@ -141,7 +141,7 @@ Since all of the thresholds of interest are < 100 GeV/$c$ let's zoom in to the f
 ## Low $p_T$ part of the measured rate 
 
 ```{r message = F, echo = F}
-# let's fit a binned likelihood
+# let's fit a binned likelihood to get the answer quick
 
 binning <- seq(2,80,1)
 rateThr <- sapply(binning, function(x) sum(ptMes > x) )
@@ -234,7 +234,7 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, sh
 
 *** =left
 
-Power law is a rather crude approximation, exponent + power law works better:
+Simple power law is a crude approximation, exponent + power law works better:
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 #makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, poserLaw2_a, shift_a, "Integrated rate above threshold")
@@ -243,7 +243,7 @@ makeRRplot(rateOrig_d, rateFit_d, norm1_d, powerLaw1_d, norm2_d, poserLaw2_d, sh
 
 *** =right
 
-But quantile-quantile plot is not diagonal $\rightarrow$ the fit is still not ideal of course:
+But quantile-quantile plot is not straight $\rightarrow$ the fit is still rather mediocre, of course:
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
@@ -257,7 +257,7 @@ rateCDF <- cumsum(rProbs)
 # invert CDF with approxfun to get quantile function
 rateQuantiles <- approxfun(x=rateCDF/sum(rProbs), y=pTvals, yleft=2, yright=80)
 
-# source https://github.com/tidyverse/ggplot2/blob/master/R/stat-qq.r turned out to be crucial for implementing qqPlot
+# source https://github.com/tidyverse/ggplot2/blob/master/R/stat-qq.r turned out to be crucial for implementing qqPlot below
 
 qqPlot <- ggplot( data.frame(x=sort(ptMes[ptMes<80 & ptMes>=2])), aes(sample=x)) +
         stat_qq(distribution = function(p) rateQuantiles(v=p) ) +
@@ -276,14 +276,143 @@ qqPlot
 
 *** =fullwidth
 
-qwe For the moment I'll stick with these fit keeping in mind the excluded [1-2] GeV/$c$ bin
+qwe I'll stick with this parameterization keeping in mind the excluded [1-2] GeV/$c$ bin
 
 --- .class #id
 
-## "Deconvoluting" the ideal spectrum
+## Deconvoluting ideal spectrum
 
-Using the fit above and turn-ons from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
+Construct likelihood $-2 \Sigma (r - e R)^2$ where 
+
+Using the parametric form above and turn-ons from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I can 
 
 ```{r message = F, echo = F}
-erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
+# With the turn-ons we have to deal with the integrated rates above the thresholds
+#  bin everything for simplicity and speed
+
+binLikeliConv <- function(par, turnOn, rate) {
+    norm1     <- par[1]
+    powerLaw1 <- par[2]
+    norm2     <- par[3]
+    powerLaw2 <- par[4]
+    shift     <- par[5]
+    nBins     <- length(binning)
+    estRate   <- (rate[1]-rate[nBins]) * (binning[2]-binning[1]) * (
+        # function has to be normalized so that when integrated from binning[1] to binning[nBins] it gives unity (or norm1 + norm2)
+        norm1/exp(binning*powerLaw1) / ( 1/exp(binning[1]*powerLaw1) - 1/exp(binning[nBins]*powerLaw1) ) * powerLaw1 +
+        norm2/(binning+shift)^powerLaw2 / ( 1/(binning[1]+shift)^(powerLaw2-1) - 1/(binning[nBins]+shift)^(powerLaw2-1)) * (powerLaw2-1) )
+
+    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 )
+}
+
+# let's now make a closure test with an infinitely sharp turn-on 
+
+pt3       <- runif(300000,0.00001,1)^(-1/2)
+binning   <- seq(1,100,0.1)
+rate3Fine <- sapply(binning, function(x) sum(pt3 > x) )
+nBins     <- length(binning)
+
+erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1 
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn[thr,bin] = (erf(100*(bin-thr+0.5)) + 1)/2
+
+suppressWarnings( fitIdealPowFine <- nlm(binLikeliConv, c(0,1,1,3,0), turnOn = t(idealTurnOn), rate = rate3Fine, hessian=T) )
+# printing fitIdealPowFine seems ok
+
+dfXY <- data.frame( x=runif(1e8,1,1000), y=runif(1e8) )
+ptExp <- dfXY[ 1/exp(dfXY$x*2) > dfXY$y,"x"]
+rateExpFine <- sapply(binning, function(x) sum(ptExp > x) )
+
+suppressWarnings( fitIdealExpFine <- nlm(binLikeliConv, c(1,1,0,3,0), turnOn = t(idealTurnOn), rate = rateExpFine, hessian=T) )
+# printing fitIdealExpFine seems ok too
+
+# coarser binning
+binning       <- seq(2,80,1)
+rate3Coarse   <- sapply(binning, function(x) sum(pt3 > x) )
+rateExpCoarse <- sapply(binning, function(x) sum(ptExp > x) )
+nBins         <- length(binning)
+
+idealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) idealTurnOn[thr,bin] = (erf(100*(bin-thr+0.5)) + 1)/2
+
+suppressWarnings( fitIdealPowCoarse <- nlm(binLikeliConv, c(0,1,1,3,0), turnOn = t(idealTurnOn), rate = rate3Coarse, hessian=T) )
+# printing fitIdealPowCoarse seems ok
+
+suppressWarnings( fitIdealExpCoarse <- nlm(binLikeliConv, c(1,1,0,3,0), turnOn = t(idealTurnOn), rate = rateExpCoarse, hessian=T) )
+# printing fitIdealExpCoarse seems ok
+
+nonIdealTurnOn <- matrix(rep(0,nBins*nBins), ncol=nBins, nrow=nBins)
+for(bin in 1:nBins) for(thr in 1:nBins) nonIdealTurnOn[thr,bin] = (erf(0.1*(bin-thr+0.5)) + 1)/2
+
+# non-ideal turn-on
+rate3CoarseNI   <- nonIdealTurnOn %*% sapply(1:nBins, function(x) sum(pt3   > binning[x] & ifelse(x<nBins, pt3   < binning[x+1], T)) )
+rateExpCoarseNI <- nonIdealTurnOn %*% sapply(1:nBins, function(x) sum(ptExp > binning[x] & ifelse(x<nBins, ptExp < binning[x+1], T)) )
+
+suppressWarnings( fitNonIdealPowCoarse <- nlm(binLikeliConv, c(0,1,1,3,0), turnOn = t(nonIdealTurnOn), rate = rate3CoarseNI, hessian=T) )
+# printing fitNonIdealPowCoarse is tentatively ok: 2.26 in place of 3
+
+suppressWarnings( fitNonIdealExpCoarse <- nlm(binLikeliConv, c(1,1,0,3,0), turnOn = t(nonIdealTurnOn), rate = rateExpCoarseNI, hessian=T) )
+# printing fitNonIdealExpCoarse is ok: 1.967 in place of 2
+
+slimDF  <- with(d, data.frame(true_pT = muPtGen, response_pT = pt) )
+slimDF$trueBin <- sapply(slimDF$true_pT, findBin, binning)
+pSpec   <- aggregate(slimDF, by=list(bin=slimDF$trueBin), function(x) x )
+norms   <- sapply(pSpec$response_pT,length)
+counts  <- t(sapply(pSpec$response_pT,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
+turnOn  <- counts/norms
+
+rate3Real   <- t(turnOn[1:nBins,]) %*% sapply(1:nBins, function(x) sum(pt3   > binning[x] & ifelse(x<nBins, pt3   < binning[x+1], T)) )
+rateExpReal <- t(turnOn[1:nBins,]) %*% sapply(1:nBins, function(x) sum(ptExp > binning[x] & ifelse(x<nBins, ptExp < binning[x+1], T)) )
+
+suppressWarnings( fitRealPow <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rate3Real, hessian=T) )
+# printing fitRealPow is not ok: 4.8 in place of 3
+
+suppressWarnings( fitRealExp <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rateExpReal, hessian=T) )
+# printing fitRealExp is ok: 1.9 in place of 2
+
+suppressWarnings( fitReal <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rateThr, hessian=T) )
+# printing fitReal is half-ok 
 ```
+
+
+--- &twocol
+
+## Deconvoluting ideal spectrum
+
+
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+norm1_r     <- fitReal$estimate[1]
+powerLaw1_r <- fitReal$estimate[2]
+norm2_r     <- fitReal$estimate[3]
+powerLaw2_r <- fitReal$estimate[4]
+shift_r     <- fitReal$estimate[5]
+
+realRatePlot <- ggplot( data.frame( pT = seq(2,80,0.1),
+                                    rate = ratePDF( seq(2,80,0.1),
+                                                    norm1_r,
+                                                    powerLaw1_r,
+                                                    norm2_r,
+                                                    powerLaw2_r,
+                                                    shift_r
+                                                  )
+                                  ),
+                        aes(x=pT, y=rate) ) +
+        geom_line() # + scale_y_log10() + ylim(, binning[nBins])
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+```
+
+*** =fullwidth
+
+--- .class #id
+
+## "Deconvoluting" ideal spectrum
+
+
