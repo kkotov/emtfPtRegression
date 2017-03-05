@@ -149,53 +149,66 @@ binning <- seq(2,80,1)
 rateThr <- sapply(binning, function(x) sum(ptMes > x) )
 rateBin <- sapply(1:(length(binning)-1), function(x) sum(ptMes > binning[x] & ptMes < binning[x+1]) )
 
-binLikelihood <- function(par, rate) {
+binLikelihood <- function(par, rate, mode) {
     norm1     <- par[1]
     powerLaw1 <- par[2]
     norm2     <- par[3]
     powerLaw2 <- par[4]
     shift     <- par[5]
-    estRate   <- sapply(binning[1:(length(binning)-1)],function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
-#    estRate   <- sapply(binning,function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+    if(mode == "aboveThr")
+        estRate   <- sapply(binning,function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+    else
+        estRate   <- sapply(binning[1:(length(binning)-1)],function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
     sum( (rate - estRate)^2 )
 }
 
 #invisible( capture.output( ) )
-#suppressWarnings( fitMes <- nlm(binLikelihood, c(1,2,1,1,10), rate = rateThr, hessian=T) )
-suppressWarnings( fitMes <- nlm(binLikelihood, c(1.8,1.2,17,3.1,3), rate = rateBin, hessian=T) )
+suppressWarnings( fitAbove <- nlm(binLikelihood, c(1,2,1,1,10), rate = rateThr, mode="aboveThr", hessian=T) )
+suppressWarnings( fitDiff  <- nlm(binLikelihood, c(1.8,1.2,17,3.1,3), rate = rateBin, mode="diff", hessian=T) )
 #solve(fitMes$hessian) # to get covariance matrix if needed
 
-norm1     <- fitMes$estimate[1]
-powerLaw1 <- fitMes$estimate[2]
-norm2     <- fitMes$estimate[3]
-powerLaw2 <- fitMes$estimate[4]
-shift     <- fitMes$estimate[5]
-approxRate <- sapply(binning[1:(length(binning)-1)],function(x) rateBin[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
-#approxRate <- sapply(binning,function(x) rateThr[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
+norm1_d     <- fitDiff$estimate[1]
+powerLaw1_d <- fitDiff$estimate[2]
+norm2_d     <- fitDiff$estimate[3]
+powerLaw2_d <- fitDiff$estimate[4]
+shift_d     <- fitDiff$estimate[5]
+approxRateDiff  <- sapply(binning[1:(length(binning)-1)],function(x) rateBin[1]*(norm1_d/exp(x*powerLaw1_d) + norm2_d/((x+shift_d)^powerLaw2_d)))
 
-#twoComps <- function(x,norm1,powerLaw1,norm2,powerLaw2,shift) norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)
-#MASS::fitdistr(ptMes, twoComps, list(norm1 = 3, powerLaw1 = 0.6, norm2 = 1, powerLaw2 = 1, shift = 10))$estimate
+norm1_a     <- fitAbove$estimate[1]
+powerLaw1_a <- fitAbove$estimate[2]
+norm2_a     <- fitAbove$estimate[3]
+powerLaw2_a <- fitAbove$estimate[4]
+shift_a     <- fitAbove$estimate[5]
+approxRateAbove <- sapply(binning,function(x) rateThr[1]*(norm1_a/exp(x*powerLaw1_a) + norm2_a/((x+shift_a)^powerLaw2_a)))
+
+rateOrig_d <- data.frame(pT = binning[1:(length(binning)-1)], cnt = rateBin) 
+rateFit_d  <- data.frame(pT = binning[1:(length(binning)-1)], cnt = approxRateDiff)
+
+rateOrig_a <- data.frame(pT = binning, cnt = rateThr) 
+rateFit_a  <- data.frame(pT = binning, cnt = approxRateAbove)
 ```
 
-*** =left
-
-```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-
-rrPlot <- ggplot() +
-        geom_line( data = data.frame(pT = binning[1:(length(binning)-1)], cnt = rateBin) ,
-                        aes( x = pT,
-                             y = cnt,
-                             colour = "r",
-                             fill = "r"
-                        )
-                  ) +
-        geom_line( data = data.frame(pT = binning[1:(length(binning)-1)], cnt = approxRate),
-                        aes( x = pT,
-                             y = cnt,
-                             colour = "b",
-                             fill = "b"
-                        )
-                  ) +
+```{r message = F, echo = F}
+makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, shift, title) {
+        ggplot() +
+        geom_line( data = rateOrig,
+                   aes( x = pT,
+                        y = cnt,
+                        colour = "r",
+                        fill = "r"
+                      )
+                 ) +
+        geom_line( data = rateFit,
+                   aes( x = pT,
+                        y = cnt,
+                        colour = "b",
+                        fill = "b"
+                   )
+                 ) +
+        labs( x=expression(paste(p[T], " (GeV/c)")),
+              y="conuts",
+              title=title
+        ) +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=15),
@@ -204,10 +217,6 @@ rrPlot <- ggplot() +
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.5)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
-        ) +
-        labs( x=expression(paste(p[T], " (GeV/c)")),
-              y="conuts",
-              title="Rate"
         ) +
         scale_colour_manual(name = "",
                             values = c("r" = "red", "b"="blue"),
@@ -222,8 +231,13 @@ rrPlot <- ggplot() +
                                     )
                          ) +
         scale_y_log10()
+}
+```
 
-rrPlot
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+makeRRplot(rateOrig_d, rateFit_d, norm1_d, powerLaw1_d, norm2_d, poserLaw2_d, shift_d, "Rate")
 ```
 
 *** =right
@@ -234,11 +248,14 @@ rrPlot
 #                  dparams = list("norm1" = norm1, "powerLaw1" = powerLaw1, "powerLaw2" = powerLaw2, "shift" = shift)
 #         )
 #qqPlot
+
+makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, poserLaw2_a, shift_a, "Integrated rate above threshold")
 ```
 
 *** =fullwidth
 
-The $1/p_T^{2.4}$, although, not ideal, seems to be a good 
+
+qwe The $1/p_T^{2.4}$, although, not ideal, seems to be a good 
 
 --- .class #id
 
