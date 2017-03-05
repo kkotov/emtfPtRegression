@@ -257,6 +257,8 @@ rateCDF <- cumsum(rProbs)
 # invert CDF with approxfun to get quantile function
 rateQuantiles <- approxfun(x=rateCDF/sum(rProbs), y=pTvals, yleft=2, yright=80)
 
+# source https://github.com/tidyverse/ggplot2/blob/master/R/stat-qq.r turned out to be crucial for implementing qqPlot
+
 qqPlot <- ggplot( data.frame(x=sort(ptMes[ptMes<80 & ptMes>=2])), aes(sample=x)) +
         stat_qq(distribution = function(p) rateQuantiles(v=p) ) +
         labs( x="fit",
@@ -280,8 +282,7 @@ qwe For the moment I'll stick with these fit keeping in mind the excluded [1-2] 
 
 ## "Deconvoluting" the ideal spectrum
 
-Using the fit above and turn-ons from last  
-
+Using the fit above and turn-ons from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
 
 ```{r message = F, echo = F}
 erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
