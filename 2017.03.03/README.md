@@ -71,7 +71,7 @@ But quantile-quantile plot is not straight $\rightarrow$ the fit is still rather
 
 *** =fullwidth
 
-qwe I'll stick with this parametrization keeping in mind the excluded [1-2] GeV/$c$ bin
+I'll stick with this parametrization keeping in mind the excluded [1-2] GeV/$c$ bin
 
 --- .class #id
 
