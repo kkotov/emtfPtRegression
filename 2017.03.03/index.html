@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EMTF $p_T$ Regression</title>
+  <meta charset="utf-8">
+  <meta name="description" content="EMTF $p_T$ Regression">
+  <meta name="author" content="Khristian Kotov">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="../../../../monohiggs/plots/libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="../../../../monohiggs/plots/libraries/frameworks/io2012/js/slides" 
+    src="../../../../monohiggs/plots/libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>EMTF $p_T$ Regression</h1>
+    <h2></h2>
+    <p>Khristian Kotov<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Outline (continue of <a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/">previous talk</a>)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Measured rate spectrum</p>
+
+<ul>
+<li>fitting with a power spectrum</li>
+<li>different components in the spectrum</li>
+</ul>
+
+<p>Low \(p_T\) rate spectrum component</p>
+
+<ul>
+<li>closer look</li>
+<li>better parametrization</li>
+</ul>
+
+<p>Deconvolution of the &quot;true&quot; underlying rate from the spectrum</p>
+
+<ul>
+<li>constructing the likelihood</li>
+<li>closure tests</li>
+</ul>
+
+<p>Summary</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Properties of the measured rate</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Clearly seen are two components meeting at $\sim$100 GeV/\(c\) (and the EMTF pT saturation)</p>
+
+<p>Since all of the thresholds of interest are &lt; 100 GeV/\(c\) let&#39;s zoom in to the first component</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Low \(p_T\) part of the measured rate</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p>Simple power law is a crude approximation, exponent + power law works better:</p>
+
+<p><img src="assets/fig/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>But quantile-quantile plot is not straight \(\rightarrow\) the fit is still rather mediocre, of course:</p>
+
+<p><img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>[-+-] I&#39;ll stick with this parametrization keeping in mind the excluded [1-2] GeV/\(c\) bin</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Deconvolution of underlying rate spectrum</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Likelihood \(L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)\) where, as <a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/#8">before</a>,
+\(r_i\) - measured rate above threshold \(i\);
+\(R_j\) - true rate in bin \(j\) of true \(p_T\);
+\(e_i ^j\) - efficiency in \(i^{th}\) bin of true \(p_T\) for threshold \(j\)</p>
+
+<p>Closure tests with \(R\) modeled as \(A/e^{\alpha p_T ^{thr}}\) or \(B/(p_T ^{thr}-b)^\beta\) and \(e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))\):</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>\(A^{set}/A^{fit}\)</th>
+<th>\(\alpha^{set}/\alpha^{fit}\)</th>
+<th>\(B^{set}/B^{fit}\)</th>
+<th>\(\beta^{set}/\beta^{fit}\)</th>
+<th>\(b^{set}/b^{fit}\)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>\(\gamma\)=100, 1K bins</td>
+<td>1/0.95</td>
+<td>2/2</td>
+<td>0/-0.047</td>
+<td>0/3</td>
+<td>0/1.1 &times; 10<sup>-4</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>0/-0.047</td>
+<td>0/1</td>
+<td>1/0.95</td>
+<td>3/3</td>
+<td>0/0.0051</td>
+</tr>
+<tr>
+<td>\(\gamma\)=100, 78 bins</td>
+<td>1/0.83</td>
+<td><span style="color:red">2/0.93</span></td>
+<td>0/-0.17</td>
+<td>0/3</td>
+<td>0/-0.0026</td>
+</tr>
+<tr>
+<td></td>
+<td>0/-0.18</td>
+<td>0/1</td>
+<td>1/0.81</td>
+<td>3/3</td>
+<td>0/0.038</td>
+</tr>
+<tr>
+<td>\(\gamma\)=0.1, 78 bins</td>
+<td>1/1.1</td>
+<td><span style="color:red">2/1</span></td>
+<td>0/0.061</td>
+<td>0/3</td>
+<td>0/3.3 &times; 10<sup>-4</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>0/0.034</td>
+<td>0/1</td>
+<td>1/1</td>
+<td>3/3</td>
+<td>0/-0.0059</td>
+</tr>
+<tr>
+<td>real turn-on</td>
+<td>1/0.34</td>
+<td>2/1.8</td>
+<td>0/0.46</td>
+<td>0/2.9</td>
+<td>0/0.059</td>
+</tr>
+<tr>
+<td></td>
+<td>0/0.45</td>
+<td>0/1</td>
+<td>1/0.42</td>
+<td>3/3</td>
+<td>0/-0.02</td>
+</tr>
+</tbody></table>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Realistic underlying spectrum</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Using parametric form for \(R\) and turn-ons \(e\) from the <a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/#5">last talk</a> I assess \(R\) from \(r\):</p>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Test on the right shows ratio of estimated true rate convoluted with turn-on and measured rate</p>
+
+<p>Nothing is ideal, of course, but agreement within $\sim$20% is not a bad thing here</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Summary</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><p>The underlying true rate spectrum consists of multiple components</p></li>
+<li><p>\(p_T \sim\) [0-5] GeV/\(c\) seems to be falling exponentially, but being suppressed by
+the turn-on cannot be reliably measured from data</p></li>
+<li><p>\(p_T \sim\) [5-80] GeV/\(c\) seems to be described well by \(1/p_T^3\) spectrum</p></li>
+<li><p>\(p_T >\) 80 GeV/\(c\) falls even faster, but presents a little interest</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Outline (continue of <a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/">previous talk</a>)'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Properties of the measured rate'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Low \(p_T\) part of the measured rate'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Deconvolution of underlying rate spectrum'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Realistic underlying spectrum'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Summary'>
+         6
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="../../../../monohiggs/plots/libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="../../../../monohiggs/plots/libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
