@@ -310,7 +310,7 @@ binLikeliConv <- function(par, turnOn, rate) {
 
 #    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 ) # MSE in place of log likelihood
 #    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 / ( ((t(turnOn) %*% estRate) + rate[nBins]) ) ) # gaus fails for small estRate
-    sum( estRate + rate*(log(rate/((t(turnOn) %*% estRate) + rate[nBins])) - 1) ) # poisson likelihood works for any estimated rate
+    sum( ((t(turnOn) %*% estRate) + rate[nBins]) + rate*(log(rate/((t(turnOn) %*% estRate) + rate[nBins])) - 1) ) # poisson likelihood works for any estimated rate
 }
 
 # let's now make a closure test with an infinitely sharp turn-on 
