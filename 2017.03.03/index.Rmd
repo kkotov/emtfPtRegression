@@ -303,7 +303,7 @@ binLikeliConv <- function(par, turnOn, rate) {
     powerLaw2 <- par[4]
     shift     <- par[5]
     nBins     <- length(binning)
-    trueRate   <- (rate[1]-rate[nBins]) * (binning[2]-binning[1]) * (
+    trueRate  <- (rate[1]-rate[nBins]) * (binning[2]-binning[1]) * (
         # function has to be normalized so that when integrated from binning[1] to binning[nBins] it gives unity (or norm1 + norm2)
         norm1/exp(binning*powerLaw1) / ( 1/exp(binning[1]*powerLaw1) - 1/exp(binning[nBins]*powerLaw1) ) * powerLaw1 +
         norm2/(binning+shift)^powerLaw2 / ( 1/(binning[1]+shift)^(powerLaw2-1) - 1/(binning[nBins]+shift)^(powerLaw2-1)) * (powerLaw2-1) )
@@ -311,7 +311,12 @@ binLikeliConv <- function(par, turnOn, rate) {
 
 #    sum( (rate - estRate)^2 ) # MSE in place of log likelihood
 #    sum( (rate - estRate)^2 / estRate ) # gaus fails for small estRate
-    sum( ifelse(estRate>0 && rate>0, estRate + rate*(log(rate/estRate) - 1), 0) ) # poisson likelihood works for any estimated rate (but 0)
+    sum( ifelse(rate>0 && estRate>0, estRate + rate*(log(rate/estRate) - 1),
+                                     ifelse(estRate==0 && rate==0, 0,
+                                                                   ifelse(rate==0 && estRate>0, estRate, 10e7)
+                                     )
+         )
+    ) # poisson likelihood works for any estimated rate
 }
 
 # let's now make a closure test with an infinitely sharp turn-on 
@@ -383,13 +388,13 @@ suppressWarnings( fitReal <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:
 # printing fitReal is half-ok 
 ```
 
-Estimate                    | $\gamma$=100, nBins~1K | $\gamma$=100, nBins~100 | $\gamma$=0.1, nBins~100 | [real turn-on](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
+Parameter                   | $\gamma$=100, 1K bins | $\gamma$=100, 100 bins | $\gamma$=0.1, 100 bins | [real turn-on](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
 ----------------------------|------------------------|-------------------------|-------------------------|---------------
 $A^{set}/A^{fit}$           | 1/`r signif(fitIdealExpFine$estimate[1],2)` , 0/`r signif(fitIdealPowFine$estimate[1],2)` | 1/`r signif(fitIdealExpCoarse$estimate[1],2)` , 0/`r signif(fitIdealPowCoarse$estimate[1],2)` | 1/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
-$\alpha^{set}/\alpha^{fit}$ | 2/`r signif(fitIdealExpFine$estimate[2],2)` , 0/`r signif(fitIdealPowFine$estimate[2],2)` | 2/`r signif(fitIdealExpCoarse$estimate[2],2)` , 0/`r signif(fitIdealPowCoarse$estimate[2],2)` | 2/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
-$B^{set}/B^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[3],2)` , 1/`r signif(fitIdealPowFine$estimate[3],2)` | 0/`r signif(fitIdealExpCoarse$estimate[3],2)` , 1/`r signif(fitIdealPowCoarse$estimate[3],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 1/`r signif(fitRealPow$estimate[1],2)`
-$\beta^{set}/\beta^{fit}$   | 0/`r signif(fitIdealExpFine$estimate[4],2)` , 3/`r signif(fitIdealPowFine$estimate[4],2)` | 0/`r signif(fitIdealExpCoarse$estimate[4],2)` , 3/`r signif(fitIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 3/`r signif(fitRealPow$estimate[1],2)`
-$b^{set}/b^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[5],2)` , 0/`r signif(fitIdealPowFine$estimate[5],2)` | 0/`r signif(fitIdealExpCoarse$estimate[5],2)` , 0/`r signif(fitIdealPowCoarse$estimate[5],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
+$\alpha^{set}/\alpha^{fit}$ | 2/`r signif(fitIdealExpFine$estimate[2],2)` , 0/`r signif(fitIdealPowFine$estimate[2],2)` | 2/`r signif(fitIdealExpCoarse$estimate[2],2)` , 0/`r signif(fitIdealPowCoarse$estimate[2],2)` | 2/`r signif(fitRealExp$estimate[2],2)` , 0/`r signif(fitRealPow$estimate[2],2)`
+$B^{set}/B^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[3],2)` , 1/`r signif(fitIdealPowFine$estimate[3],2)` | 0/`r signif(fitIdealExpCoarse$estimate[3],2)` , 1/`r signif(fitIdealPowCoarse$estimate[3],2)` | 0/`r signif(fitRealExp$estimate[3],2)` , 1/`r signif(fitRealPow$estimate[3],2)`
+$\beta^{set}/\beta^{fit}$   | 0/`r signif(fitIdealExpFine$estimate[4],2)` , 3/`r signif(fitIdealPowFine$estimate[4],2)` | 0/`r signif(fitIdealExpCoarse$estimate[4],2)` , 3/`r signif(fitIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitRealExp$estimate[4],2)` , 3/`r signif(fitRealPow$estimate[4],2)`
+$b^{set}/b^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[5],2)` , 0/`r signif(fitIdealPowFine$estimate[5],2)` | 0/`r signif(fitIdealExpCoarse$estimate[5],2)` , 0/`r signif(fitIdealPowCoarse$estimate[5],2)` | 0/`r signif(fitRealExp$estimate[5],2)` , 0/`r signif(fitRealPow$estimate[5],2)`
 
 --- &twocol
 
@@ -407,16 +412,17 @@ norm2_r     <- fitReal$estimate[3]
 powerLaw2_r <- fitReal$estimate[4]
 shift_r     <- fitReal$estimate[5]
 
-realRatePlot <- ggplot( data.frame( pT = seq(2,80,0.1),
-                                    rate = ratePDF( seq(2,80,0.1),
-                                                    norm1_r,
-                                                    powerLaw1_r,
-                                                    norm2_r,
-                                                    powerLaw2_r,
-                                                    shift_r
-                                                  )
-                                  ),
-                        aes(x=pT, y=rate) ) +
+trueRate <- data.frame( pT = seq(2,80,0.1),
+                        rate = ratePDF( seq(2,80,0.1),
+                                        norm1_r,
+                                        powerLaw1_r,
+                                        norm2_r,
+                                        powerLaw2_r,
+                                        shift_r
+                                      )
+                      )
+
+trueRatePlot <- ggplot( data = trueRate, aes(x=pT, y=rate) ) +
         geom_line() # + scale_y_log10() + ylim(, binning[nBins])
 #
 #        scale_colour_manual(name = "",
@@ -426,12 +432,25 @@ realRatePlot <- ggplot( data.frame( pT = seq(2,80,0.1),
 #                                      )
 #                           ) +
 #
+
+trueRatePlot
 ```
 
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
+convRate <- data.frame( pT = seq(2,80,1),
+                        rate = drop(t(turnOn[1:79,]) %*% ratePDF(seq(2,80,1),norm1_r,powerLaw1_r,norm2_r,powerLaw2_r,shift_r))
+                      )
+
+convRatePlot <- ggplot() +
+        geom_line( data=convRate,
+                   aes( x = pT,
+                        y = rate/rate[1]
+                      )
+                 )
+convRatePlot 
 ```
 
 *** =fullwidth
