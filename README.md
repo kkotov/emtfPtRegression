@@ -20,5 +20,9 @@ curves).
 
 This repository includes a collection of tools for training the pT LUT models and
 comparing their performance. Findings are summarized by the date:
-[2017.01.19](https://kkotov.github.io/emtfPtRegression/2017.01.19/handout.html),
-[2017.02.10](https://kkotov.github.io/emtfPtRegression/2017.02.10/) (incomplete),[2017.03.03](https://kkotov.github.io/emtfPtRegression/2017.03.03/) (follow-up).
+[2017.01.19](https://kkotov.github.io/emtfPtRegression/2017.01.19) 
+([single page](https://kkotov.github.io/emtfPtRegression/2017.01.19/handout.html)),
+[2017.02.10](https://kkotov.github.io/emtfPtRegression/2017.02.10)
+([single page](https://kkotov.github.io/emtfPtRegression/2017.02.10/handout.html)),
+[2017.03.03](https://kkotov.github.io/emtfPtRegression/2017.03.03)
+([single page](https://kkotov.github.io/emtfPtRegression/2017.03.03/handout.html)).
