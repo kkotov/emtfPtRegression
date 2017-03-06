@@ -157,7 +157,9 @@ binLikelihood <- function(par, rate, mode) {
         estRate   <- sapply(binning,function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
     else
         estRate   <- sapply(binning[1:(length(binning)-1)],function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
-    sum( (rate - estRate)^2 )
+#    sum( (rate - estRate)^2 / estRate ) # gaus works if all estRate >~5
+#    sum( ifelse(rate, rate*(log( estRate/rate ) + 1), 0) ) # poisson likelihood
+    sum( (rate - estRate)^2 ) # simple MSE for log likelihood, not the best choise, of course
 }
 
 #invisible( capture.output( ) )
@@ -187,7 +189,7 @@ rateFit_a  <- data.frame(pT = binning, cnt = approxRateAbove)
 ```
 
 ```{r message = F, echo = F}
-makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, shift, title) {
+makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, powerLaw2, shift, title) {
         ggplot() +
         geom_line( data = rateOrig,
                    aes( x = pT,
@@ -237,8 +239,8 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, poserLaw2, sh
 Simple power law is a crude approximation, exponent + power law works better:
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-#makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, poserLaw2_a, shift_a, "Integrated rate above threshold")
-makeRRplot(rateOrig_d, rateFit_d, norm1_d, powerLaw1_d, norm2_d, poserLaw2_d, shift_d, "Rate")
+#makeRRplot(rateOrig_a, rateFit_a, norm1_a, powerLaw1_a, norm2_a, powerLaw2_a, shift_a, "Integrated rate above threshold")
+makeRRplot(rateOrig_d, rateFit_d, norm1_d, powerLaw1_d, norm2_d, powerLaw2_d, shift_d, "Rate")
 ```
 
 *** =right
@@ -280,11 +282,14 @@ qwe I'll stick with this parameterization keeping in mind the excluded [1-2] GeV
 
 --- .class #id
 
-## Deconvoluting ideal spectrum
+## Deconvoluting underlying rate
 
-Construct likelihood $-2 \Sigma (r - e R)^2$ where 
+Construct likelihood $\sim \prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
+* $r_i$ - measured rate above threshold $i$
+* $R_j$ - true (differential) underlying rate in bin $j$ of true $p_T$
+* $e_i ^j$ - turn-on efficieny in $i^{th}$ bin of true $p_T$ for threshold $j$
 
-Using the parametric form above and turn-ons from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I can 
+Closure tests with $r$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
 
 ```{r message = F, echo = F}
 # With the turn-ons we have to deal with the integrated rates above the thresholds
@@ -302,7 +307,9 @@ binLikeliConv <- function(par, turnOn, rate) {
         norm1/exp(binning*powerLaw1) / ( 1/exp(binning[1]*powerLaw1) - 1/exp(binning[nBins]*powerLaw1) ) * powerLaw1 +
         norm2/(binning+shift)^powerLaw2 / ( 1/(binning[1]+shift)^(powerLaw2-1) - 1/(binning[nBins]+shift)^(powerLaw2-1)) * (powerLaw2-1) )
 
-    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 )
+#    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 / ( ((t(turnOn) %*% estRate) + rate[nBins]) ) ) # gaus fails for small estRate
+#    sum( ifelse(rate, rate*( log( ((t(turnOn) %*% estRate) + rate[nBins])/rate ) + 1), 0) ) # poisson
+    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 ) # MSE in place of log likelihood
 }
 
 # let's now make a closure test with an infinitely sharp turn-on 
@@ -374,11 +381,19 @@ suppressWarnings( fitReal <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:
 # printing fitReal is half-ok 
 ```
 
+Estimate                    | $\gamma$=100 
+----------------------------|--------------
+$A^{fit}/A^{set}$           |
+$\alpha^{fit}/\alpha^{set}$ |
+$B^{fit}/B^{set}$           |
+$\beta^{fit}/B^{set}$       |
+$b^{fit}/b^{set}$           |
 
 --- &twocol
 
-## Deconvoluting ideal spectrum
+## Realistic underlying spectrum
 
+Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I can assess $R$ from $r$
 
 *** =left
 
