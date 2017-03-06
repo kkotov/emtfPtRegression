@@ -13,7 +13,20 @@ widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 ---
 
-## Outline
+## Outline (continue of [previous talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/))
+
+Measured rate spectrum
+* fitting with a power spectrum
+* different components
+
+Low $p_T$ rate spectrum component
+* closer look
+* better parametrization
+
+Deconvolution of the "true" underlying rate from the spectrum
+* constructing the likelihood
+* closure tests
+
 
 --- &twocol
 
@@ -66,25 +79,21 @@ require(ggplot2)
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-qqPlot <- ggplot() +
+ratePlot <- ggplot() +
         geom_freqpoly( data=data.frame(pT=pt2.7),
                         breaks=seq(2,257,2),
-#                        alpha = 0.2,
                         position = "identity",
                         aes( x = pT,
                              y = (..count..)/sum(..count..),
-                             colour = "r",
-                             fill = "r"
+                             colour = "r"
                         )
                       ) +
         geom_freqpoly( data=data.frame(pT=ptMes),
                         breaks=seq(2,257,2),
-#                        alpha = 0.2,
                         position = "identity",
                         aes( x = pT,
                              y = (..count..)/sum(..count..),
-                             colour = "b",
-                             fill = "b"
+                             colour = "b"
                         )
                       ) +
         theme(
@@ -101,10 +110,10 @@ qqPlot <- ggplot() +
               title="Rate"
         ) +
         scale_colour_manual(name = "", values=c("r" = "red", "b"="blue"), labels=c("b"="EMTF", "r"=expression(1/p[T] ^2.7))) +
-        scale_fill_manual(name = "",   values=c("r" = "red", "b"="blue"), labels=c("b"="EMTF", "r"=expression(1/p[T] ^2.7))) +
+#        scale_fill_manual(name = "",   values=c("r" = "red", "b"="blue"), labels=c("b"="EMTF", "r"=expression(1/p[T] ^2.7))) +
         scale_y_log10()
 
-qqPlot
+invisible( capture.output( suppressWarnings( ratePlot ) ) )
 ```
 
 *** =right
@@ -157,9 +166,9 @@ binLikelihood <- function(par, rate, mode) {
         estRate   <- sapply(binning,function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
     else
         estRate   <- sapply(binning[1:(length(binning)-1)],function(x) rate[1]*(norm1/exp(x*powerLaw1) + norm2/((x+shift)^powerLaw2)))
-#    sum( (rate - estRate)^2 / estRate ) # gaus works if all estRate >~5
-#    sum( ifelse(rate, rate*(log( estRate/rate ) + 1), 0) ) # poisson likelihood
-    sum( (rate - estRate)^2 ) # simple MSE for log likelihood, not the best choise, of course
+#    sum( (rate - estRate)^2 ) # simple MSE for log likelihood, not the best choise, of course
+#    sum( (rate - estRate)^2 / estRate ) # gaussian probability for likelihood works if all estRate >~5
+    sum( estRate + rate*(log(rate/estRate) - 1) ) # poisson likelihood works for any estRate (!=0, of course)
 }
 
 #invisible( capture.output( ) )
@@ -194,15 +203,13 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, powerLaw2, sh
         geom_line( data = rateOrig,
                    aes( x = pT,
                         y = cnt,
-                        colour = "r",
-                        fill = "r"
+                        colour = "r"
                       )
                  ) +
         geom_line( data = rateFit,
                    aes( x = pT,
                         y = cnt,
-                        colour = "b",
-                        fill = "b"
+                        colour = "b"
                    )
                  ) +
         labs( x=expression(paste(p[T], " (GeV/c)")),
@@ -224,12 +231,6 @@ makeRRplot <- function(rateOrig, rateFit, norm1, powerLaw1, norm2, powerLaw2, sh
                                        "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
                                       )
                            ) +
-        scale_fill_manual(name = "",
-                          values = c("r" = "red", "b"="blue"),
-                          labels = c("r"="EMTF",
-                                     "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
-                                    )
-                         ) +
         scale_y_log10()
 }
 ```
@@ -278,16 +279,16 @@ qqPlot
 
 *** =fullwidth
 
-qwe I'll stick with this parameterization keeping in mind the excluded [1-2] GeV/$c$ bin
+qwe I'll stick with this parametrization keeping in mind the excluded [1-2] GeV/$c$ bin
 
 --- .class #id
 
-## Deconvoluting underlying rate
+## Deconvolution of underlying rate spectrum
 
-Construct likelihood $\sim \prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
+Construct likelihood $L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
 * $r_i$ - measured rate above threshold $i$
 * $R_j$ - true (differential) underlying rate in bin $j$ of true $p_T$
-* $e_i ^j$ - turn-on efficieny in $i^{th}$ bin of true $p_T$ for threshold $j$
+* $e_i ^j$ - turn-on efficiency in $i^{th}$ bin of true $p_T$ for threshold $j$
 
 Closure tests with $r$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
 
@@ -307,9 +308,9 @@ binLikeliConv <- function(par, turnOn, rate) {
         norm1/exp(binning*powerLaw1) / ( 1/exp(binning[1]*powerLaw1) - 1/exp(binning[nBins]*powerLaw1) ) * powerLaw1 +
         norm2/(binning+shift)^powerLaw2 / ( 1/(binning[1]+shift)^(powerLaw2-1) - 1/(binning[nBins]+shift)^(powerLaw2-1)) * (powerLaw2-1) )
 
+#    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 ) # MSE in place of log likelihood
 #    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 / ( ((t(turnOn) %*% estRate) + rate[nBins]) ) ) # gaus fails for small estRate
-#    sum( ifelse(rate, rate*( log( ((t(turnOn) %*% estRate) + rate[nBins])/rate ) + 1), 0) ) # poisson
-    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 ) # MSE in place of log likelihood
+    sum( estRate + rate*(log(rate/((t(turnOn) %*% estRate) + rate[nBins])) - 1) ) # poisson likelihood works for any estimated rate
 }
 
 # let's now make a closure test with an infinitely sharp turn-on 
@@ -381,19 +382,19 @@ suppressWarnings( fitReal <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:
 # printing fitReal is half-ok 
 ```
 
-Estimate                    | $\gamma$=100 
-----------------------------|--------------
-$A^{fit}/A^{set}$           |
-$\alpha^{fit}/\alpha^{set}$ |
-$B^{fit}/B^{set}$           |
-$\beta^{fit}/B^{set}$       |
-$b^{fit}/b^{set}$           |
+Estimate                    | $\gamma$=100, nBins~1K | $\gamma$=100, nBins~100 | $\gamma$=0.1, nBins~100 | [real turn-on](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
+----------------------------|------------------------|-------------------------|-------------------------|---------------
+$A^{set}/A^{fit}$           | 1/`r signif(fitIdealExpFine$estimate[1],2)` , 0/`r signif(fitIdealPowFine$estimate[1],2)` | 1/`r signif(fitIdealExpCoarse$estimate[1],2)` , 0/`r signif(fitIdealPowCoarse$estimate[1],2)` | 1/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
+$\alpha^{set}/\alpha^{fit}$ | 2/`r signif(fitIdealExpFine$estimate[2],2)` , 0/`r signif(fitIdealPowFine$estimate[2],2)` | 2/`r signif(fitIdealExpCoarse$estimate[2],2)` , 0/`r signif(fitIdealPowCoarse$estimate[2],2)` | 2/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
+$B^{set}/B^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[3],2)` , 1/`r signif(fitIdealPowFine$estimate[3],2)` | 0/`r signif(fitIdealExpCoarse$estimate[3],2)` , 1/`r signif(fitIdealPowCoarse$estimate[3],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 1/`r signif(fitRealPow$estimate[1],2)`
+$\beta^{set}/\beta^{fit}$   | 0/`r signif(fitIdealExpFine$estimate[4],2)` , 3/`r signif(fitIdealPowFine$estimate[4],2)` | 0/`r signif(fitIdealExpCoarse$estimate[4],2)` , 3/`r signif(fitIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 3/`r signif(fitRealPow$estimate[1],2)`
+$b^{set}/b^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[5],2)` , 0/`r signif(fitIdealPowFine$estimate[5],2)` | 0/`r signif(fitIdealExpCoarse$estimate[5],2)` , 0/`r signif(fitIdealPowCoarse$estimate[5],2)` | 0/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
 
 --- &twocol
 
 ## Realistic underlying spectrum
 
-Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I can assess $R$ from $r$
+Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I assess $R$ from $r$
 
 *** =left
 
@@ -416,6 +417,14 @@ realRatePlot <- ggplot( data.frame( pT = seq(2,80,0.1),
                                   ),
                         aes(x=pT, y=rate) ) +
         geom_line() # + scale_y_log10() + ylim(, binning[nBins])
+#
+#        scale_colour_manual(name = "",
+#                            values = c("r" = "red", "b"="blue"),
+#                            labels = c("r"="EMTF",
+#                                       "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
+#                                      )
+#                           ) +
+#
 ```
 
 *** =right
@@ -425,9 +434,4 @@ realRatePlot <- ggplot( data.frame( pT = seq(2,80,0.1),
 ```
 
 *** =fullwidth
-
---- .class #id
-
-## "Deconvoluting" ideal spectrum
-
 
