@@ -290,7 +290,7 @@ Construct likelihood $L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)$ where, as 
 * $R_j$ - true (differential) underlying rate in bin $j$ of true $p_T$
 * $e_i ^j$ - turn-on efficiency in $i^{th}$ bin of true $p_T$ for threshold $j$
 
-Closure tests with $r$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
+Closure tests with $R$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
 
 ```{r message = F, echo = F}
 # With the turn-ons we have to deal with the integrated rates above the thresholds
@@ -303,14 +303,15 @@ binLikeliConv <- function(par, turnOn, rate) {
     powerLaw2 <- par[4]
     shift     <- par[5]
     nBins     <- length(binning)
-    estRate   <- (rate[1]-rate[nBins]) * (binning[2]-binning[1]) * (
+    trueRate   <- (rate[1]-rate[nBins]) * (binning[2]-binning[1]) * (
         # function has to be normalized so that when integrated from binning[1] to binning[nBins] it gives unity (or norm1 + norm2)
         norm1/exp(binning*powerLaw1) / ( 1/exp(binning[1]*powerLaw1) - 1/exp(binning[nBins]*powerLaw1) ) * powerLaw1 +
         norm2/(binning+shift)^powerLaw2 / ( 1/(binning[1]+shift)^(powerLaw2-1) - 1/(binning[nBins]+shift)^(powerLaw2-1)) * (powerLaw2-1) )
+    estRate   <- ((t(turnOn) %*% trueRate) + rate[nBins])
 
-#    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 ) # MSE in place of log likelihood
-#    sum( (rate - ((t(turnOn) %*% estRate) + rate[nBins]))^2 / ( ((t(turnOn) %*% estRate) + rate[nBins]) ) ) # gaus fails for small estRate
-    sum( ((t(turnOn) %*% estRate) + rate[nBins]) + rate*(log(rate/((t(turnOn) %*% estRate) + rate[nBins])) - 1) ) # poisson likelihood works for any estimated rate
+#    sum( (rate - estRate)^2 ) # MSE in place of log likelihood
+#    sum( (rate - estRate)^2 / estRate ) # gaus fails for small estRate
+    sum( ifelse(estRate>0 && rate>0, estRate + rate*(log(rate/estRate) - 1), 0) ) # poisson likelihood works for any estimated rate (but 0)
 }
 
 # let's now make a closure test with an infinitely sharp turn-on 
