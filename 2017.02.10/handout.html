@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Outline</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h2>Outline</h2>
+
+<ol>
+<li><p>New input data</p>
+
+<ul>
+<li>numbers and shapes</li>
+</ul></li>
+<li><p>Metrics</p>
+
+<ul>
+<li>turn-ons</li>
+<li>ROC curves and importance of true rate assumption</li>
+<li>rate-efficiency plots</li>
+</ul></li>
+<li><p>Assessing the true rate</p>
+
+<ul>
+<li>matrix method</li>
+<li>input data</li>
+<li>example with the model built using all predictors</li>
+<li>instability of the method</li>
+<li>solution: rate parametrization</li>
+</ul></li>
+</ol>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>New Monte Carlo simulation data</h2>
+
+<ul>
+<li>Andrew&#39;s <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/MC/SingleMu_Pt1To1000_FlatRandomOneOverPt</span>
+
+<ul>
+<li>a double muon sample, flat in \(0 < |\eta| < 2.5\) (barrel included)</li>
+<li>about 300\(k\) muons in endcaps extending to \(p_T = 1000~GeV\), flat in \(log(p_T)\)</li>
+</ul></li>
+</ul>
+
+<p>*** =left</p>
+
+<p><img src="assets/fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="assets/fig/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Turn-on curve</h2>
+
+<p>Turn-on is nothing else but a decision boundary, smeared due to a finite resolution</p>
+
+<p>It is a proportion of events surpassing a given decision threshold in every bin of true pT</p>
+
+<p><img class=center src=binning.png height=400> </p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Examples of turn-ons</h2>
+
+<p>For the current system the turn-ons for several thresholds look as follows:</p>
+
+<p><img src="assets/fig/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
+
+<p>&mdash; .class #id</p>
+
+<h2>ROC curve</h2>
+
+<p>Convolute turn-on (efficiency) with rate and see % of under-the-threshold (false positives)
+and % of over-the-threshold (true positives) rate accepted for a given threshold</p>
+
+<p>To construct the ROC scan over the threshold and plot false positive vs. true positive rates </p>
+
+<p><img class=center src=convolve.png height=400> </p>
+
+<p>&mdash; .class #id</p>
+
+<h2>ROC curves for different rates</h2>
+
+<p>Rate assumption has a dramatic effect on how the same performance looks in our system:</p>
+
+<p><img src="assets/fig/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+
+<p>&mdash; .class #id</p>
+
+<h2>True rate assessment</h2>
+
+<p>The true rate can be measured right from the data with the current system</p>
+
+<p>The measured rate is a convolution of the unknown true rate and known turn-on:</p>
+
+<p>\[
+\left\{\begin{array}{lll}
+R_1 e^1_1 + R_2 e^1_2 + &hellip; + R_N e^1_N = r_1 \
+&hellip; \
+R_1 e^M_1 + R_2 e^M_2 + &hellip; + R_N e^M_N = r_M \
+\end{array}
+\right., \text{where}
+\]</p>
+
+<ul>
+<li>\(R_i\) - true rate in bins of true pT</li>
+<li>\(e^j_i\) - turn-on efficiency in \(i^{th}\) bin of true pT for threshold \(j\)</li>
+<li>\(r_j\) - measured rate above threshold \(j\)</li>
+</ul>
+
+<p>The solution in matrix form looks as follows: \(R = e^{-1} r\)</p>
+
+<p>For a step-like turn-on \(e\) is an integrator and \(e^{-1}\) is a differentiator</p>
+
+<p>Unfortunately, inverting the real turn-on matrix turned out to give a highly unstable \(R\)</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Exchanging true rate for measured</h2>
+
+<p>There may by no high pT muons in MinBias sample \(\rightarrow\) tail is made of promoted muons</p>
+
+<p>Measured rate is more relevant performance parameter than % of false positives</p>
+
+<p>Efficiency right above threshold is a good estimate of % of true positives for vanishing spectra:
+<img class=center src="trigRates.png" height=400> </p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Efficiency-rate metric</h2>
+
+<p><img src="assets/fig/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
+
+<p>New model&#39;s rate can be projected using current rate and turn-ons: \(r' = e' R = (e' e^{-1}) r\)</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Input data for rate assessment</h2>
+
+<p>Use ntuples in <span style="font-weight:bold;color:brown">/store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch0</span></p>
+
+<p>With no codebook or a reference to the ntuplizer I cannot make sense of the plots:</p>
+
+<p><img src="assets/fig/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" /></p>
+
+<p>Why there are so many events with two seemingly identical tracks? I&#39;ll consider 1\(^{st}\) track only.</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>Building model with all predictors</h2>
+
+<p>*** =left</p>
+
+<pre><code>Warning: Removed 15 rows containing missing values (geom_path).
+</code></pre>
+
+<pre><code>Warning: Removed 15 rows containing missing values (geom_point).
+</code></pre>
+
+<p><img src="assets/fig/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="assets/fig/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>New model does better (left plot), but the rate derived from matrix inversion is unstable</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>Source of the instability</h2>
+
+<p>Let&#39;s take an ideal \(1/p_T^2\) rate shape and \(atan(\alpha(p_T^{true}-p_T^{thresh}+\delta))\) for smooth turn-on</p>
+
+<p>Reconstructing true rate for different turn-on widths I see \(det(turnOn)\) vanishes</p>
+
+<p>*** =left</p>
+
+<p><img src="assets/fig/unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="assets/fig/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Linear system becomes digenerate when threshold&#39;s step approaches the turn-on width</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Parametrizing the rate shape</h2>
+
+<p>The above problem can be avoided if the rate shape is parameterized with just few handles</p>
+
+<p>Now I am trying our different smooth shapes and numerical minimization of -log likelihood</p>
+
+<p>To be continued &hellip;</p>
+
+</body>
+
+</html>
