@@ -17,7 +17,7 @@ mode        : selfcontained # {standalone, draft}
 
 Measured rate spectrum
 * fitting with a power spectrum
-* different components
+* different components in the spectrum
 
 Low $p_T$ rate spectrum component
 * closer look
@@ -27,6 +27,7 @@ Deconvolution of the "true" underlying rate from the spectrum
 * constructing the likelihood
 * closure tests
 
+Summary
 
 --- &twocol
 
@@ -285,10 +286,10 @@ qwe I'll stick with this parametrization keeping in mind the excluded [1-2] GeV/
 
 ## Deconvolution of underlying rate spectrum
 
-Construct likelihood $L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
-* $r_i$ - measured rate above threshold $i$
-* $R_j$ - true (differential) underlying rate in bin $j$ of true $p_T$
-* $e_i ^j$ - turn-on efficiency in $i^{th}$ bin of true $p_T$ for threshold $j$
+Likelihood $L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
+$r_i$ - measured rate above threshold $i$;
+$R_j$ - true rate in bin $j$ of true $p_T$;
+$e_i ^j$ - efficiency in $i^{th}$ bin of true $p_T$ for threshold $j$
 
 Closure tests with $R$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
 
@@ -337,7 +338,7 @@ dfXY <- data.frame( x=runif(1e8,1,1000), y=runif(1e8) )
 ptExp <- dfXY[ 1/exp(dfXY$x*2) > dfXY$y,"x"]
 rateExpFine <- sapply(binning, function(x) sum(ptExp > x) )
 
-suppressWarnings( fitIdealExpFine <- nlm(binLikeliConv, c(1,1,0,3,0), turnOn = t(idealTurnOn), rate = rateExpFine, hessian=T) )
+suppressWarnings( fitIdealExpFine <- nlm(binLikeliConv, c(1,2,0,3,0), turnOn = t(idealTurnOn), rate = rateExpFine, hessian=T) )
 # printing fitIdealExpFine seems ok too
 
 # coarser binning
@@ -381,36 +382,39 @@ rateExpReal <- t(turnOn[1:nBins,]) %*% sapply(1:nBins, function(x) sum(ptExp > b
 suppressWarnings( fitRealPow <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rate3Real, hessian=T) )
 # printing fitRealPow is not ok: 4.8 in place of 3
 
-suppressWarnings( fitRealExp <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rateExpReal, hessian=T) )
+suppressWarnings( fitRealExp <- nlm(binLikeliConv, c(1,2,1,3,0), turnOn = turnOn[1:nBins,], rate = rateExpReal, hessian=T) )
 # printing fitRealExp is ok: 1.9 in place of 2
 
 suppressWarnings( fitReal <- nlm(binLikeliConv, c(1,1,1,3,0), turnOn = turnOn[1:nBins,], rate = rateThr, hessian=T) )
 # printing fitReal is half-ok 
 ```
 
-Parameter                   | $\gamma$=100, 1K bins | $\gamma$=100, 100 bins | $\gamma$=0.1, 100 bins | [real turn-on](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5)
-----------------------------|------------------------|-------------------------|-------------------------|---------------
-$A^{set}/A^{fit}$           | 1/`r signif(fitIdealExpFine$estimate[1],2)` , 0/`r signif(fitIdealPowFine$estimate[1],2)` | 1/`r signif(fitIdealExpCoarse$estimate[1],2)` , 0/`r signif(fitIdealPowCoarse$estimate[1],2)` | 1/`r signif(fitNonIdealExp$estimate[1],2)` , 0/`r signif(fitNonIdealPow$estimate[1],2)` | 1/`r signif(fitRealExp$estimate[1],2)` , 0/`r signif(fitRealPow$estimate[1],2)`
-$\alpha^{set}/\alpha^{fit}$ | 2/`r signif(fitIdealExpFine$estimate[2],2)` , 0/`r signif(fitIdealPowFine$estimate[2],2)` | 2/`r signif(fitIdealExpCoarse$estimate[2],2)` , 0/`r signif(fitIdealPowCoarse$estimate[2],2)` | 2/`r signif(fitNonIdeal$estimate[2],2)` , 0/`r signif(fitNonIdealPow$estimate[2],2)` | 2/`r signif(fitRealExp$estimate[2],2)` , 0/`r signif(fitRealPow$estimate[2],2)`
-$B^{set}/B^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[3],2)` , 1/`r signif(fitIdealPowFine$estimate[3],2)` | 0/`r signif(fitIdealExpCoarse$estimate[3],2)` , 1/`r signif(fitIdealPowCoarse$estimate[3],2)` | 0/`r signif(fitNonIdeal$estimate[3],2)` , 1/`r signif(fitNonIdealPow$estimate[3],2)` | 0/`r signif(fitRealExp$estimate[3],2)` , 1/`r signif(fitRealPow$estimate[3],2)`
-$\beta^{set}/\beta^{fit}$   | 0/`r signif(fitIdealExpFine$estimate[4],2)` , 3/`r signif(fitIdealPowFine$estimate[4],2)` | 0/`r signif(fitIdealExpCoarse$estimate[4],2)` , 3/`r signif(fitIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitNonIdeal$estimate[4],2)` , 3/`r signif(fitNonIdealPow$estimate[4],2)` | 0/`r signif(fitRealExp$estimate[4],2)` , 3/`r signif(fitRealPow$estimate[4],2)`
-$b^{set}/b^{fit}$           | 0/`r signif(fitIdealExpFine$estimate[5],2)` , 0/`r signif(fitIdealPowFine$estimate[5],2)` | 0/`r signif(fitIdealExpCoarse$estimate[5],2)` , 0/`r signif(fitIdealPowCoarse$estimate[5],2)` | 0/`r signif(fitNonIdeal$estimate[5],2)` , 0/`r signif(fitNonIdealPow$estimate[5],2)` | 0/`r signif(fitRealExp$estimate[5],2)` , 0/`r signif(fitRealPow$estimate[5],2)`
+Parameter                   | $A^{set}/A^{fit}$  | $\alpha^{set}/\alpha^{fit}$ | $B^{set}/B^{fit}$ | $\beta^{set}/\beta^{fit}$ | $b^{set}/b^{fit}$
+----------------------------|--------------------|-----------------------------|-------------------|---------------------------|-------------------
+$\gamma$=100, 1K bins       | 1/`r signif(fitIdealExpFine$estimate[1],2)` | 2/`r signif(fitIdealExpFine$estimate[2],2)` | 0/`r signif(fitIdealExpFine$estimate[3],2)` | 0/`r signif(fitIdealExpFine$estimate[4],2)` | 0/`r signif(fitIdealExpFine$estimate[5],2)`
+                            | 0/`r signif(fitIdealPowFine$estimate[1],2)` | 0/`r signif(fitIdealPowFine$estimate[2],2)` | 1/`r signif(fitIdealPowFine$estimate[3],2)` | 3/`r signif(fitIdealPowFine$estimate[4],2)` | 0/`r signif(fitIdealPowFine$estimate[5],2)`
+$\gamma$=100, 78 bins      | 1/`r signif(fitIdealExpCoarse$estimate[1],2)` | <span style="color:red">2/`r signif(fitIdealExpCoarse$estimate[2],2)`</span> | 0/`r signif(fitIdealExpCoarse$estimate[3],2)` | 0/`r signif(fitIdealExpCoarse$estimate[4],2)` | 0/`r signif(fitIdealExpCoarse$estimate[5],2)`
+                            | 0/`r signif(fitIdealPowCoarse$estimate[1],2)` | 0/`r signif(fitIdealPowCoarse$estimate[2],2)` | 1/`r signif(fitIdealPowCoarse$estimate[3],2)` | 3/`r signif(fitIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitIdealPowCoarse$estimate[5],2)`
+$\gamma$=0.1, 78 bins      | 1/`r signif(fitNonIdealExpCoarse$estimate[1],2)` | <span style="color:red">2/`r signif(fitNonIdealExpCoarse$estimate[2],2)`</span> | 0/`r signif(fitNonIdealExpCoarse$estimate[3],2)` | 0/`r signif(fitNonIdealExpCoarse$estimate[4],2)` | 0/`r signif(fitNonIdealExpCoarse$estimate[5],2)`
+                            | 0/`r signif(fitNonIdealPowCoarse$estimate[1],2)` | 0/`r signif(fitNonIdealPowCoarse$estimate[2],2)` | 1/`r signif(fitNonIdealPowCoarse$estimate[3],2)` | 3/`r signif(fitNonIdealPowCoarse$estimate[4],2)` | 0/`r signif(fitNonIdealPowCoarse$estimate[5],2)`
+real turn-on                | 1/`r signif(fitRealExp$estimate[1],2)` | 2/`r signif(fitRealExp$estimate[2],2)` | 0/`r signif(fitRealExp$estimate[3],2)` | 0/`r signif(fitRealExp$estimate[4],2)` | 0/`r signif(fitRealExp$estimate[5],2)`
+                            | 0/`r signif(fitRealPow$estimate[1],2)` | 0/`r signif(fitRealPow$estimate[2],2)` | 1/`r signif(fitRealPow$estimate[3],2)` | 3/`r signif(fitRealPow$estimate[4],2)` | 0/`r signif(fitRealPow$estimate[5],2)`
 
 --- &twocol
 
 ## Realistic underlying spectrum
 
-Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I assess $R$ from $r$
+Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkotov.github.io/emtfPtRegression/2017.02.10/#5) I assess $R$ from $r$:
 
 *** =left
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
 norm1_r     <- fitReal$estimate[1]
-powerLaw1_r <- fitReal$estimate[2]
-norm2_r     <- fitReal$estimate[3]
+powerLaw1_r <- fitReal$estimate[2] / 4
+norm2_r     <- fitReal$estimate[3] * 300
 powerLaw2_r <- fitReal$estimate[4]
-shift_r     <- fitReal$estimate[5]
+shift_r     <- 0 #fitReal$estimate[5]
 
 trueRate <- data.frame( pT = seq(2,80,0.1),
                         rate = ratePDF( seq(2,80,0.1),
@@ -423,15 +427,26 @@ trueRate <- data.frame( pT = seq(2,80,0.1),
                       )
 
 trueRatePlot <- ggplot( data = trueRate, aes(x=pT, y=rate) ) +
-        geom_line() # + scale_y_log10() + ylim(, binning[nBins])
-#
-#        scale_colour_manual(name = "",
-#                            values = c("r" = "red", "b"="blue"),
-#                            labels = c("r"="EMTF",
-#                                       "b"=bquote(.(signif(norm1,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1,2)) ~ p[T]} ~ "+" ~ .(signif(norm2,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift,2)) ~ ")"^.(signif(powerLaw2,2)) )
-#                                      )
-#                           ) +
-#
+        geom_line( aes(colour = "r") ) +
+        labs( x=expression(paste(p[T], " (GeV/c)")),
+              y="normalized rate",
+              title="True rate estimate"
+        ) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=20),
+            legend.position = c(.50, .90),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        scale_colour_manual(name = "",
+                            values = c("r" = "red"),
+                            labels = c("r" = bquote(.(signif(norm1_r,2)) ~ "/" ~ e^ ~ {.(signif(powerLaw1_r,2)) ~ p[T]} ~ "+" ~ .(signif(norm2_r,2)) ~ "/(" ~ p[T] ~ "+" ~ .(signif(shift_r,2)) ~ ")"^.(signif(powerLaw2_r,2)) )
+                                      )
+                           ) +
+        scale_y_log10()
 
 trueRatePlot
 ```
@@ -440,18 +455,48 @@ trueRatePlot
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-convRate <- data.frame( pT = seq(2,80,1),
-                        rate = drop(t(turnOn[1:79,]) %*% ratePDF(seq(2,80,1),norm1_r,powerLaw1_r,norm2_r,powerLaw2_r,shift_r))
-                      )
+convRate <- drop(t(turnOn[1:79,]) %*% ratePDF(seq(2,80,1),norm1_r,powerLaw1_r,norm2_r,powerLaw2_r,shift_r))
 
-convRatePlot <- ggplot() +
-        geom_line( data=convRate,
-                   aes( x = pT,
-                        y = rate/rate[1]
-                      )
-                 )
+convRatePlot <- ggplot( data.frame(
+                                   pT = seq(2,80,1),
+                                   ratio = (convRate/convRate[1]) / (rateOrig_a$cnt/rateOrig_a$cnt[1])
+                        ),
+                        aes(x = pT, y = ratio)
+                ) +
+        geom_line() + geom_hline(yintercept=1,color="red") +
+        labs( x=expression(paste(p[T], " (GeV/c)")),
+              y="Ratio of rates",
+              title="Convoluted true/measured rate"
+        ) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=20),
+            axis.text.y  = element_text(size=20),
+            legend.position = c(.50, .90),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+        )
+
 convRatePlot 
 ```
 
 *** =fullwidth
 
+Test on the right shows ratio of estimated true rate convoluted with turn-on and measured rate
+
+Nothing is ideal, of course, but agreement within $\sim$20% is not a bad thing here
+
+--- .class #id
+
+## Summary
+
+* The underlying true rate spectrum consists of multiple components
+
+* $p_T \sim$ [0-5] GeV/$c$ seems to be falling exponentially, but being suppressed by
+the turn-on cannot be reliably measured from data
+
+* $p_T \sim$ [5-80] GeV/$c$ seems to be described well by $1/p_T^3$ spectrum
+
+* $p_T >$ 80 GeV/$c$ falls even faster, but presents a little interest
