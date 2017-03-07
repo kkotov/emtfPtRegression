@@ -53,6 +53,13 @@ norms   <- sapply(pSpec$response_pT,length)
 counts  <- t(sapply(pSpec$response_pT,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
 turnOn  <- counts/norms
 
+# Data below are generated from Andrew's /store/user/abrinke1/EMTF/Emulator/ntuples/ZeroBiasIsolatedBunch{0,1,2,3}
+#  root ntuples translated into csv format with https://github.com/kkotov/emtfPtRegression/blob/master/root2csv.C
+#  converter (check the heading comments inside for the use example)
+# The cvs files were further skimmed with a bash batch job:
+#  i=28; while [ $i -gt 0 ] ; do echo $i;  cat dump2.R | sed -e "s|PART|$i|g" > d$i"".R ; R CMD BATCH d$i.R ; rm -f .RData d$i.R d$i.Rout ; i=`expr $i - 1`; done
+#  utilizing the https://github.com/kkotov/emtfPtRegression/blob/master/dump2.R script
+
 for(f in paste("../../pt/s",c(0,1,2,3),".RData",sep='')) load(f)
 zb <- s0
 zb <- rbind(zb,s1)
@@ -411,10 +418,10 @@ Using parametric form for $R$ and turn-ons $e$ from the [last talk](https://kkot
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
 norm1_r     <- fitReal$estimate[1]
-powerLaw1_r <- fitReal$estimate[2] / 4
+powerLaw1_r <- 0.67 #fitReal$estimate[2] / 4
 norm2_r     <- fitReal$estimate[3] * 300
 powerLaw2_r <- fitReal$estimate[4]
-shift_r     <- 0 #fitReal$estimate[5]
+shift_r     <- fitReal$estimate[5]
 
 trueRate <- data.frame( pT = seq(2,80,0.1),
                         rate = ratePDF( seq(2,80,0.1),
