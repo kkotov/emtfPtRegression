@@ -80,7 +80,7 @@ I'll stick with this parametrization keeping in mind the excluded [1-2] GeV/$c$ 
 Likelihood $L(R|r,e) \sim -\prod_i Poiss(r_i | e_i ^j R_j)$ where, as [before](https://kkotov.github.io/emtfPtRegression/2017.02.10/#8),
 $r_i$ - measured rate above threshold $i$;
 $R_j$ - true rate in bin $j$ of true $p_T$;
-$e_i ^j$ - efficiency in $i^{th}$ bin of true $p_T$ for threshold $j$
+$e_i ^j$ - efficiency in $j^{th}$ bin of true $p_T$ for threshold $i$
 
 Closure tests with $R$ modeled as $A/e^{\alpha p_T ^{thr}}$ or $B/(p_T ^{thr}-b)^\beta$ and $e_i ^j \sim erf(\gamma(p_{T,j} ^{true}-p_{T,i} ^{thr}))$:
 
