@@ -120,7 +120,8 @@ suppressWarnings( tt[["30"]] )
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-testSetZB <- with(zb, data.frame(theta = theta,
+testSetZB <- with(subset(zb,mode==15), data.frame(
+                                 theta = theta,
                                  dPhi12 = phi1-phi2,
                                  dPhi13 = phi1-phi3,
                                  dPhi14 = phi1-phi4,
