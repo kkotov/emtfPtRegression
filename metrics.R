@@ -63,9 +63,24 @@ preprocess <- function(modelFit,
     # create a simple histogram from the rateShape
     rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
 
+    # if every event is greater then some low bin boundaries (e.g. aecause pT is positively
+    #  defined quantity and we start at 0) add explicitly the underflow bins and set them to 0
+    skippedBins <- sum(min(rateShape$true_pT) >= binning)
+    rateShapeBinned <- append(rep(0, skippedBins), rateShapeBinned)
+
     # let's introduce names for the turn-ons 
     myModelTurnOn   <- myModelCount   / pSpec$count
     referenceTurnOn <- referenceCount / pSpec$count
+
+    # the resulting turn-on matrix dimension should be [nBins+1,nBins] i.e. the true_pT bins can underflow
+    #  while thresholds are always to count events above
+    # if, for example, a negatively defined binning was provided for positively defined pT, add underflow rows
+    nBins <- length(binning)
+    skippedBins <- min(pSpec$bin) - 1
+    if( skippedBins > 0 ){
+        myModelTurnOn   <- rbind(matrix(rep(0,nBins*skippedBins),nrow=skippedBins), myModelTurnOn)
+        referenceTurnOn <- rbind(matrix(rep(0,nBins*skippedBins),nrow=skippedBins), referenceTurnOn)
+    }
 
     getBinning <- function() binning
     getRateShapeBinned <- function() rateShapeBinned
@@ -88,29 +103,30 @@ rocMetric <- function(pp, ...){
 
     # normalization integrals
     nBins <- length(binning)
-    normForTruePos  <- sapply(1: nBins,   function(x) sum(rateShapeBinned[x:nBins]) )
-    normForFalsePos <- sapply(0:(nBins-1),function(x) sum(rateShapeBinned[0:x]) )
+    normForTruePos  <- sapply(1:nBins, function(x) sum(rateShapeBinned[(x:nBins)+1]) )
+    normForFalsePos <- sapply(1:nBins, function(x) sum(rateShapeBinned[1:x]) )
 
     # true-/false-positives are given by a similar convolution over
     # [threshold_pT_bin <= true_pT_bin] / [0 < true_pT_bin < threshold_pT_bin]
-    myModelTruePos    <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% myModelTurnOn[x:nBins,x]))
-    myModelFalsePos   <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% myModelTurnOn[1:x,x+1]))
-    referenceTruePos  <- sapply(1: nBins,   function(x) drop(rateShapeBinned[x:nBins] %*% referenceTurnOn[x:nBins,x]))
-    referenceFalsePos <- sapply(0:(nBins-1),function(x) if(x==0) 0 else drop(rateShapeBinned[1:x] %*% referenceTurnOn[1:x,x+1]))
+    myModelTruePos    <- sapply(1:nBins, function(x) drop(rateShapeBinned[(x:nBins)+1] %*% myModelTurnOn[(x:nBins)+1,x]))
+    myModelFalsePos   <- sapply(1:nBins, function(x) drop(rateShapeBinned[1:x] %*% myModelTurnOn[1:x,x]))
+    referenceTruePos  <- sapply(1:nBins, function(x) drop(rateShapeBinned[(x:nBins)+1] %*% referenceTurnOn[(x:nBins)+1,x]))
+    referenceFalsePos <- sapply(1:nBins, function(x) drop(rateShapeBinned[1:x] %*% referenceTurnOn[1:x,x]))
 
     # finally, pack everything in one data frame
     myModelROCdf <- data.frame( truePos  = myModelTruePos/normForTruePos,
                                 falsePos = myModelFalsePos/normForFalsePos,
                                 model    = rep("myModel",nBins)
                     )
-    if( normForFalsePos[1] == 0 ) myModelROCdf <- myModelROCdf[2:nBins,]
+    start <- sum(normForFalsePos==0) + 1
+    if( start > 1 ) myModelROCdf <- myModelROCdf[start:nBins,]
 
     referenceROCdf <- data.frame(
                               truePos  = referenceTruePos/normForTruePos,
                               falsePos = referenceFalsePos/normForFalsePos,
                               model    = rep("reference",nBins)
                       )
-    if( normForFalsePos[1] == 0 ) referenceROCdf <- referenceROCdf[2:nBins,]
+    if( start > 1 ) referenceROCdf <- referenceROCdf[start:nBins,]
 
     rocDF <- rbind(myModelROCdf,referenceROCdf)
     rocDF$model <- factor(rocDF$model)
@@ -142,25 +158,28 @@ turnOns <- function(pp, ...){
     referenceTurnOn <- pp$getRefTurnOn()
     binning         <- pp$getBinning()
 
+    start <- sum(rateShapeBinned==0) + 1
+    nBins <- length(binning)
+
     turnOns <- list()
 
     for(threshold in seq(5,30,5)){
 
         thrBin <- findBin(threshold,binning)
 
-        turnOnDF <-       data.frame(true_pT = binning,
-                                     eff    = myModelTurnOn[,thrBin],
+        turnOnDF <-       data.frame(true_pT = binning[start:nBins],
+                                     eff    = myModelTurnOn[(start:nBins)+1,thrBin],
                                      thr_pT = threshold,
-                                     model  = factor(rep("myModel",nBins),
+                                     model  = factor(rep("myModel",nBins-start+1),
                                                      levels=c("myModel","reference")
                                                     )
                                     )
 
         turnOnDF <- rbind(turnOnDF,
-                          data.frame(true_pT = binning*1.4, # put reference on the same scale
-                                     eff    = referenceTurnOn[,thrBin],
+                          data.frame(true_pT = binning[start:nBins]*1.4, # put reference on the same scale
+                                     eff    = referenceTurnOn[(start:nBins)+1,thrBin],
                                      thr_pT = threshold,
-                                     model  = factor(rep("reference",nBins),
+                                     model  = factor(rep("reference",nBins-start+1),
                                                      levels=c("myModel","reference")
                                                     )
                                     )
