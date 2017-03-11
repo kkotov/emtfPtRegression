@@ -76,7 +76,7 @@ preprocess <- function(modelFit,
     #  while thresholds are always to count events above
     # if, for example, a negatively defined binning was provided for positively defined pT, add underflow rows
     nBins <- length(binning)
-    skippedBins <- min(pSpec$bin) - 1
+    skippedBins <- min(pSpec$bin)
     if( skippedBins > 0 ){
         myModelTurnOn   <- rbind(matrix(rep(0,nBins*skippedBins),nrow=skippedBins), myModelTurnOn)
         referenceTurnOn <- rbind(matrix(rep(0,nBins*skippedBins),nrow=skippedBins), referenceTurnOn)
@@ -204,9 +204,4 @@ turnOns <- function(pp, ...){
 
     turnOns
 }
-
-    # convolution of the rateShape with turn-ons (efficiencies) over all true_pT_bin
-#    myModelRate   <- drop(rateShapeBinned %*% myModelTurnOn)
-#    referenceRate <- drop(rateShapeBinned %*% referenceTurnOn)
-
 
