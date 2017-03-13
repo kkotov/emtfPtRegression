@@ -94,7 +94,7 @@ preprocess <- function(modelFit,
     )
 }
 
-rocMetric <- function(pp, ...){
+rocMetric <- function(pp, refScale=1.4, ...){
     # get precomputed parameters
     rateShapeBinned <- pp$getRateShapeBinned()
     myModelTurnOn   <- pp$getMyTurnOn()
@@ -103,15 +103,18 @@ rocMetric <- function(pp, ...){
 
     # normalization integrals
     nBins <- length(binning)
-    normForTruePos  <- sapply(1:nBins, function(x) sum(rateShapeBinned[(x:nBins)+1]) )
-    normForFalsePos <- sapply(1:nBins, function(x) sum(rateShapeBinned[1:x]) )
+    # keep in mind that rateShapeBinned["0"] = rateShapeBinned[1] = underflow counts
+    #  while rateShapeBinned[as.character(nBins)] = rateShapeBinned[nBins+1] = overflow
+    normForTruePos  <- sapply(1:nBins, function(x) sum(rateShapeBinned[(x:nBins)+1]) ) # equivalent to sum-cumsum
+    normForFalsePos <- sapply(1:nBins, function(x) sum(rateShapeBinned[1:x]) ) # equivalent to cumsum
 
     # true-/false-positives are given by a similar convolution over
     # [threshold_pT_bin <= true_pT_bin] / [0 < true_pT_bin < threshold_pT_bin]
     myModelTruePos    <- sapply(1:nBins, function(x) drop(rateShapeBinned[(x:nBins)+1] %*% myModelTurnOn[(x:nBins)+1,x]))
     myModelFalsePos   <- sapply(1:nBins, function(x) drop(rateShapeBinned[1:x] %*% myModelTurnOn[1:x,x]))
-    referenceTruePos  <- sapply(1:nBins, function(x) drop(rateShapeBinned[(x:nBins)+1] %*% referenceTurnOn[(x:nBins)+1,x]))
-    referenceFalsePos <- sapply(1:nBins, function(x) drop(rateShapeBinned[1:x] %*% referenceTurnOn[1:x,x]))
+    # scaling the reference may go out of bounds -> use simple saturation iflese policy:
+    referenceTruePos  <- sapply(1:nBins, function(x) drop(rateShapeBinned[(x:nBins)+1] %*% referenceTurnOn[(x:nBins)+1,ifelse(x*refScale<=nBins,as.integer(x*refScale),nBins)]))
+    referenceFalsePos <- sapply(1:nBins, function(x) drop(rateShapeBinned[1:x] %*% referenceTurnOn[1:x,ifelse(x*refScale<=nBins,as.integer(x*refScale),nBins)]))
 
     # finally, pack everything in one data frame
     myModelROCdf <- data.frame( truePos  = myModelTruePos/normForTruePos,
@@ -151,7 +154,7 @@ rocMetric <- function(pp, ...){
 
 
 # present some of the turn-ons for completeness
-turnOns <- function(pp, ...){
+turnOns <- function(pp, refScale=1.4, ...){
     # get precomputed parameters
     rateShapeBinned <- pp$getRateShapeBinned()
     myModelTurnOn   <- pp$getMyTurnOn()
@@ -163,7 +166,7 @@ turnOns <- function(pp, ...){
 
     turnOns <- list()
 
-    for(threshold in seq(5,30,5)){
+    for(threshold in seq(5,70,5)){
 
         thrBin <- findBin(threshold,binning)
 
@@ -176,9 +179,9 @@ turnOns <- function(pp, ...){
                                     )
 
         turnOnDF <- rbind(turnOnDF,
-                          data.frame(true_pT = binning[start:nBins]*1.4, # put reference on the same scale
-                                     eff    = referenceTurnOn[(start:nBins)+1,thrBin],
-                                     thr_pT = threshold,
+                          data.frame(true_pT = binning[start:nBins],
+                                     eff    = referenceTurnOn[(start:nBins)+1, as.integer(thrBin*refScale) ], # put reference on the same scale 
+                                     thr_pT = threshold, 
                                      model  = factor(rep("reference",nBins-start+1),
                                                      levels=c("myModel","reference")
                                                     )
