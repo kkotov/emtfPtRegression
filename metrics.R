@@ -154,7 +154,7 @@ rocMetric <- function(pp, refScale=1.4, ...){
 
 
 # present some of the turn-ons for completeness
-turnOns <- function(pp, refScale=1.4, ...){
+turnOns <- function(pp, refScale=1.4, from, to, ...){
     # get precomputed parameters
     rateShapeBinned <- pp$getRateShapeBinned()
     myModelTurnOn   <- pp$getMyTurnOn()
@@ -197,12 +197,17 @@ turnOns <- function(pp, refScale=1.4, ...){
                 theme(
                     title = element_text(size=20),
                     axis.title.x = element_text(size=20),
-                    axis.text.x  = element_text(size=15)
+                    axis.text.x  = element_text(size=15),
+                    legend.position = c(.70, .70),
+                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+                    legend.text=element_text(size=rel(1.5)),
+                    legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
                 ) +
                 labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
                       y="efficiency",
                       title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
-                ) + xlim(binning[1], binning[nBins])
+                ) +
+                xlim(binning[1], ifelse(binning[nBins]>100,100,binning[nBins]))
     }
 
     turnOns
