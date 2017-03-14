@@ -149,7 +149,13 @@ rocMetric <- function(pp, refScale=1.4, ...){
               title="ROC curve"
         ) + scale_y_log10()
 
-    roc
+    # return plot and the intermediate results
+    list(rocPlot = roc,
+         myEff   = myModelTruePos/normForTruePos,
+         refEff  = referenceTruePos/normForTruePos,
+         myFake  = myModelFalsePos/normForFalsePos,
+         refFake = referenceFalsePos/normForFalsePos
+    )
 }
 
 

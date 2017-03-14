@@ -2,6 +2,7 @@ mb <- read.csv(file="tuple_PART.csv",header=T,sep=',')
 sPART_0 <- with( subset(mb,track_nTracks>0),
                  data.frame(ptEMTF   = track_pt.0.,
                             ptEMTF_i = track_pt_int.0.,
+                            mode     = track_mode.0.,
                             eta      = track_eta.0.,
                             eta_i    = track_eta_int.0.,
                             theta    = track_theta.0.,
@@ -28,3 +29,4 @@ sPART_0 <- with( subset(mb,track_nTracks>0),
                )
 
 save(file="sPART_0.RData",sPART_0)
+
