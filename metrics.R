@@ -42,7 +42,8 @@ findBin <- function(val, binning, start=1, end=length(binning)){
 # calculate the standard turn-ons and rate shape distribution
 preprocess <- function(modelFit,
                        testSet,
-                       rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
+##                       rateShape = data.frame( true_pT=seq(1.5,1000.5,1), trigRate=1/seq(1,1000,1)*1000 ), # example of rate shape
+                       rateShapeBinned = c(1, 1, 1/seq(2,100,2)), ## don't forget the underflow
                        binning = seq(0,100,2) # example of binning: pT from 0 to 100 GeV/c in steps of 2 GeV/c
                       )
 {
@@ -60,13 +61,13 @@ preprocess <- function(modelFit,
     myModelCount   <- t(sapply(pSpec$res,  function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
     referenceCount <- t(sapply(pSpec$ptTrg,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
 
-    # create a simple histogram from the rateShape
-    rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
-
-    # if every event is greater then some low bin boundaries (e.g. aecause pT is positively
-    #  defined quantity and we start at 0) add explicitly the underflow bins and set them to 0
-    skippedBins <- sum(min(rateShape$true_pT) >= binning)
-    rateShapeBinned <- append(rep(0, skippedBins), rateShapeBinned)
+##    # create a simple histogram from the rateShape
+##    rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
+##
+##    # if every event is greater then some low bin boundaries (e.g. aecause pT is positively
+##    #  defined quantity and we start at 0) add explicitly the underflow bins and set them to 0
+##    skippedBins <- sum(min(rateShape$true_pT) >= binning)
+##    rateShapeBinned <- append(rep(0, skippedBins), rateShapeBinned)
 
     # let's introduce names for the turn-ons 
     myModelTurnOn   <- myModelCount   / pSpec$count
@@ -94,12 +95,17 @@ preprocess <- function(modelFit,
     )
 }
 
-rocMetric <- function(pp, refScale=1.4, ...){
-    # get precomputed parameters
-    rateShapeBinned <- pp$getRateShapeBinned()
-    myModelTurnOn   <- pp$getMyTurnOn()
-    referenceTurnOn <- pp$getRefTurnOn()
-    binning         <- pp$getBinning()
+rocMetric <- function(#pp,
+                      rateShapeBinned,
+                      myModelTurnOn,
+                      referenceTurnOn,
+                      binning,
+                      refScale=1.4){
+#    # get precomputed parameters
+#    rateShapeBinned <- pp$getRateShapeBinned()
+#    myModelTurnOn   <- pp$getMyTurnOn()
+#    referenceTurnOn <- pp$getRefTurnOn()
+#    binning         <- pp$getBinning()
 
     # normalization integrals
     nBins <- length(binning)
@@ -138,11 +144,15 @@ rocMetric <- function(pp, refScale=1.4, ...){
     roc <- ggplot(rocDF, aes(x = truePos, y = falsePos, group = model, colour = model)) + 
 #        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
         geom_line() +
-        geom_point() +
+        geom_point(shape=1,size=0.1) +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
-            axis.text.x  = element_text(size=15)
+            axis.text.x  = element_text(size=15),
+            legend.position = c(.20, .80),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
         labs( x="true positive",
               y="false positive",
@@ -198,7 +208,7 @@ turnOns <- function(pp, refScale=1.4, from, to, ...){
             ggplot(turnOnDF, aes(x=true_pT, y=eff, group=model, colour=model)) +
 #                geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
                 geom_line() +
-                geom_point() +
+                geom_point(shape=1,size=0.1) +
                 geom_vline(xintercept = threshold, colour = "red") +
                 theme(
                     title = element_text(size=20),
