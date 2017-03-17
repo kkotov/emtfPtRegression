@@ -170,12 +170,20 @@ rocMetric <- function(#pp,
 
 
 # present some of the turn-ons for completeness
-turnOns <- function(pp, refScale=1.4, from, to, ...){
+turnOns <- function(#pp,
+                    rateShapeBinned,
+                    myModelTurnOn,
+                    referenceTurnOn,
+                    binning,
+                    refScale=1.4,
+                    from,
+                    to
+           ){
     # get precomputed parameters
-    rateShapeBinned <- pp$getRateShapeBinned()
-    myModelTurnOn   <- pp$getMyTurnOn()
-    referenceTurnOn <- pp$getRefTurnOn()
-    binning         <- pp$getBinning()
+#    rateShapeBinned <- pp$getRateShapeBinned()
+#    myModelTurnOn   <- pp$getMyTurnOn()
+#    referenceTurnOn <- pp$getRefTurnOn()
+#    binning         <- pp$getBinning()
 
     start <- sum(rateShapeBinned==0) + 1
     nBins <- length(binning)

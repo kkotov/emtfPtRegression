@@ -124,17 +124,25 @@ require(ggplot2)
 
 source("../metrics.R")
 
-## The code below crashes if ran in slidify "Error in lazyLoadDBinsertValue(data, datafile, ascii, compress, envhook)"
-## It'll only run here if vars are replaced with a smaller size testSet:
-#pp <- preprocess(modelFit,
-#                 vars, #testSet,
-###                 rateShape = data.frame( true_pT = seq(1.01,1000.01,0.5), trigRate = 1/seq(1,1000,0.5)^3 ),
-#                 rateShapeBinned = c(1,1/seq(2,200,0.5)^3), # don't forget the underflow
-#                 binning = seq(2,200,0.5)
-#                )
-#
-## so I ran it interactively and restore the results from a file:
-load("pp.RData")
+## The code below crashes if ran it in slidify with full data set (that I shouln'd do anyway):
+##  "Error in lazyLoadDBinsertValue(data, datafile, ascii, compress, envhook)"
+pp <- preprocess(modelFit,
+                 testSet, #vars, #
+##                 rateShape = data.frame( true_pT = seq(1.01,1000.01,0.5), trigRate = 1/seq(1,1000,0.5)^3 ),
+                 rateShapeBinned = c(1,1/seq(2,200,0.5)^3), # don't forget the underflow
+                 binning = seq(2,200,0.5)
+                )
+
+## so if I'll ever need a bigger dataset, I first should run it interactively
+ myTurnOn        <- pp$getMyTurnOn()
+ refTurnOn       <- pp$getRefTurnOn()
+ binning         <- pp$getBinning()
+ rateShapeBinned <- pp$getRateShapeBinned()
+## save the results
+# save(file="pp.RData",binning,rateShapeBinned,refTurnOn,myTurnOn)
+# and then restore the results here from the file:
+# load("pp.RData")
+## but I don't do that because the testSet fits, and vars has been seen to model and shouldn't be used
 
 roc <- rocMetric(rateShapeBinned = rateShapeBinned,
                  myModelTurnOn = myTurnOn,
@@ -146,8 +154,13 @@ suppressWarnings( invisible( capture.output(
   roc[["rocPlot"]] + xlim(0.6, 0.9)
 ) ) )
 
-#tt <- turnOns(pp)
-#suppressWarnings( invisible( capture.output( tt[["30"]] ) ) )
+#tt <- turnOns(#pp,
+#              rateShapeBinned = rateShapeBinned,
+#              myModelTurnOn = myTurnOn,
+#              referenceTurnOn = refTurnOn,
+#              binning = binning
+#      )
+#suppressWarnings( invisible( capture.output( tt[["30"]] + xlim(0, 100) ) ) )
 ```
 
 *** =right
@@ -185,6 +198,7 @@ effRatePlot <- ggplot(data.frame(binning,
 suppressWarnings( invisible( capture.output(
   effRatePlot + xlim(0.75, 1) # + scale_y_log10()
 ) ) )
+
 ```
 
 *** =fullwidth
