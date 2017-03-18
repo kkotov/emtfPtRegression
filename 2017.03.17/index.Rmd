@@ -167,15 +167,14 @@ suppressWarnings( invisible( capture.output(
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-binning <- pp$getBinning()
 nBins   <- length(binning)
 myRate  <- sapply(binning, function(x) sum(tszb$res>x) )
 refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
 
-effRatePlot <- ggplot(data.frame(binning,
-                                 eff = c(roc$myEff, roc$refEff),
-                                 rate = c(myRate, refRate),
-                                 model = c(rep("myModel",nBins), rep("reference",nBins)) 
+effRatePlot <- ggplot(data.frame(binning[1:100],
+                                 eff = c(roc$myEff[1:100], roc$refEff[1:100]),
+                                 rate = c(myRate[1:100], refRate[1:100]),
+                                 model = c(rep("myModel",100), rep("reference",100)) 
                                 ),
                       aes(y = rate, x = eff, group = model, colour = model)
                      ) +
@@ -190,7 +189,7 @@ effRatePlot <- ggplot(data.frame(binning,
                     legend.text = element_text(size=rel(1.5)),
                     legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
                ) +
-               labs( x = "efficiency",
+               labs(x = "efficiency",
                     y = "rate",
                     title = "Efficiency-rate curve"
                )
