@@ -100,7 +100,7 @@ rocMetric <- function(#pp,
                       myModelTurnOn,
                       referenceTurnOn,
                       binning,
-                      refScale=1.4){
+                      refScale=1.5){
 #    # get precomputed parameters
 #    rateShapeBinned <- pp$getRateShapeBinned()
 #    myModelTurnOn   <- pp$getMyTurnOn()
@@ -127,15 +127,16 @@ rocMetric <- function(#pp,
                                 falsePos = myModelFalsePos/normForFalsePos,
                                 model    = rep("myModel",nBins)
                     )
-    start <- sum(normForFalsePos==0) + 1
-    if( start > 1 ) myModelROCdf <- myModelROCdf[start:nBins,]
-
     referenceROCdf <- data.frame(
                               truePos  = referenceTruePos/normForTruePos,
                               falsePos = referenceFalsePos/normForFalsePos,
                               model    = rep("reference",nBins)
                       )
-    if( start > 1 ) referenceROCdf <- referenceROCdf[start:nBins,]
+    start <- sum(normForFalsePos==0) + 1
+    if( start > 1 ){
+        myModelROCdf <- myModelROCdf[start:nBins,]
+        referenceROCdf <- referenceROCdf[start:nBins,]
+    }
 
     rocDF <- rbind(myModelROCdf,referenceROCdf)
     rocDF$model <- factor(rocDF$model)
@@ -175,9 +176,7 @@ turnOns <- function(#pp,
                     myModelTurnOn,
                     referenceTurnOn,
                     binning,
-                    refScale=1.4,
-                    from,
-                    to
+                    refScale=1.5
            ){
     # get precomputed parameters
 #    rateShapeBinned <- pp$getRateShapeBinned()
@@ -190,7 +189,7 @@ turnOns <- function(#pp,
 
     turnOns <- list()
 
-    for(threshold in seq(5,70,5)){
+    for(threshold in seq(5,70,1)){
 
         thrBin <- findBin(threshold,binning)
 

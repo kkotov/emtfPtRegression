@@ -17,7 +17,9 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Properties of the measured rate
+## Training full model
+
+Predictors: $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$, scaling reference thresholds by $1.4$:
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -202,19 +204,137 @@ suppressWarnings( invisible( capture.output(
 
 *** =fullwidth
 
-Clearly seen are two components meeting at $\sim$100 GeV/$c$ (and the EMTF pT saturation)
+[qwe] Full model clearly outperforms the current EMTF reference
 
-Since all of the thresholds of interest are < 100 GeV/$c$ let's zoom in to the first component
+--- &twocol
+
+## Light input compression
+
+```{r message = F, echo = F}
+
+source("../utils.R")
+
+vars2 <- with(vars,data.frame( muPtGenInv,
+                           sat(theta,5),
+                           ptTrg,
+                           abs(sat(dPhi12,15)),
+                           abs(sat(dPhi23,15)),
+                           abs(sat(dPhi34,15)),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           abs(sat(dPhi12,15)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,15)), # analogous to dPhi13
+                           abs(sat(dPhi12,15)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,15)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,15)),
+                           abs(sat(dPhi23,15)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,15)), # analogous to dPhi24
+                           abs(sat(dTheta12,2)),
+                           abs(sat(dTheta23,2)),
+                           abs(sat(dTheta34,2)),
+                           as.factor(ifelse(dTheta23*dTheta12>=0,0,1)),
+                           as.factor(ifelse(dTheta34*dTheta12>=0,0,1)),
+                           abs(sat(dTheta12,2)) + ifelse(dTheta23*dTheta12>=0,1,-1)*abs(sat(dTheta23,2)), # analogous to dTheta13
+                           abs(sat(dTheta12,2)) + ifelse(dTheta23*dTheta12>=0,1,-1)*abs(sat(dTheta23,2)) + ifelse(dTheta34*dTheta12>=0,1,-1)*abs(sat(dTheta34,2)),
+                           abs(sat(dTheta23,2)) + ifelse(dTheta34*dTheta12>=0,1,-1)*abs(sat(dTheta34,2)), # analogous to dTheta24
+#                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+#                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct2)),0xF)+1],
+#                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct3)),0xF)+1],
+#                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct4)),0xF)+1],
+                           clct1,
+                           clct2,
+                           clct3,
+                           clct4,
+                           fr1,
+                           fr2,
+                           fr3,
+                           fr4
+                             )
+         )
+
+predictors2 <- c("dPhi12", "dPhi23", "dPhi34", "sPhi123", "sPhi134", "dPhi13", "dPhi14", "dPhi24", "dTheta12", "dTheta23", "dTheta34", "sTheta123", "sTheta134", "dTheta13", "dTheta14", "dTheta24", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
+colnames(vars2) <- c("muPtGenInv", "theta", "ptTrg", predictors2 )
+predictors2 <- c("theta", predictors2)
+
+set.seed(1)
+
+#part <- sample(seq(nrow(vars)), as.integer(nrow(vars)*0.75), replace=F)
+trainSet2 <- vars2[part,]
+testSet2 <- vars2[-part,]
+
+f2 <- as.formula(paste("muPtGenInv ~ ", paste(predictors2, collapse= "+")))
+
+invisible( capture.output( modelFit2 <- ranger(f2, data=trainSet2, importance="impurity") ) )
+```
+
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+pp2 <- preprocess( modelFit = modelFit2,
+                   testSet = testSet2,
+                   rateShapeBinned,
+                   binning
+                 )
+
+lCompTurnOn <- pp2$getMyTurnOn()
+
+roc2 <- rocMetric( rateShapeBinned = rateShapeBinned,
+                   myModelTurnOn = lCompTurnOn,
+                   referenceTurnOn = myTurnOn,
+                   binning = binning
+        )
+myModelROCdf <- data.frame( truePos  = roc[["myEff"]],
+                            falsePos = roc[["myFake"]],
+                            model    = rep("myModel",nBins)
+                )
+lCompROCdf   <- data.frame( truePos  = roc2[["myEff"]],
+                            falsePos = roc2[["myFake"]],
+                            model    = rep("compress",nBins)
+                )
+referenceROCdf <- data.frame( truePos  = roc[["refEff"]],
+                              falsePos = roc[["refFake"]],
+                              model    = rep("reference",nBins)
+                  )
+start <- sum(rateShapeBinned==0) + 1
+if( start > 1 ){
+     myModelROCdf   <- myModelROCdf[start:nBins,]
+     lCompROCdf     <- lCompROCdf[start:nBins,]
+     referenceROCdf <- referenceROCdf[start:nBins,]
+}
+
+roc2DF <- rbind(myModelROCdf,referenceROCdf)
+roc2DF <- rbind(roc2DF,lCompROCdf)
+roc2DF$model <- factor(roc2DF$model)
+
+roc2Plot <- ggplot(roc2DF, aes(x = truePos, y = falsePos, group = model, colour = model)) +
+#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
+        geom_line() +
+        geom_point(shape=1,size=0.1) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15),
+            legend.position = c(.20, .80),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        labs( x="true positive",
+              y="false positive",
+              title="ROC curve"
+        ) + scale_y_log10()
+
+suppressWarnings( invisible( capture.output( 
+  roc2Plot + xlim(0.6, 0.9)
+) ) )
+
+```
+
+*** =right
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+```
+
+*** =fullwidth
 
 --- .class #id
 
 ## Summary
 
-* The underlying true rate spectrum consists of multiple components
-
-* $p_T \sim$ [0-5] GeV/$c$ seems to be falling exponentially, but being suppressed by
-the turn-on cannot be reliably measured from data
-
-* $p_T \sim$ [5-80] GeV/$c$ seems to be described well by $1/p_T^3$ spectrum
-
-* $p_T >$ 80 GeV/$c$ falls even faster, but presents a little interest
