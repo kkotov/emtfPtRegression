@@ -217,14 +217,14 @@ source("../utils.R")
 vars2 <- with(vars,data.frame( muPtGenInv,
                            sat(theta,5),
                            ptTrg,
-                           abs(sat(dPhi12,15)),
-                           abs(sat(dPhi23,15)),
-                           abs(sat(dPhi34,15)),
+                           abs(sat(dPhi12,7)),
+                           abs(sat(dPhi23,5)),
+                           abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,15)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,15)), # analogous to dPhi13
-                           abs(sat(dPhi12,15)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,15)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,15)),
-                           abs(sat(dPhi23,15)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,15)), # analogous to dPhi24
+                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta12,2)),
                            abs(sat(dTheta23,2)),
                            abs(sat(dTheta34,2)),
