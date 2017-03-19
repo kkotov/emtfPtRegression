@@ -330,6 +330,7 @@ suppressWarnings( invisible( capture.output(
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
 ```
 
 *** =fullwidth
