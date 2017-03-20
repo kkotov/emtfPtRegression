@@ -100,7 +100,7 @@ rocMetric <- function(#pp,
                       myModelTurnOn,
                       referenceTurnOn,
                       binning,
-                      refScale=1.5){
+                      refScale=1.4){
 #    # get precomputed parameters
 #    rateShapeBinned <- pp$getRateShapeBinned()
 #    myModelTurnOn   <- pp$getMyTurnOn()
@@ -176,7 +176,7 @@ turnOns <- function(#pp,
                     myModelTurnOn,
                     referenceTurnOn,
                     binning,
-                    refScale=1.5
+                    refScale=1.4
            ){
     # get precomputed parameters
 #    rateShapeBinned <- pp$getRateShapeBinned()
