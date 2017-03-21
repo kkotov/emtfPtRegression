@@ -231,9 +231,9 @@ suppressWarnings( invisible( capture.output(
 
 *** =fullwidth
 
-[&nbsp;&nbsp;$^*$&nbsp;] any shape do well for qualitative comparison of the two models (their relative behavior)
+[&nbsp;&nbsp;$^*$&nbsp;] any shape do well for qualitative comparison of the two models (i.e. relative behavior)
 
-[$^{**}$] myModel is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (all full precision)
+[$^{**}$] "myModel" is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (all full precision)
 
 --- .class #id
 
@@ -241,7 +241,7 @@ suppressWarnings( invisible( capture.output(
 
 Baseline model was originally scaled to have ~90% efficiency at threshold
 
-Rescaling causes a small vertical and large horizontal shifts (consequence of falling rate):
+Rescaling causes a small vertical and large horizontal shifts ([consequence of falling rate](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6)):
 
 ```{r, fig.height=5., fig.width=10., fig.align = 'center', comment = NA, message = F, echo = F}
 
@@ -351,7 +351,7 @@ rocRangePlot <- ggplot(refROCdf, aes(x = truePos, y = falsePos, group = scale, c
         ) +
         labs( x="true positive",
               y="false positive",
-              title="ROC curves for rescaled baseline"
+              title="ROC curves for the rescaled baseline"
         ) +
         scale_y_log10() +
         xlim(0.5,0.97)
@@ -462,14 +462,15 @@ invisible( capture.output( modelFit2 <- ranger(f2, data=trainSet2, importance="i
 
 *** =left
 
-```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
-
+```{r message = F, echo = F}
 pp2 <- preprocess( modelFit = modelFit2,
                    testSet = testSet2,
                    rateShapeBinned,
                    binning
                  )
+```
 
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 lCompTurnOn <- pp2$getMyTurnOn()
 
 roc2 <- rocMetric( rateShapeBinned = rateShapeBinned,
@@ -478,25 +479,19 @@ roc2 <- rocMetric( rateShapeBinned = rateShapeBinned,
                    binning = binning,
                    refScale = 1.43
         )
-myModelROCdf <- data.frame( truePos  = roc[["myEff"]],
-                            falsePos = roc[["myFake"]],
-                            model    = rep("myModel",nBins)
+myModelROCdf <- data.frame( truePos  = roc2[["refEff"]],
+                            falsePos = roc2[["refFake"]],
+                            model    = rep("uncompressed",nBins)
                 )
 lCompROCdf   <- data.frame( truePos  = roc2[["myEff"]],
                             falsePos = roc2[["myFake"]],
-                            model    = rep("compress",nBins)
+                            model    = rep("compressed",nBins)
                 )
-referenceROCdf <- data.frame( truePos  = roc[["refEff"]],
-                              falsePos = roc[["refFake"]],
-                              model    = rep("baseline",nBins)
-                  )
 start <- sum(rateShapeBinned==0) + 1
 myModelROCdf   <- myModelROCdf[start:nBins,]
 lCompROCdf     <- lCompROCdf[start:nBins,]
-referenceROCdf <- referenceROCdf[start:nBins,]
 
-roc2DF <- rbind(myModelROCdf,referenceROCdf)
-roc2DF <- rbind(roc2DF,lCompROCdf)
+roc2DF <- rbind(myModelROCdf,lCompROCdf)
 roc2DF$model <- factor(roc2DF$model)
 
 roc2Plot <- ggplot(roc2DF, aes(x = truePos, y = falsePos, group = model, colour = model)) +
@@ -514,11 +509,11 @@ roc2Plot <- ggplot(roc2DF, aes(x = truePos, y = falsePos, group = model, colour 
         ) +
         labs( x="true positive",
               y="false positive",
-              title="ROC curve"
+              title="ROC curves for myModels"
         ) + scale_y_log10()
 
 suppressWarnings( invisible( capture.output( 
-  roc2Plot + xlim(0.6, 0.9)
+  roc2Plot + xlim(0.75, 0.98)
 ) ) )
 
 ```
