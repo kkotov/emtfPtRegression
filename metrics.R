@@ -133,10 +133,9 @@ rocMetric <- function(#pp,
                               model    = rep("reference",nBins)
                       )
     start <- sum(normForFalsePos==0) + 1
-    if( start > 1 ){
-        myModelROCdf <- myModelROCdf[start:nBins,]
-        referenceROCdf <- referenceROCdf[start:nBins,]
-    }
+    nBins <- 100
+    myModelROCdf   <- myModelROCdf[start:nBins,]
+    referenceROCdf <- referenceROCdf[start:nBins,]
 
     rocDF <- rbind(myModelROCdf,referenceROCdf)
     rocDF$model <- factor(rocDF$model)
@@ -189,7 +188,7 @@ turnOns <- function(#pp,
 
     turnOns <- list()
 
-    for(threshold in seq(5,70,1)){
+    for(threshold in seq(5,100,1)){
 
         thrBin <- findBin(threshold,binning)
 
@@ -221,16 +220,16 @@ turnOns <- function(#pp,
                     title = element_text(size=20),
                     axis.title.x = element_text(size=20),
                     axis.text.x  = element_text(size=15),
-                    legend.position = c(.70, .70),
+                    legend.position = c(.70, .20),
                     legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
                     legend.text=element_text(size=rel(1.5)),
                     legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
                 ) +
                 labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
-                      y="efficiency",
-                      title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
+                      y="efficiency" #,
+                      #title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
                 ) +
-                xlim(binning[1], ifelse(binning[nBins]>100,100,binning[nBins]))
+                xlim(binning[1], ifelse(binning[nBins]>150,150,binning[nBins]))
     }
 
     turnOns

@@ -17,9 +17,11 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Training full model
+## Understanding the ROC curves
 
-Predictors: $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$, scaling reference thresholds by $1.4$:
+[ROC curves](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6) built with
+[$1/p_T ^3$ spectrum](https://kkotov.github.io/emtfPtRegression/2017.03.03/#6)
+and turn-ons for "myModel"$^*$ and EMTF ("reference"):
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -117,12 +119,11 @@ tszb <- testSetZB[-which(is.na(testSetZB$clct1) | is.na(testSetZB$clct2) | is.na
 
 invisible( capture.output( tszb$res <- 1/predict(modelFit,tszb)$predictions ) )
 
-require(ggplot2)
 ```
 
-*** =left
-
-```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+```{r message = F, echo = F}
+require(ggplot2)
+require("gridExtra")
 
 source("../metrics.R")
 
@@ -146,58 +147,42 @@ pp <- preprocess(modelFit,
 # load("pp.RData")
 ## but I don't do that because the testSet fits, and vars has been seen to model and shouldn't be used
 
-roc <- rocMetric(rateShapeBinned = rateShapeBinned,
-                 myModelTurnOn = myTurnOn,
-                 referenceTurnOn = refTurnOn,
-                 binning = binning
-       ) #pp
+```
 
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+tt <- turnOns(#pp,
+              rateShapeBinned = rateShapeBinned,
+              myModelTurnOn = myTurnOn,
+              referenceTurnOn = refTurnOn,
+              binning = binning,
+              refScale = 1.5
+      )
 suppressWarnings( invisible( capture.output( 
-  roc[["rocPlot"]] + xlim(0.6, 0.9)
+    grid.arrange(tt[["20"]] + theme(legend.position="none"),
+                 tt[["40"]] + theme(legend.position="none"),
+                 tt[["60"]] + theme(legend.position="none"),
+                 tt[["80"]] + theme(legend.position="none")
+                )
 ) ) )
 
-#tt <- turnOns(#pp,
-#              rateShapeBinned = rateShapeBinned,
-#              myModelTurnOn = myTurnOn,
-#              referenceTurnOn = refTurnOn,
-#              binning = binning
-#      )
-#suppressWarnings( invisible( capture.output( tt[["30"]] + xlim(0, 100) ) ) )
 ```
 
 *** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-nBins   <- length(binning)
-myRate  <- sapply(binning, function(x) sum(tszb$res>x) )
-refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
+roc <- rocMetric(rateShapeBinned = rateShapeBinned,
+                 myModelTurnOn = myTurnOn,
+                 referenceTurnOn = refTurnOn,
+                 binning = binning,
+                 refScale = 1.5
+       ) #pp
 
-effRatePlot <- ggplot(data.frame(binning[1:100],
-                                 eff = c(roc$myEff[1:100], roc$refEff[1:100]),
-                                 rate = c(myRate[1:100], refRate[1:100]),
-                                 model = c(rep("myModel",100), rep("reference",100)) 
-                                ),
-                      aes(y = rate, x = eff, group = model, colour = model)
-                     ) +
-               geom_point(shape=1,size=0.1) + 
-               geom_line() + 
-               theme(
-                    title = element_text(size=20),
-                    axis.title.x = element_text(size=20),
-                    axis.text.x  = element_text(size=15),
-                    legend.position = c(.20, .80),
-                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
-                    legend.text = element_text(size=rel(1.5)),
-                    legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
-               ) +
-               labs(x = "efficiency",
-                    y = "rate",
-                    title = "Efficiency-rate curve"
-               )
-
-suppressWarnings( invisible( capture.output(
-  effRatePlot + xlim(0.75, 1) # + scale_y_log10()
+suppressWarnings( invisible( capture.output( 
+  roc[["rocPlot"]] + xlim(0.6, 0.9)
 ) ) )
 
 ```
@@ -205,6 +190,11 @@ suppressWarnings( invisible( capture.output(
 *** =fullwidth
 
 [qwe] Full model clearly outperforms the current EMTF reference
+
+$^*$ myModel is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (full precision):
+
+scaling reference thresholds by $1.5$
+
 
 --- &twocol
 
@@ -338,4 +328,40 @@ barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', la
 --- .class #id
 
 ## Summary
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
+nBins   <- length(binning)
+myRate  <- sapply(binning, function(x) sum(tszb$res>x) )
+refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
+
+effRatePlot <- ggplot(data.frame(binning[1:100],
+                                 eff = c(roc$myEff[1:100], roc$refEff[1:100]),
+                                 rate = c(myRate[1:100], refRate[1:100]),
+                                 model = c(rep("myModel",100), rep("reference",100)) 
+                                ),
+                      aes(y = rate, x = eff, group = model, colour = model)
+                     ) +
+               geom_point(shape=1,size=0.1) + 
+               geom_line() + 
+               theme(
+                    title = element_text(size=20),
+                    axis.title.x = element_text(size=20),
+                    axis.text.x  = element_text(size=15),
+                    legend.position = c(.20, .80),
+                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+                    legend.text = element_text(size=rel(1.5)),
+                    legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
+               ) +
+               labs(x = "efficiency",
+                    y = "rate",
+                    title = "Efficiency-rate curve"
+               )
+
+suppressWarnings( invisible( capture.output(
+  effRatePlot + xlim(0.75, 1) # + scale_y_log10()
+) ) )
+
+```
+
 
