@@ -225,7 +225,7 @@ turnOns <- function(#pp,
                     legend.text=element_text(size=rel(1.5)),
                     legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
                 ) +
-                labs( x=expression(paste(p[T] ^{generator}," (GeV/c)")),
+                labs( x=expression(paste(p[T] ^{true}," (GeV/c)")),
                       y="efficiency" #,
                       #title=bquote("Turn-on (" ~ p[T] ~ ">" ~ .(threshold) ~ " GeV/c)")
                 ) +

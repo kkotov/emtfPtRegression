@@ -17,11 +17,11 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Understanding the ROC curves
+## Understanding ROC curves
 
 [ROC curves](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6) built with
-[$1/p_T ^3$ spectrum](https://kkotov.github.io/emtfPtRegression/2017.03.03/#6)
-and turn-ons for "myModel"$^*$ and EMTF ("reference"):
+[$1/p_T ^3$ spectrum](https://kkotov.github.io/emtfPtRegression/2017.03.03/#6)$^*$
+and turn-ons for "myModel"$^{**}$ and EMTF ("reference"):
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -122,6 +122,7 @@ invisible( capture.output( tszb$res <- 1/predict(modelFit,tszb)$predictions ) )
 ```
 
 ```{r message = F, echo = F}
+
 require(ggplot2)
 require("gridExtra")
 
@@ -141,6 +142,7 @@ pp <- preprocess(modelFit,
  refTurnOn       <- pp$getRefTurnOn()
  binning         <- pp$getBinning()
  rateShapeBinned <- pp$getRateShapeBinned()
+ nBins           <- length(binning)
 ## save the results
 # save(file="pp.RData",binning,rateShapeBinned,refTurnOn,myTurnOn)
 # and then restore the results here from the file:
@@ -158,7 +160,7 @@ tt <- turnOns(#pp,
               myModelTurnOn = myTurnOn,
               referenceTurnOn = refTurnOn,
               binning = binning,
-              refScale = 1.5
+              refScale = 1.43
       )
 suppressWarnings( invisible( capture.output( 
     grid.arrange(tt[["20"]] + theme(legend.position="none"),
@@ -178,30 +180,68 @@ roc <- rocMetric(rateShapeBinned = rateShapeBinned,
                  myModelTurnOn = myTurnOn,
                  referenceTurnOn = refTurnOn,
                  binning = binning,
-                 refScale = 1.5
+                 refScale = 1.43
        ) #pp
 
+truePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
+                                 eff = c( roc[["myEff"]], roc[["refEff"]] ),
+                                 model = factor( c(rep("myModel",nBins), rep("reference",nBins) ) )
+                      ),
+                      aes(x = pT, y = eff, type = model, color = model)
+                 ) +
+                 geom_point(shape = 1, size = 0.1) +
+                 theme(
+                       title = element_text(size=20),
+                       axis.title.x = element_text(size=20),
+                       axis.text.x  = element_text(size=15)
+                 ) +
+                 labs(x = expression(paste(p[T] ^{true}," (GeV/c)")),
+                      y = "true positive"
+                 )
+
+falsePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
+                                  eff = c( roc[["myFake"]], roc[["refFake"]] ),
+                                  model = factor( c(rep("myModel",nBins), rep("reference",nBins) ) )
+                       ),
+                       aes(x = pT, y = eff, type = model, color = model)
+                ) +
+                geom_point(shape = 1, size = 0.1) +
+                theme(
+                      title = element_text(size=20),
+                      axis.title.x = element_text(size=20),
+                      axis.text.x  = element_text(size=15)
+                ) +
+                labs(x = expression(paste(p[T] ^{true}," (GeV/c)")),
+                     y = "false positive"
+                ) +
+                scale_y_log10()
+
 suppressWarnings( invisible( capture.output( 
-  roc[["rocPlot"]] + xlim(0.6, 0.9)
+    grid.arrange(
+                 arrangeGrob(truePosPlot  + xlim(0, 100) + theme(legend.position="none"),
+                             falsePosPlot + xlim(0, 100) + theme(legend.position="none"),
+                             ncol=2
+                 ),
+                 roc[["rocPlot"]] + xlim(0.75, 1) + labs(title=""),
+                 nrow = 2
+    )
 ) ) )
 
 ```
 
 *** =fullwidth
 
-[qwe] Full model clearly outperforms the current EMTF reference
+[&nbsp;&nbsp;$^*$&nbsp;] any shape do well for qualitative comparison of the two models (their relative behavior)
 
-$^*$ myModel is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (full precision):
-
-scaling reference thresholds by $1.5$
-
+[$^{**}$] myModel is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (all full precision)
 
 --- &twocol
 
-## Light input compression
+## Scaling the reference
+
+scaling reference thresholds by $1.5$
 
 ```{r message = F, echo = F}
-
 source("../utils.R")
 
 vars2 <- with(vars,data.frame( muPtGenInv,
@@ -268,7 +308,8 @@ lCompTurnOn <- pp2$getMyTurnOn()
 roc2 <- rocMetric( rateShapeBinned = rateShapeBinned,
                    myModelTurnOn = lCompTurnOn,
                    referenceTurnOn = myTurnOn,
-                   binning = binning
+                   binning = binning,
+                   refScale = 1.43
         )
 myModelROCdf <- data.frame( truePos  = roc[["myEff"]],
                             falsePos = roc[["myFake"]],
@@ -283,11 +324,9 @@ referenceROCdf <- data.frame( truePos  = roc[["refEff"]],
                               model    = rep("reference",nBins)
                   )
 start <- sum(rateShapeBinned==0) + 1
-if( start > 1 ){
-     myModelROCdf   <- myModelROCdf[start:nBins,]
-     lCompROCdf     <- lCompROCdf[start:nBins,]
-     referenceROCdf <- referenceROCdf[start:nBins,]
-}
+myModelROCdf   <- myModelROCdf[start:nBins,]
+lCompROCdf     <- lCompROCdf[start:nBins,]
+referenceROCdf <- referenceROCdf[start:nBins,]
 
 roc2DF <- rbind(myModelROCdf,referenceROCdf)
 roc2DF <- rbind(roc2DF,lCompROCdf)
