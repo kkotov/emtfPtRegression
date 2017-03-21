@@ -21,7 +21,7 @@ mode        : selfcontained # {standalone, draft}
 
 [ROC curves](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6) built with
 [$1/p_T ^3$ spectrum](https://kkotov.github.io/emtfPtRegression/2017.03.03/#6)$^*$
-and turn-ons for "myModel"$^{**}$ and EMTF ("reference"):
+and turn-ons for "myModel"$^{**}$ and EMTF ("baseline"):
 
 ```{r message = F, echo = F}
 mode_inv <- 15
@@ -128,7 +128,7 @@ require("gridExtra")
 
 source("../metrics.R")
 
-## The code below crashes if ran it in slidify with full data set (that I shouln'd do anyway):
+## The code below crashes if ran it in slidify with full data set (that I shouldn't do anyway):
 ##  "Error in lazyLoadDBinsertValue(data, datafile, ascii, compress, envhook)"
 pp <- preprocess(modelFit,
                  testSet, #vars, #
@@ -185,7 +185,7 @@ roc <- rocMetric(rateShapeBinned = rateShapeBinned,
 
 truePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
                                  eff = c( roc[["myEff"]], roc[["refEff"]] ),
-                                 model = factor( c(rep("myModel",nBins), rep("reference",nBins) ) )
+                                 model = factor( c(rep("myModel",nBins), rep("baseline",nBins) ) )
                       ),
                       aes(x = pT, y = eff, type = model, color = model)
                  ) +
@@ -201,7 +201,7 @@ truePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
 
 falsePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
                                   eff = c( roc[["myFake"]], roc[["refFake"]] ),
-                                  model = factor( c(rep("myModel",nBins), rep("reference",nBins) ) )
+                                  model = factor( c(rep("myModel",nBins), rep("baseline",nBins) ) )
                        ),
                        aes(x = pT, y = eff, type = model, color = model)
                 ) +
@@ -235,11 +235,138 @@ suppressWarnings( invisible( capture.output(
 
 [$^{**}$] myModel is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (all full precision)
 
+--- .class #id
+
+## Scaling baseline turn-ons
+
+Baseline model was originally scaled to have ~90% efficiency at threshold
+
+Rescaling causes a small vertical and large horizontal shifts (consequence of falling rate):
+
+```{r, fig.height=5., fig.width=10., fig.align = 'center', comment = NA, message = F, echo = F}
+
+roc1.1 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.1
+          )
+
+roc1.2 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.2
+          )
+
+roc1.3 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.3
+          )
+
+roc1.4 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.4
+          )
+
+roc1.5 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.5
+          )
+
+roc1.6 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.6
+          )
+
+roc1.7 <- rocMetric(rateShapeBinned = rateShapeBinned,
+                    myModelTurnOn = myTurnOn,
+                    referenceTurnOn = refTurnOn,
+                    binning = binning,
+                    refScale = 1.7
+          )
+
+refROCdf <- data.frame( truePos  = roc1.1[["refEff"]],
+                        falsePos = roc1.1[["refFake"]],
+                        scale    = rep("1.1",nBins)
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.2[["refEff"]],
+                               falsePos = roc1.2[["refFake"]],
+                               scale    = rep("1.2",nBins)
+                   ),
+                   refROCdf
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.3[["refEff"]],
+                               falsePos = roc1.3[["refFake"]],
+                               scale    = rep("1.3",nBins)
+                   ),
+                   refROCdf
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.4[["refEff"]],
+                               falsePos = roc1.4[["refFake"]],
+                               scale    = rep("1.4",nBins)
+                   ),
+                   refROCdf
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.5[["refEff"]],
+                               falsePos = roc1.5[["refFake"]],
+                               scale    = rep("1.5",nBins)
+                   ),
+                   refROCdf
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.6[["refEff"]],
+                               falsePos = roc1.6[["refFake"]],
+                               scale    = rep("1.6",nBins)
+                   ),
+                   refROCdf
+            )
+refROCdf <- rbind( data.frame( truePos  = roc1.7[["refEff"]],
+                               falsePos = roc1.7[["refFake"]],
+                               scale    = rep("1.7",nBins)
+                   ),
+                   refROCdf
+            )
+
+refROCdf$scale <- factor(refROCdf$scale)
+
+rocRangePlot <- ggplot(refROCdf, aes(x = truePos, y = falsePos, group = scale, colour = scale)) +
+        geom_line() +
+        geom_point(shape=1,size=0.1) +
+        theme(
+            title = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x  = element_text(size=15),
+            legend.position = c(.20, .70),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.5)),
+            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        labs( x="true positive",
+              y="false positive",
+              title="ROC curves for rescaled baseline"
+        ) +
+        scale_y_log10() +
+        xlim(0.5,0.97)
+
+suppressWarnings( invisible( capture.output( 
+    rocRangePlot
+) ) )
+
+```
+
+For a proper comparison I rescale it back multiplying baseline's thresholds by $1.43$
+
 --- &twocol
 
-## Scaling the reference
-
-scaling reference thresholds by $1.5$
+## Scaling baseline turn-ons
 
 ```{r message = F, echo = F}
 source("../utils.R")
@@ -321,7 +448,7 @@ lCompROCdf   <- data.frame( truePos  = roc2[["myEff"]],
                 )
 referenceROCdf <- data.frame( truePos  = roc[["refEff"]],
                               falsePos = roc[["refFake"]],
-                              model    = rep("reference",nBins)
+                              model    = rep("baseline",nBins)
                   )
 start <- sum(rateShapeBinned==0) + 1
 myModelROCdf   <- myModelROCdf[start:nBins,]
@@ -377,7 +504,7 @@ refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
 effRatePlot <- ggplot(data.frame(binning[1:100],
                                  eff = c(roc$myEff[1:100], roc$refEff[1:100]),
                                  rate = c(myRate[1:100], refRate[1:100]),
-                                 model = c(rep("myModel",100), rep("reference",100)) 
+                                 model = c(rep("myModel",100), rep("baseline",100)) 
                                 ),
                       aes(y = rate, x = eff, group = model, colour = model)
                      ) +

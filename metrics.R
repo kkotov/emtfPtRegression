@@ -130,7 +130,7 @@ rocMetric <- function(#pp,
     referenceROCdf <- data.frame(
                               truePos  = referenceTruePos/normForTruePos,
                               falsePos = referenceFalsePos/normForFalsePos,
-                              model    = rep("reference",nBins)
+                              model    = rep("baseline",nBins)
                       )
     start <- sum(normForFalsePos==0) + 1
     nBins <- 100
@@ -196,7 +196,7 @@ turnOns <- function(#pp,
                                      eff    = myModelTurnOn[(start:nBins)+1,thrBin],
                                      thr_pT = threshold,
                                      model  = factor(rep("myModel",nBins-start+1),
-                                                     levels=c("myModel","reference")
+                                                     levels=c("myModel","baseline")
                                                     )
                                     )
 
@@ -204,8 +204,8 @@ turnOns <- function(#pp,
                           data.frame(true_pT = binning[start:nBins],
                                      eff    = referenceTurnOn[(start:nBins)+1, as.integer(thrBin*refScale) ], # put reference on the same scale 
                                      thr_pT = threshold, 
-                                     model  = factor(rep("reference",nBins-start+1),
-                                                     levels=c("myModel","reference")
+                                     model  = factor(rep("baseline",nBins-start+1),
+                                                     levels=c("myModel","baseline")
                                                     )
                                     )
                          )
