@@ -135,7 +135,7 @@ rocMetric <- function(rateShapeBinned,
     rocDF$model <- factor(rocDF$model)
 
     # ... and plot this data frame
-    roc <- ggplot(rocDF, aes(x = truePos, y = falsePos, group = model, colour = model)) + 
+    roc <- ggplot(rocDF, aes(y = truePos, x = falsePos, group = model, colour = model)) + 
 #        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
         geom_line() +
         geom_point(shape=1,size=0.1) +
@@ -143,15 +143,15 @@ rocMetric <- function(rateShapeBinned,
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=15),
-            legend.position = c(.20, .70),
+            legend.position = c(.70, .20),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.5)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
-        labs( x="true positive",
-              y="false positive",
+        labs( y="true positive",
+              x="false positive",
               title="ROC curve"
-        ) + scale_y_log10()
+        ) + scale_x_log10()
 
     # return plot and the intermediate results
     list(rocPlot = roc,

@@ -17,7 +17,7 @@ mode        : selfcontained # {standalone, draft}
 
 --- &twocol
 
-## Understanding ROC curves
+## Constructing ROC curves
 
 [ROC curves](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6) built with
 [$1/p_T ^3$ spectrum](https://kkotov.github.io/emtfPtRegression/2017.03.03/#6)$^*$
@@ -233,19 +233,74 @@ suppressWarnings( invisible( capture.output(
 
 *** =fullwidth
 
-[&nbsp;&nbsp;$^*$&nbsp;] any shape do well for qualitative comparison of the two models (i.e. relative behavior)
+[$^*$]&nbsp;any&nbsp;shape do well for qualitative comparison of the two models (i.e. relative behavior)
 
 [$^{**}$] "myModel" is trained with $\Delta\phi \times 6$, $\Delta\theta \times 6$, $CLCT \times 4$, $FR \times 4$ (all full precision)
 
 --- .class #id
 
-## Scaling baseline turn-ons
+## Constructing efficiency-rate metric
 
-Baseline model was originally scaled to have ~90% efficiency at threshold
+Like for ROCs, efficiency results from convolution of spectrum with turn-on above threshold
 
-Rescaling causes a small vertical and large horizontal shifts ([consequence of falling rate](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6)):
+Fraction of fakes is replaced with absolute number of events where predicted pT &gt; threshold
+
+Comparing pT prediction in baseline and "myModel" on Andrew's zero bias ntuples:
 
 ```{r, fig.height=5., fig.width=10., fig.align = 'center', comment = NA, message = F, echo = F}
+
+nBins   <- length(binning)
+myRate  <- sapply(binning, function(x) sum(tszb$res>x) )
+refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
+
+# See http://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette for the choise of colours
+effRatePlot <- ggplot(data.frame(binning[1:100],
+                                 eff = c(roc$myEff[1:100], roc$refEff[1:100]),
+                                 rate = c(myRate[1:100], refRate[1:100]),
+                                 model = c(rep("myModel",100), rep("baseline",100)) 
+                                ),
+                      aes(x = rate, y = eff, group = model, colour = model)
+               ) +
+               geom_point(shape=1,size=0.1) + 
+               geom_line() + 
+               theme(
+                    title = element_text(size=20),
+                    axis.title.x = element_text(size=20),
+                    axis.text.x  = element_text(size=15),
+                    legend.position = c(.20, .70),
+                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+                    legend.text = element_text(size=rel(1.5)),
+                    legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
+               ) +
+               labs(y = "efficiency",
+                    x = "rate",
+                    title = "Efficiency-rate curve"
+               ) +
+               scale_colour_manual(values = c("myModel" = "#F8766D", "baseline" = "#00BFC4"),
+                                   breaks = c("myModel", "baseline"),
+                                   labels = c("myModel", "baseline")
+               ) +
+               scale_x_log10()
+
+suppressWarnings( invisible( capture.output(
+  effRatePlot #+ xlim(0.75, 1) # + scale_y_log10()
+) ) )
+
+```
+
+--- &twocol
+
+## Scaling baseline turn-ons
+
+Baseline model was originally scaled to have ~90% efficiency at any given threshold
+
+<!--Rescaling causes a small horizontal and large vertical shifts ([consequence of falling rate](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6)):-->
+
+Comparing baseline to itself for different scales shows apples-to-oranges problem:
+
+*** =left
+
+```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
 roc1.1 <- rocMetric(rateShapeBinned = rateShapeBinned,
                     myModelTurnOn = myTurnOn,
@@ -339,72 +394,103 @@ refROCdf <- rbind( data.frame( truePos  = roc1.7[["refEff"]],
 
 refROCdf$scale <- factor(refROCdf$scale)
 
-rocRangePlot <- ggplot(refROCdf, aes(x = truePos, y = falsePos, group = scale, colour = scale)) +
+rocScaledPlot <- ggplot(refROCdf, aes(y = truePos, x = falsePos, group = scale, colour = scale)) +
         geom_line() +
         geom_point(shape=1,size=0.1) +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=15),
-            legend.position = c(.20, .70),
+            legend.position = c(.70, .40),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.5)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
-        labs( x="true positive",
-              y="false positive",
-              title="ROC curves for the rescaled baseline"
+        labs( y="true positive (efficiency)",
+              x="false positive (fakes' fraction)",
+              title="ROC curves"
         ) +
-        scale_y_log10() +
-        xlim(0.5,0.97)
+        scale_x_log10() #+
+#        xlim(0.5,0.97)
 
 suppressWarnings( invisible( capture.output( 
-    rocRangePlot
+    rocScaledPlot
 ) ) )
 
 ```
 
-For a proper comparison I rescale it back multiplying baseline's thresholds by $1.43$
-
---- .class #id
-
-## Efficiency-rate plot
+*** =right
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
-nBins   <- length(binning)
-myRate  <- sapply(binning, function(x) sum(tszb$res>x) )
-refRate <- sapply(binning, function(x) sum(tszb$ptRef>x) )
+refEffRateDF <- data.frame( eff   = roc1.1[["refEff"]],
+                            rate  = refRate,
+                            scale = rep("1.1",nBins)
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.2[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.2",nBins)
+                       ),
+                   refEffRateDF
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.3[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.3",nBins)
+                       ),
+                   refEffRateDF
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.4[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.4",nBins)
+                       ),
+                   refEffRateDF
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.5[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.5",nBins)
+                       ),
+                   refEffRateDF
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.6[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.6",nBins)
+                       ),
+                   refEffRateDF
+                )
+refEffRateDF <- rbind( data.frame( eff   = roc1.7[["refEff"]],
+                                   rate  = refRate,
+                                   scale = rep("1.7",nBins)
+                       ),
+                   refEffRateDF
+                )
 
-effRatePlot <- ggplot(data.frame(binning[1:100],
-                                 eff = c(roc$myEff[1:100], roc$refEff[1:100]),
-                                 rate = c(myRate[1:100], refRate[1:100]),
-                                 model = c(rep("myModel",100), rep("baseline",100)) 
-                                ),
-                      aes(y = rate, x = eff, group = model, colour = model)
-                     ) +
+effRateScaledPlot <- ggplot(refEffRateDF, aes(x = rate, y = eff, group = scale, colour = scale) ) +
                geom_point(shape=1,size=0.1) + 
                geom_line() + 
                theme(
                     title = element_text(size=20),
                     axis.title.x = element_text(size=20),
                     axis.text.x  = element_text(size=15),
-                    legend.position = c(.20, .80),
+                    legend.position = c(.70, .40),
                     legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
                     legend.text = element_text(size=rel(1.5)),
                     legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
                ) +
-               labs(x = "efficiency",
-                    y = "rate",
+               labs(y = "efficiency",
+                    x = "total rate",
                     title = "Efficiency-rate curve"
-               )
+               ) +
+               scale_x_log10()
 
 suppressWarnings( invisible( capture.output(
-  effRatePlot + xlim(0.75, 1) # + scale_y_log10()
+  effRateScaledPlot #+ xlim(0.5, 1) # + scale_y_log10()
 ) ) )
 
 ```
 
+*** =fullwidth
+
+Baseline is put on "myModel" scale (turn-ons cross at 50%) multiplying thresholds by $1.43$
 
 --- &twocol
 
