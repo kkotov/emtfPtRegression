@@ -176,6 +176,7 @@ suppressWarnings( invisible( capture.output(
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
+
 source("../metrics.R")
 
 roc <- rocMetric(rateShapeBinned = rateShapeBinned,
@@ -224,7 +225,7 @@ suppressWarnings( invisible( capture.output(
                              falsePosPlot + xlim(0, 100) + theme(legend.position="none"),
                              ncol=2
                  ),
-                 roc[["rocPlot"]] + xlim(0.75, 1) + labs(title=""),
+                 roc[["rocPlot"]] + labs(title=""), # + xlim(0.75, 1),
                  nrow = 2
     )
 ) ) )
