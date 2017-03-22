@@ -95,17 +95,11 @@ preprocess <- function(modelFit,
     )
 }
 
-rocMetric <- function(#pp,
-                      rateShapeBinned,
+rocMetric <- function(rateShapeBinned,
                       myModelTurnOn,
                       referenceTurnOn,
                       binning,
                       refScale=1.4){
-#    # get precomputed parameters
-#    rateShapeBinned <- pp$getRateShapeBinned()
-#    myModelTurnOn   <- pp$getMyTurnOn()
-#    referenceTurnOn <- pp$getRefTurnOn()
-#    binning         <- pp$getBinning()
 
     # normalization integrals
     nBins <- length(binning)
@@ -149,7 +143,7 @@ rocMetric <- function(#pp,
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=15),
-            legend.position = c(.20, .80),
+            legend.position = c(.20, .70),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.5)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
@@ -170,18 +164,12 @@ rocMetric <- function(#pp,
 
 
 # present some of the turn-ons for completeness
-turnOns <- function(#pp,
-                    rateShapeBinned,
+turnOns <- function(rateShapeBinned,
                     myModelTurnOn,
                     referenceTurnOn,
                     binning,
                     refScale=1.4
            ){
-    # get precomputed parameters
-#    rateShapeBinned <- pp$getRateShapeBinned()
-#    myModelTurnOn   <- pp$getMyTurnOn()
-#    referenceTurnOn <- pp$getRefTurnOn()
-#    binning         <- pp$getBinning()
 
     start <- sum(rateShapeBinned==0) + 1
     nBins <- length(binning)

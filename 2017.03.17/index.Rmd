@@ -176,12 +176,14 @@ suppressWarnings( invisible( capture.output(
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
 
+source("../metrics.R")
+
 roc <- rocMetric(rateShapeBinned = rateShapeBinned,
                  myModelTurnOn = myTurnOn,
                  referenceTurnOn = refTurnOn,
                  binning = binning,
                  refScale = 1.43
-       ) #pp
+       )
 
 truePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
                                  eff = c( roc[["myEff"]], roc[["refEff"]] ),
@@ -471,13 +473,14 @@ pp2 <- preprocess( modelFit = modelFit2,
 ```
 
 ```{r, fig.height=5., fig.width=5., fig.align = 'center', comment = NA, message = F, echo = F}
+
 lCompTurnOn <- pp2$getMyTurnOn()
 
 roc2 <- rocMetric( rateShapeBinned = rateShapeBinned,
                    myModelTurnOn = lCompTurnOn,
                    referenceTurnOn = myTurnOn,
                    binning = binning,
-                   refScale = 1.43
+                   refScale = 1.0 # the reference here is no longer EMTF baseline!
         )
 myModelROCdf <- data.frame( truePos  = roc2[["refEff"]],
                             falsePos = roc2[["refFake"]],
@@ -495,14 +498,13 @@ roc2DF <- rbind(myModelROCdf,lCompROCdf)
 roc2DF$model <- factor(roc2DF$model)
 
 roc2Plot <- ggplot(roc2DF, aes(x = truePos, y = falsePos, group = model, colour = model)) +
-#        geom_errorbar(aes(ymin=eff-se, ymax=eff+se), width=.1) +
         geom_line() +
         geom_point(shape=1,size=0.1) +
         theme(
             title = element_text(size=20),
             axis.title.x = element_text(size=20),
             axis.text.x  = element_text(size=15),
-            legend.position = c(.20, .80),
+            legend.position = c(.30, .85),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.5)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
