@@ -582,9 +582,9 @@ vars2 <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta12,5)),
                            abs(sat(dTheta23,5)),
                            abs(sat(dTheta34,5)),
@@ -629,9 +629,9 @@ vars3 <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,3)),
                            clct1,
                            clct2,
@@ -669,9 +669,9 @@ vars4 <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,3)),
                            clct1,
                            fr1
@@ -703,9 +703,9 @@ vars5 <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
                            c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
                              )
@@ -934,9 +934,9 @@ tszb2 <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta12,5)),
                            abs(sat(dTheta23,5)),
                            abs(sat(dTheta34,5)),
@@ -973,9 +973,9 @@ tszb3 <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,3)),
                            clct1,
                            clct2,
@@ -1004,9 +1004,9 @@ tszb4 <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,3)),
                            clct1,
                            fr1
@@ -1029,9 +1029,9 @@ tszb5 <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi34,5)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,5)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
                            c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
                              )
@@ -1122,14 +1122,34 @@ Left&nbsp;part of the graphs ($y$ < 0.8) corresponds to thresholds above ~50 GeV
 
 Efficiency drop (0.85 < $y$ < 0.95, scheme #1 $\rightarrow$ #2) appears at $\Delta\phi$ precision truncation
 
---- .class #id
+--- &twocol
 
 ## Scheme #1 $\rightarrow$ #2 transition
 
-One has to be careful comparing models using ROC curves!
+*** =left
 
-```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )
+```{r, fig.height=3., fig.width=3., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+barplot( modelFit1$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )#, main='Scheme #1' )
 ```
+
+*** =right
+
+```{r, fig.height=3., fig.width=3., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )#, main='Scheme #2' )
+```
+
+*** =fullwidth
+
+type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{12}$ | $\Delta\theta_{23}$ | $\Delta\theta_{34}$ | $\Delta\theta_{13}$ | $\Delta\theta_{14}$ | $\Delta\theta_{24}$ | clct | fr
+-----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
+#1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
+#5'  |  5       |      10           |        10         |         10        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+#5'' |  5       |      10           |        10         |         10        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+
+--- .class #id
+
+## Summary
+
+One has to be careful comparing models using ROC curves!
 
 
