@@ -140,12 +140,12 @@ rocMetric <- function(rateShapeBinned,
         geom_line() +
         geom_point(shape=1,size=0.1) +
         theme(
-            title = element_text(size=20),
-            axis.title.x = element_text(size=20),
+            title = element_text(size=15),
+            axis.title.x = element_text(size=15),
             axis.text.x  = element_text(size=15),
             legend.position = c(.80, .30),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
-            legend.text=element_text(size=rel(1.5)),
+            legend.text=element_text(size=rel(1.2)),
             legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
         labs( y="true positive",
@@ -205,12 +205,12 @@ turnOns <- function(rateShapeBinned,
                 geom_point(shape=1,size=0.1) +
                 geom_vline(xintercept = threshold, colour = "red") +
                 theme(
-                    title = element_text(size=20),
-                    axis.title.x = element_text(size=20),
+                    title = element_text(size=15),
+                    axis.title.x = element_text(size=15),
                     axis.text.x  = element_text(size=15),
                     legend.position = c(.70, .20),
                     legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
-                    legend.text=element_text(size=rel(1.5)),
+                    legend.text=element_text(size=rel(1.2)),
                     legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
                 ) +
                 labs( x=expression(paste(p[T] ^{true}," (GeV/c)")),
