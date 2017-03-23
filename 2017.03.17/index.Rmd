@@ -15,6 +15,19 @@ mode        : selfcontained # {standalone, draft}
 
 ## Outline
 
+Metrics
+* ROC curves
+* Efficiency-rate curves
+
+Scaling baseline EMTF model for proper comparison
+
+Input compression
+* several test schemes
+* overal performance
+* sources of impact on efficiency 
+
+Summary
+
 --- &twocol
 
 ## Constructing ROC curves
@@ -734,7 +747,7 @@ pp1 <- preprocess( modelFit = modelFit1,
                    testSet = testSet1,
                    rateShapeBinned,
                    binning
-                 )
+       )
 myTurnOnComp1 <- pp1$getMyTurnOn()
 rm(pp1)
 ```
@@ -745,7 +758,6 @@ pp2 <- preprocess( modelFit = modelFit2,
                    binning
                  )
 myTurnOnComp2 <- pp2$getMyTurnOn()
-
 rm(pp2)
 ```
 ```{r message = F, echo = F}
@@ -1128,14 +1140,13 @@ Efficiency drop (0.85 < $y$ < 0.95, scheme #1 $\rightarrow$ #2) appears at $\Del
 
 *** =left
 
-```{r, fig.height=3., fig.width=3., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-barplot( modelFit1$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )#, main='Scheme #1' )
+```{r, fig.height=3.5, fig.width=3.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
 ```
 
 *** =right
-
-```{r, fig.height=3., fig.width=3., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-barplot( modelFit2$variable.importance, horiz=T, col='red', xlab='Delta MSE', las=2 )#, main='Scheme #2' )
+```{r, fig.height=3.5, fig.width=3.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
 ```
 
 *** =fullwidth
@@ -1144,12 +1155,12 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
 #1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
 #5'  |  5       |      10           |        10         |         10        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
-#5'' |  5       |      10           |        10         |         10        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+#5'' |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
 
 --- .class #id
 
 ## Summary
 
-One has to be careful comparing models using ROC curves!
+to be continued ...
 
 
