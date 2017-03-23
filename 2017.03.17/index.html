@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EMTF $p_T$ Regression</title>
+  <meta charset="utf-8">
+  <meta name="description" content="EMTF $p_T$ Regression">
+  <meta name="author" content="Khristian Kotov">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="../../../../monohiggs/plots/libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="../../../../monohiggs/plots/libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="../../../../monohiggs/plots/libraries/frameworks/io2012/js/slides" 
+    src="../../../../monohiggs/plots/libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>EMTF $p_T$ Regression</h1>
+    <h2></h2>
+    <p>Khristian Kotov<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Outline</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Metrics</p>
+
+<ul>
+<li>ROC curves</li>
+<li>Efficiency-rate curves</li>
+</ul>
+
+<p>Scaling baseline EMTF model for proper comparison</p>
+
+<p>Input compression</p>
+
+<ul>
+<li>several test schemes</li>
+<li>overal performance</li>
+<li>sources of impact on efficiency </li>
+</ul>
+
+<p>Summary</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Constructing ROC curves</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/#6">ROC curves</a> built with
+<a href="https://kkotov.github.io/emtfPtRegression/2017.03.03/#6">\(1/p_T ^3\) spectrum</a>\(^*\)
+and turn-ons for &quot;myModel&quot;\(^{**}\) and EMTF (&quot;baseline&quot;):</p>
+
+<div style='float:left;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-3-1.svg" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-4-1.svg" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>\(^*\)&nbsp;any&nbsp;shape do well for qualitative comparison of the two models (i.e. relative behavior)</p>
+
+<p>\(^{**}\) &quot;myModel&quot; is trained with \(\Delta\phi \times 6\), \(\Delta\theta \times 6\), \(CLCT \times 4\), \(FR \times 4\) (all full precision)</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Constructing efficiency-rate metric</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Like for ROCs, efficiency results from convolution of spectrum with turn-on above threshold</p>
+
+<p>Fraction of fakes is replaced with absolute number of events with predicted pT &gt; threshold</p>
+
+<p>Comparing baseline and &quot;myModel&quot; using Andrew&#39;s zero bias ntuples:</p>
+
+<p><img src="assets/fig/unnamed-chunk-5-1.svg" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Scaling baseline turn-ons</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Baseline model was originally scaled to have ~90% efficiency at any given threshold</p>
+
+<!--Rescaling causes a small horizontal and large vertical shifts ([consequence of falling rate](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6)):-->
+
+<p>Comparing baseline to itself for different scales shows apples-to-oranges problem:</p>
+
+<div style='float:left;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-6-1.svg" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-7-1.svg" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Baseline put on &quot;myModel&quot; scale (turn-ons cross at 50%) by multiplying thresholds with \(1.43\)</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Input compression</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>As proposed <a href="https://kkotov.github.io/emtfPtRegression/2017.01.19/#12">earlier</a>, I perform input transformations:</p>
+
+<ul>
+<li>&quot;unsign&quot; predictors; keep a bit for relative sign (e.g. (\(S^\phi_{12,23}\)) \(\equiv\) sign(\(\Delta\phi_{23}*\Delta\phi_{12}\)))</li>
+<li>&quot;saturate&quot; predictors at \(N\) bits (e.g. \(|\Delta\theta_{12}|_2\in\{0,1,2,3\}\))</li>
+<li>calculate dependent predictors &quot;on the fly&quot; (e.g. \(\Delta\phi_{14} = \Delta\phi_{12} + \Delta\phi_{23} + \Delta\phi_{34}\)) </li>
+</ul>
+
+<p>Following schemes (inspired by
+<a href="https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf">Andrew&#39;s talk</a>)
+for number of bits for predictors are used:</p>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{12}\)</th>
+<th>\(\Delta\theta_{23}\)</th>
+<th>\(\Delta\theta_{34}\)</th>
+<th>\(\Delta\theta_{13}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>\(\Delta\theta_{24}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#1</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#2</td>
+<td>10</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#3</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#4</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>4,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#5</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2,0,0,0</td>
+<td>0,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p>(type #0 = &quot;myModel&quot; on previous slides, applies no cmpression; everything is mode=15 here)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Testing compression schemes</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+
+<p><img src="assets/fig/unnamed-chunk-18-1.svg" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-24-1.svg" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Left&nbsp;part of the graphs (\(y\) &lt; 0.8) corresponds to thresholds above ~50 GeV/\(c\) \(\rightarrow\) ignore it</p>
+
+<p>Efficiency drop (0.85 &lt; \(y\) &lt; 0.95, scheme #1 \(\rightarrow\) #2) appears at \(\Delta\phi\) precision truncation</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Scheme #1 \(\rightarrow\) #2 transition</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-25-1.svg" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-26-1.svg" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{12}\)</th>
+<th>\(\Delta\theta_{23}\)</th>
+<th>\(\Delta\theta_{34}\)</th>
+<th>\(\Delta\theta_{13}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>\(\Delta\theta_{24}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#1</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#5&#39;</td>
+<td>5</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2,0,0,0</td>
+<td>0,0,0,0</td>
+</tr>
+<tr>
+<td>#5&#39;&#39;</td>
+<td>5</td>
+<td>10</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2,0,0,0</td>
+<td>0,0,0,0</td>
+</tr>
+</tbody></table>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Summary</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>to be continued ...</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Outline'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Constructing ROC curves'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Constructing efficiency-rate metric'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Scaling baseline turn-ons'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Input compression'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Testing compression schemes'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Scheme #1 \(\rightarrow\) #2 transition'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Summary'>
+         8
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="../../../../monohiggs/plots/libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="../../../../monohiggs/plots/libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
