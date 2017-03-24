@@ -527,7 +527,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 #4   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,0,0,0 | 1,0,0,0 
 #5   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
 
-(type #0 = "myModel" on previous slides, applies no cmpression; everything is mode=15 here)
+(type #0 = "myModel" on previous slides, applies no compression; everything is mode=15 here)
 
 
 --- &twocol
@@ -1135,7 +1135,6 @@ suppressWarnings( invisible( capture.output(
   effRateCompsPlot # + xlim(0.5, 1) # + scale_y_log10()
 ) ) )
 
-
 ```
 
 *** =fullwidth
@@ -1168,7 +1167,7 @@ barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance
                       axis.text.x  = element_text(size=15),
                   ) +
                   labs(x = "",
-                       y = "Importance (delta MSE)",
+                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
                        title = "Scheme #1"
                   )
 
@@ -1193,7 +1192,7 @@ barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance
                       axis.text.x  = element_text(size=15),
                   ) +
                   labs(x = "",
-                       y = "Importance (delta MSE)",
+                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
                        title = "Scheme #2"
                   )
 
@@ -1212,7 +1211,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 
 --- &twocol
 
-## QWE
+## Tuned compression schemes
 
 ```{r message = F, echo = F}
 # type #4'
@@ -1416,6 +1415,8 @@ myTurnOnComp5pp <- pp5pp$getMyTurnOn()
 rm(pp5pp)
 ```
 
+*** =left
+
 ```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
 
 roc4p <- rocMetric( rateShapeBinned = rateShapeBinned,
@@ -1433,7 +1434,7 @@ roc5p <- rocMetric( rateShapeBinned = rateShapeBinned,
          )
 
 roc5pp <- rocMetric( rateShapeBinned = rateShapeBinned,
-                     myModelTurnOn = myTurnOnComp5p,
+                     myModelTurnOn = myTurnOnComp5pp,
                      referenceTurnOn = myTurnOn,
                      binning = binning,
                      refScale = 1.0
@@ -1443,8 +1444,8 @@ refModelROCdf <- data.frame( truePos  = roc4p[["refEff"]],
                              falsePos = roc4p[["refFake"]],
                              model    = rep("baseline",nBins)
                  )
-myModelROCdf <- data.frame( truePos  = roc1[["refEff"]],
-                            falsePos = roc1[["refFake"]],
+myModelROCdf <- data.frame( truePos  = roc5p[["refEff"]],
+                            falsePos = roc5p[["refFake"]],
                             model    = rep("uncompressed",nBins)
                 )
 comp4pROCdf   <- data.frame( truePos  = roc4p[["myEff"]],
@@ -1488,9 +1489,9 @@ compspPlot <- ggplot(compspDF, aes(y = truePos, x = falsePos, group = model, col
               x="false positive",
               title="ROC curves"
         ) +
-        scale_colour_manual(values = c("baseline" = "#F8766D",
+        scale_colour_manual(values = c("baseline"     = "#F8766D",
                                        "uncompressed" = "#7CAE00",
-                                       "scheme #4'"    = "#CD9600",
+                                       "scheme #4'"   = "#CD9600",
                                        "scheme #5'"   = "#00BE67",
                                        "scheme #5''"  = "#00A9FF"
                                      ),
@@ -1504,6 +1505,75 @@ suppressWarnings( invisible( capture.output(
 ) ) )
 
 ```
+
+*** =right
+
+```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+effRateCompspDF <- data.frame( eff  = roc[["refEff"]],
+                              rate  = refRate,
+                              model = rep("baseline",nBins)
+                )
+
+effRateCompspDF <- rbind( data.frame( eff   = roc1[["refEff"]],
+                                      rate  = myRate,
+                                      model = rep("uncompressed",nBins)
+                          ),
+                          effRateCompspDF
+                   )
+effRateCompspDF <- rbind( data.frame( eff   = roc4p[["myEff"]],
+                                     rate  = rate4p,
+                                     model = rep("scheme #4'",nBins)
+                          ),
+                          effRateCompspDF
+                   )
+effRateCompspDF <- rbind( data.frame( eff   = roc5p[["myEff"]],
+                                     rate  = rate5p,
+                                     model = rep("scheme #5'",nBins)
+                          ),
+                          effRateCompspDF
+                   )
+effRateCompspDF <- rbind( data.frame( eff   = roc5pp[["myEff"]],
+                                     rate  = rate5pp,
+                                     model = rep("scheme #5''",nBins)
+                          ),
+                          effRateCompspDF
+                   )
+
+effRateCompspPlot <- ggplot(effRateCompspDF, aes(x = rate, y = eff, group = model, colour = model) ) +
+               geom_point(shape=1,size=0.1) + 
+               geom_line() + 
+               theme(
+                    title = element_text(size=15),
+                    axis.title.x = element_text(size=15),
+                    axis.text.x  = element_text(size=15),
+                    legend.position = c(.25, .78),
+                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+                    legend.text = element_text(size=rel(1.2)),
+                    legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
+               ) +
+               labs(y = "efficiency",
+                    x = "total rate",
+                    title = "Efficiency-rate curves"
+               ) +
+               scale_colour_manual(values = c("baseline"     = "#F8766D",
+                                              "uncompressed" = "#7CAE00",
+                                              "scheme #4'"   = "#CD9600",
+                                              "scheme #5'"   = "#00BE67",
+                                              "scheme #5''"  = "#00A9FF"
+                                            ),
+                                   breaks = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''"),
+                                   labels = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''")
+               ) +
+               scale_x_log10(limits = c(30,30000))
+
+suppressWarnings( invisible( capture.output(
+  effRateCompspPlot + ylim(0.65, 1)
+) ) )
+
+```
+
+*** =fullwidth
 
 --- .class #id
 
