@@ -1144,7 +1144,7 @@ Left&nbsp;part of the graphs ($y$ < 0.8) corresponds to thresholds above ~50 GeV
 
 Efficiency drop (0.85 < $y$ < 0.95, scheme #1 $\rightarrow$ #2) appears at $\Delta\phi$ precision truncation
 
-Schemes #2, #3, and #4 demonstrate almost identical performance for thresholds below 50 GeV/$c$ ($y$>0.8)
+Schemes #2, #3, and #4 show almost identical performance for thresholds <50&nbsp;GeV/$c$ ($y$>0.8)
 
 --- &twocol
 
@@ -1152,13 +1152,53 @@ Schemes #2, #3, and #4 demonstrate almost identical performance for thresholds b
 
 *** =left
 
-```{r, fig.height=3.5, fig.width=3.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
+```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+#barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
+
+barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance[1:18],
+                                      name       = names(modelFit1$variable.importance[1:18])
+                          ), aes(x=name, y=importance)
+                  ) +
+                  geom_bar(stat="identity", col="red",fill="red") +
+                  coord_flip() +
+                  theme(
+                      title = element_text(size=15),
+                      axis.title.x = element_text(size=15),
+                      axis.text.x  = element_text(size=15),
+                  ) +
+                  labs(x = "",
+                       y = "Importance (delta MSE)",
+                       title = "Scheme #1"
+                  )
+
+barPlotScheme1
+
 ```
 
 *** =right
-```{r, fig.height=3.5, fig.width=3.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
+```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+#barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
+
+barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance[1:18],
+                                      name       = names(modelFit2$variable.importance[1:18])
+                          ), aes(x=name, y=importance)
+                  ) +
+                  geom_bar(stat="identity", col="red",fill="red") +
+                  coord_flip() +
+                  theme(
+                      title = element_text(size=15),
+                      axis.title.x = element_text(size=15),
+                      axis.text.x  = element_text(size=15),
+                  ) +
+                  labs(x = "",
+                       y = "Importance (delta MSE)",
+                       title = "Scheme #2"
+                  )
+
+barPlotScheme2
+
 ```
 
 *** =fullwidth
@@ -1168,6 +1208,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 #1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
 #4'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,0,0,0 | 1,0,0,0 
 #5'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+#5'' |  5       |      10           |        4          |         4         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
 
 --- &twocol
 
@@ -1346,7 +1387,7 @@ pp4p <- preprocess( modelFit = modelFit4p,
                     binning
                   )
 ) )
-myTurnOnComp5p <- pp4p$getMyTurnOn()
+myTurnOnComp4p <- pp4p$getMyTurnOn()
 rm(pp4p)
 ```
 
@@ -1449,12 +1490,12 @@ compspPlot <- ggplot(compspDF, aes(y = truePos, x = falsePos, group = model, col
         ) +
         scale_colour_manual(values = c("baseline" = "#F8766D",
                                        "uncompressed" = "#7CAE00",
-                                       "scheme #4"    = "#CD9600",
+                                       "scheme #4'"    = "#CD9600",
                                        "scheme #5'"   = "#00BE67",
                                        "scheme #5''"  = "#00A9FF"
                                      ),
-                            breaks = c("baseline", "uncompressed", "scheme #4", "scheme #5'", "scheme #5''"),
-                            labels = c("baseline", "uncompressed", "scheme #4", "scheme #5'", "scheme #5''")
+                            breaks = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''"),
+                            labels = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''")
         ) +
         scale_x_log10(limits = c(0.0001,1))
 
