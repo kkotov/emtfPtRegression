@@ -1164,7 +1164,7 @@ barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance
                   theme(
                       title = element_text(size=15),
                       axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15),
+                      axis.text.x  = element_text(size=15)
                   ) +
                   labs(x = "",
                        y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
@@ -1189,7 +1189,7 @@ barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance
                   theme(
                       title = element_text(size=15),
                       axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15),
+                      axis.text.x  = element_text(size=15)
                   ) +
                   labs(x = "",
                        y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
@@ -1270,6 +1270,7 @@ trainSet5p <- vars5p[part,]
 testSet5p <- vars5p[-part,]
 
 invisible( capture.output( modelFit5p <- ranger(f5, data=trainSet5p, importance="impurity") ) )
+
 ```
 
 ```{r message = F, echo = F}
@@ -1400,7 +1401,6 @@ pp5p <- preprocess( modelFit = modelFit5p,
 ) )
 myTurnOnComp5p <- pp5p$getMyTurnOn()
 rm(pp5p)
-
 ```
 
 ```{r message = F, echo = F}
