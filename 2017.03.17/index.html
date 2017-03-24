@@ -35,6 +35,9 @@
     <h2></h2>
     <p>Khristian Kotov<br/></p>
   </hgroup>
+    <a href="https://github.com/kkotov/emtfPtRegression/zipball/gh-pages" class="example">
+     Download
+    </a>
   <article></article>  
 </slide>
     
@@ -262,7 +265,7 @@ for number of bits for predictors are used:</p>
 </tr>
 </tbody></table>
 
-<p>(type #0 = &quot;myModel&quot; on previous slides, applies no cmpression; everything is mode=15 here)</p>
+<p>(type #0 = &quot;myModel&quot; on previous slides, applies no compression; everything is mode=15 here)</p>
 
   </article>
   <!-- Presenter Notes -->
@@ -275,8 +278,7 @@ for number of bits for predictors are used:</p>
   <article data-timings="">
     
 <div style='float:left;width:48%;'>
-
-<p><img src="assets/fig/unnamed-chunk-18-1.svg" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" /></p>
+  <p><img src="assets/fig/unnamed-chunk-18-1.svg" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
@@ -287,6 +289,8 @@ for number of bits for predictors are used:</p>
   <p>Left&nbsp;part of the graphs (\(y\) &lt; 0.8) corresponds to thresholds above ~50 GeV/\(c\) \(\rightarrow\) ignore it</p>
 
 <p>Efficiency drop (0.85 &lt; \(y\) &lt; 0.95, scheme #1 \(\rightarrow\) #2) appears at \(\Delta\phi\) precision truncation</p>
+
+<p>Schemes #2, #3, and #4 show almost identical performance for thresholds <50&nbsp;GeV/$c$ ($y$>0.8)</p>
 
 </div>
   </article>
@@ -345,11 +349,28 @@ for number of bits for predictors are used:</p>
 <td>1,1,1,1</td>
 </tr>
 <tr>
+<td>#4&#39;</td>
+<td>5</td>
+<td>10</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>4,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
 <td>#5&#39;</td>
 <td>5</td>
 <td>10</td>
-<td>10</td>
-<td>10</td>
+<td>5</td>
+<td>5</td>
 <td>1</td>
 <td>1</td>
 <td>0</td>
@@ -365,8 +386,8 @@ for number of bits for predictors are used:</p>
 <td>#5&#39;&#39;</td>
 <td>5</td>
 <td>10</td>
-<td>5</td>
-<td>5</td>
+<td>4</td>
+<td>4</td>
 <td>1</td>
 <td>1</td>
 <td>0</td>
@@ -385,13 +406,33 @@ for number of bits for predictors are used:</p>
   <!-- Presenter Notes -->
 </slide>
 
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Tuned compression schemes</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-36-1.svg" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-37-1.svg" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
 <slide class="class" id="id" style="background:;">
   <hgroup>
     <h2>Summary</h2>
   </hgroup>
   <article data-timings="">
-    <p>to be continued ...</p>
-
+    
   </article>
   <!-- Presenter Notes -->
 </slide>
@@ -444,8 +485,14 @@ for number of bits for predictors are used:</p>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=8 title='Summary'>
+        data-slide=8 title='Tuned compression schemes'>
          8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Summary'>
+         9
       </a>
     </li>
   </ul>
