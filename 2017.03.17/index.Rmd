@@ -1360,6 +1360,7 @@ pp5p <- preprocess( modelFit = modelFit5p,
 ) )
 myTurnOnComp5p <- pp5p$getMyTurnOn()
 rm(pp5p)
+
 ```
 
 ```{r message = F, echo = F}
@@ -1375,6 +1376,7 @@ rm(pp5pp)
 ```
 
 ```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
 roc4p <- rocMetric( rateShapeBinned = rateShapeBinned,
                     myModelTurnOn = myTurnOnComp4p,
                     referenceTurnOn = refTurnOn,
