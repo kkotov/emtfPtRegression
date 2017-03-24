@@ -48,9 +48,7 @@ preprocess <- function(modelFit,
                       )
 {
     # first, predict response_pT of the model on the test data
-    invisible( capture.output(
-        testSet$res <- 1/predict(modelFit,testSet)$predictions
-    ) )
+    testSet$res <- 1/predict(modelFit,testSet)$predictions
     # assign every true_pT to a bin
     testSet$trueBin <- sapply(1/testSet$muPtGenInv, findBin, binning)
     # construct a proto-spectrum where every true_pT_bin aggregates response_pT lists
