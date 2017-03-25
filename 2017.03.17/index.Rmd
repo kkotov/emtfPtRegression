@@ -945,6 +945,7 @@ colnames(tszb1) <- c("ptRef", predictors1 )
 invisible( capture.output( tszb1$res <- 1/predict(modelFit1,tszb1)$predictions ) )
 
 rate1  <- sapply(binning, function(x) sum(tszb1$res>x) )
+
 ```
 
 ```{r message = F, echo = F}
@@ -1147,60 +1148,7 @@ Schemes #2, #3, and #4 show almost identical performance for thresholds <50&nbsp
 
 --- &twocol
 
-## Scheme #1 $\rightarrow$ #2 transition
-
-*** =left
-
-```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-
-#barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
-
-barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance[1:18],
-                                      name       = names(modelFit1$variable.importance[1:18])
-                          ), aes(x=name, y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red",fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
-                       title = "Scheme #1"
-                  )
-
-barPlotScheme1
-
-```
-
-*** =right
-```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-
-#barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
-
-barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance[1:18],
-                                      name       = names(modelFit2$variable.importance[1:18])
-                          ), aes(x=name, y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red",fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
-                       title = "Scheme #2"
-                  )
-
-barPlotScheme2
-
-```
-
-*** =fullwidth
+## Tuned compression schemes
 
 type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{12}$ | $\Delta\theta_{23}$ | $\Delta\theta_{34}$ | $\Delta\theta_{13}$ | $\Delta\theta_{14}$ | $\Delta\theta_{24}$ | clct | fr
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
@@ -1208,10 +1156,6 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 #4'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,0,0,0 | 1,0,0,0 
 #5'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
 #5'' |  5       |      10           |        4          |         4         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
-
---- &twocol
-
-## Tuned compression schemes
 
 ```{r message = F, echo = F}
 # type #4'
@@ -1428,7 +1372,7 @@ roc4p <- rocMetric( rateShapeBinned = rateShapeBinned,
 
 roc5p <- rocMetric( rateShapeBinned = rateShapeBinned,
                     myModelTurnOn = myTurnOnComp5p,
-                    referenceTurnOn = myTurnOn,
+                    referenceTurnOn = myTurnOnComp1,
                     binning = binning,
                     refScale = 1.0
          )
@@ -1446,7 +1390,7 @@ refModelROCdf <- data.frame( truePos  = roc4p[["refEff"]],
                  )
 myModelROCdf <- data.frame( truePos  = roc5p[["refEff"]],
                             falsePos = roc5p[["refFake"]],
-                            model    = rep("uncompressed",nBins)
+                            model    = rep("scheme #1",nBins)
                 )
 comp4pROCdf   <- data.frame( truePos  = roc4p[["myEff"]],
                              falsePos = roc4p[["myFake"]],
@@ -1490,13 +1434,13 @@ compspPlot <- ggplot(compspDF, aes(y = truePos, x = falsePos, group = model, col
               title="ROC curves"
         ) +
         scale_colour_manual(values = c("baseline"     = "#F8766D",
-                                       "uncompressed" = "#7CAE00",
+                                       "scheme #1"    = "#7CAE00",
                                        "scheme #4'"   = "#CD9600",
                                        "scheme #5'"   = "#00BE67",
                                        "scheme #5''"  = "#00A9FF"
                                      ),
-                            breaks = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''"),
-                            labels = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''")
+                            breaks = c("baseline", "scheme #1", "scheme #4'", "scheme #5'", "scheme #5''"),
+                            labels = c("baseline", "scheme #1", "scheme #4'", "scheme #5'", "scheme #5''")
         ) +
         scale_x_log10(limits = c(0.0001,1))
 
@@ -1515,9 +1459,9 @@ effRateCompspDF <- data.frame( eff  = roc[["refEff"]],
                               model = rep("baseline",nBins)
                 )
 
-effRateCompspDF <- rbind( data.frame( eff   = roc1[["refEff"]],
-                                      rate  = myRate,
-                                      model = rep("uncompressed",nBins)
+effRateCompspDF <- rbind( data.frame( eff   = roc1[["myEff"]], #roc1[["refEff"]], #uncompressed
+                                      rate  = rate1, #myRate,
+                                      model = rep("scheme #1",nBins)
                           ),
                           effRateCompspDF
                    )
@@ -1557,13 +1501,13 @@ effRateCompspPlot <- ggplot(effRateCompspDF, aes(x = rate, y = eff, group = mode
                     title = "Efficiency-rate curves"
                ) +
                scale_colour_manual(values = c("baseline"     = "#F8766D",
-                                              "uncompressed" = "#7CAE00",
+                                              "scheme #1"    = "#7CAE00",
                                               "scheme #4'"   = "#CD9600",
                                               "scheme #5'"   = "#00BE67",
                                               "scheme #5''"  = "#00A9FF"
                                             ),
-                                   breaks = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''"),
-                                   labels = c("baseline", "uncompressed", "scheme #4'", "scheme #5'", "scheme #5''")
+                                   breaks = c("baseline", "scheme #1", "scheme #4'", "scheme #5'", "scheme #5''"),
+                                   labels = c("baseline", "scheme #1", "scheme #4'", "scheme #5'", "scheme #5''")
                ) +
                scale_x_log10(limits = c(30,30000))
 
@@ -1578,5 +1522,62 @@ suppressWarnings( invisible( capture.output(
 --- .class #id
 
 ## Summary
+
+--- &twocol
+
+## Scheme #1 $\rightarrow$ #2 transition
+
+*** =left
+
+```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+#barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
+
+barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance[1:18],
+                                      name       = names(modelFit1$variable.importance[1:18])
+                          ), aes(x=name, y=importance)
+                  ) +
+                  geom_bar(stat="identity", col="red",fill="red") +
+                  coord_flip() +
+                  theme(
+                      title = element_text(size=15),
+                      axis.title.x = element_text(size=15),
+                      axis.text.x  = element_text(size=15)
+                  ) +
+                  labs(x = "",
+                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
+                       title = "Scheme #1"
+                  )
+
+barPlotScheme1
+
+```
+
+*** =right
+```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+#barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
+
+barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance[1:18],
+                                      name       = names(modelFit2$variable.importance[1:18])
+                          ), aes(x=name, y=importance)
+                  ) +
+                  geom_bar(stat="identity", col="red",fill="red") +
+                  coord_flip() +
+                  theme(
+                      title = element_text(size=15),
+                      axis.title.x = element_text(size=15),
+                      axis.text.x  = element_text(size=15)
+                  ) +
+                  labs(x = "",
+                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
+                       title = "Scheme #2"
+                  )
+
+barPlotScheme2
+
+```
+
+*** =fullwidth
 
 
