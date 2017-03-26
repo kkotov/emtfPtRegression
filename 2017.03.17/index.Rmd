@@ -1156,8 +1156,9 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
 #1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
 #4'  | `5`      |      10           |       `5`         |        `5`        |         1        |        1         |        `0`          |        `0`           |        `0`         |         `0`         |         `3`         |         `0`         |  4,`0,0,0` | 1,`0,0,0` 
-#5'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |         `2`         |          0          |  `2`,0,0,0 | 1,0,0,0 
-#5'' |  5       |      10           |       `4`         |        `4`        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 1,0,0,0 
+#5'  |  5       |      10           |       `4`         |        `4`        |         1        |        1         |         0           |         0            |         0          |          0          |         `2`         |          0          |  `2`,0,0,0 | 1,0,0,0 
+#5'' | `4`      |      10           |       `4`         |        `4`        |         1        |        1         |         0           |         0            |         0          |          0          |         `2`         |          0          |  `2`,0,0,0 | 1,0,0,0 
+
 
 ```{r message = F, echo = F}
 # type #4'
@@ -1196,13 +1197,13 @@ vars5p <- with(vars,data.frame( muPtGenInv,
                                 ptTrg,
                            abs(sat(theta,5)),
                            abs(sat(dPhi12,10)),
-                           abs(sat(dPhi23,5)),
-                           abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,4)),
+                           abs(sat(dPhi34,4)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)), # analogous to dPhi13
+                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)),
+                           abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
                            c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
                            fr1
@@ -1225,7 +1226,7 @@ invisible( capture.output( modelFit5p <- ranger(f4, data=trainSet5p, importance=
 
 vars5pp <- with(vars,data.frame( muPtGenInv,
                                  ptTrg,
-                           abs(sat(theta,5)),
+                           abs(sat(theta,4)),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,4)),
                            abs(sat(dPhi34,4)),
@@ -1282,13 +1283,13 @@ rate4p  <- sapply(binning, function(x) sum(tszb4p$res>x) )
 tszb5p <- with(tszb,data.frame( ptRef,
                            abs(sat(theta,5)),
                            abs(sat(dPhi12,10)),
-                           abs(sat(dPhi23,5)),
-                           abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,4)),
+                           abs(sat(dPhi34,4)),
                            as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
                            as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
-                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
-                           abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)), # analogous to dPhi13
+                           abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)),
+                           abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
                            c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
                            fr1
@@ -1306,7 +1307,7 @@ rate5p  <- sapply(binning, function(x) sum(tszb5p$res>x) )
 ```{r message = F, echo = F}
 
 tszb5pp <- with(tszb,data.frame( ptRef,
-                           abs(sat(theta,5)),
+                           abs(sat(theta,4)),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,4)),
                            abs(sat(dPhi34,4)),
@@ -1350,6 +1351,7 @@ pp5p <- preprocess( modelFit = modelFit5p,
                   )
 ) )
 myTurnOnComp5p <- pp5p$getMyTurnOn()
+
 rm(pp5p)
 ```
 
@@ -1362,12 +1364,13 @@ pp5pp <- preprocess( modelFit = modelFit5pp,
                    )
 ) )
 myTurnOnComp5pp <- pp5pp$getMyTurnOn()
+
 rm(pp5pp)
 ```
 
 *** =left
 
-```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+```{r, fig.height=3., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
 
 roc4p <- rocMetric( rateShapeBinned = rateShapeBinned,
                     myModelTurnOn = myTurnOnComp4p,
@@ -1430,10 +1433,10 @@ compspPlot <- ggplot(compspDF, aes(y = truePos, x = falsePos, group = model, col
             title = element_text(size=15),
             axis.title.x = element_text(size=15),
             axis.text.x  = element_text(size=15),
-            legend.position = c(.25, .78),
+            legend.position = c(.20, .78),
             legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
             legend.text=element_text(size=rel(1.2)),
-            legend.title=element_text(size=rel(0.8), face="bold", hjust=0)
+            legend.title=element_blank()  #element_text(size=rel(0.8), face="bold", hjust=0)
         ) +
         labs( y="true positive",
               x="false positive",
@@ -1458,8 +1461,7 @@ suppressWarnings( invisible( capture.output(
 
 *** =right
 
-
-```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+```{r, fig.height=3., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
 
 effRateCompspDF <- data.frame( eff  = roc[["refEff"]],
                               rate  = refRate,
@@ -1498,10 +1500,10 @@ effRateCompspPlot <- ggplot(effRateCompspDF, aes(x = rate, y = eff, group = mode
                     title = element_text(size=15),
                     axis.title.x = element_text(size=15),
                     axis.text.x  = element_text(size=15),
-                    legend.position = c(.25, .78),
+                    legend.position = c(.20, .78),
                     legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
                     legend.text = element_text(size=rel(1.2)),
-                    legend.title = element_text(size=rel(0.8), face="bold", hjust=0)
+                    legend.title = element_blank() #element_text(size=rel(0.8), face="bold", hjust=0)
                ) +
                labs(y = "efficiency",
                     x = "total rate",
@@ -1524,14 +1526,15 @@ suppressWarnings( invisible( capture.output(
 
 ```
 
+*** =fullwidth
 
+Schemes #1, #4' (compress $\theta$, $\Delta\phi_{23,34}$, $\Delta\theta$), #5' ($\Delta\phi_{23,34}$, $clct1$, $\Delta\theta$) and #5'' ($\theta$) are close
 
 
 --- &twocol
 
 ## Observations on the tuned schemes
 
-Schemes #1, #4' (compress $\Delta\phi_{23,34}$, $\Delta\theta$), #5' (compress $clct1$) and #5'' ($\Delta\phi_{23,34}$) are close
 
 Relative importance of predictors in Scheme #1 (left) and #5'' (right):
 
