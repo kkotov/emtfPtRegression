@@ -522,10 +522,10 @@ for number of bits for predictors are used:
 type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{12}$ | $\Delta\theta_{23}$ | $\Delta\theta_{34}$ | $\Delta\theta_{13}$ | $\Delta\theta_{14}$ | $\Delta\theta_{24}$ | clct | fr
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
 #1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
-#2   |  10      |      7            |        5          |         5         |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
-#3   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,4,4,4 | 1,1,1,1 
-#4   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,0,0,0 | 1,0,0,0 
-#5   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+#2   |  10      |     `7`           |       `5`         |        `5`        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
+#3   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |        `0`         |         `0`         |         `3`         |          0          |  4,4,4,4 | 1,1,1,1 
+#4   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,`0,0,0` | 1,`0,0,0` 
+#5   |  5       |      7            |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  `2`,0,0,0 | `0`,0,0,0 
 
 (type #0 = "myModel" on previous slides, applies no compression; everything is mode=15 here)
 
@@ -719,8 +719,8 @@ vars5 <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
                            abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
                            abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
-                           abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           abs(sat(dTheta14,3)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
                              )
          )
 
@@ -904,7 +904,6 @@ suppressWarnings( invisible( capture.output(
   compsPlot #+ xlim(0.75, 0.98)
 ) ) )
 
-
 ```
 
 *** =right
@@ -1055,8 +1054,8 @@ tszb5 <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
                            abs(sat(dPhi12,7)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
                            abs(sat(dPhi23,7)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
-                           abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           abs(sat(dTheta14,3)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
                              )
          )
 
@@ -1065,6 +1064,7 @@ colnames(tszb5) <- c("ptRef", predictors5 )
 invisible( capture.output( tszb5$res <- 1/predict(modelFit5,tszb5)$predictions ) )
 
 rate5  <- sapply(binning, function(x) sum(tszb5$res>x) )
+
 ```
 
 ```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
@@ -1146,16 +1146,18 @@ Efficiency drop (0.85 < $y$ < 0.95, scheme #1 $\rightarrow$ #2) appears at $\Del
 
 Schemes #2, #3, and #4 show almost identical performance for thresholds <50&nbsp;GeV/$c$ ($y$>0.8)
 
+
+
 --- &twocol
 
-## Tuned compression schemes
+## Tuning compression further
 
 type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{12}$ | $\Delta\theta_{23}$ | $\Delta\theta_{34}$ | $\Delta\theta_{13}$ | $\Delta\theta_{14}$ | $\Delta\theta_{24}$ | clct | fr
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------|-----------
 #1   |  10      |      10           |        10         |         10        |         1        |        1         |         5           |         5            |         5          |         5           |       5             |           5         |  4,4,4,4 | 1,1,1,1 
-#4'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          3          |          0          |  4,0,0,0 | 1,0,0,0 
-#5'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
-#5'' |  5       |      10           |        4          |         4         |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 0,0,0,0 
+#4'  | `5`      |      10           |       `5`         |        `5`        |         1        |        1         |        `0`          |        `0`           |        `0`         |         `0`         |         `3`         |         `0`         |  4,`0,0,0` | 1,`0,0,0` 
+#5'  |  5       |      10           |        5          |         5         |         1        |        1         |         0           |         0            |         0          |          0          |         `2`         |          0          |  `2`,0,0,0 | 1,0,0,0 
+#5'' |  5       |      10           |       `4`         |        `4`        |         1        |        1         |         0           |         0            |         0          |          0          |          2          |          0          |  2,0,0,0 | 1,0,0,0 
 
 ```{r message = F, echo = F}
 # type #4'
@@ -1202,18 +1204,19 @@ vars5p <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
                            abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+                           fr1
                              )
          )
 
-colnames(vars5p) <- c("muPtGenInv", "ptTrg", predictors5 )
+colnames(vars5p) <- c("muPtGenInv", "ptTrg", predictors4) # predictors5, "fr1" )
 
 set.seed(1)
 
 trainSet5p <- vars5p[part,]
 testSet5p <- vars5p[-part,]
 
-invisible( capture.output( modelFit5p <- ranger(f5, data=trainSet5p, importance="impurity") ) )
+invisible( capture.output( modelFit5p <- ranger(f4, data=trainSet5p, importance="impurity") ) )
 
 ```
 
@@ -1232,18 +1235,19 @@ vars5pp <- with(vars,data.frame( muPtGenInv,
                            abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)),
                            abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+                           fr1
                              )
          )
 
-colnames(vars5pp) <- c("muPtGenInv", "ptTrg", predictors5 )
+colnames(vars5pp) <- c("muPtGenInv", "ptTrg", predictors4) # predictors5, "fr1" )
 
 set.seed(1)
 
 trainSet5pp <- vars5pp[part,]
 testSet5pp <- vars5pp[-part,]
 
-invisible( capture.output( modelFit5pp <- ranger(f5, data=trainSet5pp, importance="impurity") ) )
+invisible( capture.output( modelFit5pp <- ranger(f4, data=trainSet5pp, importance="impurity") ) )
 ```
 
 
@@ -1286,11 +1290,12 @@ tszb5p <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
                            abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+                           fr1
                              )
          )
 
-colnames(tszb5p) <- c("ptRef", predictors5 )
+colnames(tszb5p) <- c("ptRef", predictors5, "fr1" )
 
 invisible( capture.output( tszb5p$res <- 1/predict(modelFit5p,tszb5p)$predictions ) )
 
@@ -1311,11 +1316,12 @@ tszb5pp <- with(tszb,data.frame( ptRef,
                            abs(sat(dPhi12,10)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,4)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)),
                            abs(sat(dPhi23,10)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,4)), # analogous to dPhi24
                            abs(sat(dTheta14,2)),
-                           c(0,0,0,0,0,0,1,0,2,0,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+                           fr1
                              )
          )
 
-colnames(tszb5pp) <- c("ptRef", predictors5 )
+colnames(tszb5pp) <- c("ptRef", predictors5, "fr1" )
 
 invisible( capture.output( tszb5pp$res <- 1/predict(modelFit5pp,tszb5pp)$predictions ) )
 
@@ -1361,7 +1367,7 @@ rm(pp5pp)
 
 *** =left
 
-```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
 
 roc4p <- rocMetric( rateShapeBinned = rateShapeBinned,
                     myModelTurnOn = myTurnOnComp4p,
@@ -1452,7 +1458,8 @@ suppressWarnings( invisible( capture.output(
 
 *** =right
 
-```{r, fig.height=4., fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
 
 effRateCompspDF <- data.frame( eff  = roc[["refEff"]],
                               rate  = refRate,
@@ -1517,15 +1524,16 @@ suppressWarnings( invisible( capture.output(
 
 ```
 
-*** =fullwidth
 
---- .class #id
 
-## Summary
 
 --- &twocol
 
-## Scheme #1 $\rightarrow$ #2 transition
+## Observations on the tuned schemes
+
+Schemes #1, #4' (compress $\Delta\phi_{23,34}$, $\Delta\theta$), #5' (compress $clct1$) and #5'' ($\Delta\phi_{23,34}$) are close
+
+Relative importance of predictors in Scheme #1 (left) and #5'' (right):
 
 *** =left
 
@@ -1558,8 +1566,8 @@ barPlotScheme1
 
 #barplot( modelFit2$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #2' )
 
-barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance[1:18],
-                                      name       = names(modelFit2$variable.importance[1:18])
+barPlotScheme2 <- ggplot( data.frame( importance = modelFit5pp$variable.importance,
+                                      name       = names(modelFit5pp$variable.importance)
                           ), aes(x=name, y=importance)
                   ) +
                   geom_bar(stat="identity", col="red",fill="red") +
@@ -1571,7 +1579,7 @@ barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance
                   ) +
                   labs(x = "",
                        y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
-                       title = "Scheme #2"
+                       title = "Scheme #5''"
                   )
 
 barPlotScheme2
@@ -1580,4 +1588,9 @@ barPlotScheme2
 
 *** =fullwidth
 
+
+
+--- .class #id
+
+## Summary
 
