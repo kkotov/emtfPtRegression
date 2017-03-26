@@ -61,6 +61,9 @@ preprocess <- function(modelFit,
     myModelCount   <- t(sapply(pSpec$res,  function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
     referenceCount <- t(sapply(pSpec$ptTrg,function(x) sapply(binning,function(y) sum(unlist(x)>y) )))
 
+    # clean this environment to avoid "Error in lazyLoadDBinsertValue ..." on return
+    rm(testSet)
+
 ##    # create a simple histogram from the rateShape
 ##    rateShapeBinned <- sapply( by(rateShape$trigRate, sapply(rateShape$true_pT, findBin, binning), sum), function(x) x )
 ##

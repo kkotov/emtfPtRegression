@@ -47,8 +47,16 @@ colnames(d2) <- sub(".1.", "", colnames(d2),fixed=T)
 d <- rbind(d1,d2)
 
 require(ranger)
+
+# Turn theta to integer and put it on the emulator's scale as it is done in (but in opposite direction):
+# https://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/PtAssignmentEngineAux.cc#L352-L353
+
 vars <- with(d,data.frame( 1/muPtGen,
-                           2*atan(exp(-muEtaGen)),
+                           ( ifelse( 2*atan(exp(-muEtaGen))<3.1415927/2,
+                                     2*atan(exp(-muEtaGen)),
+                                     3.1415927-2*atan(exp(-muEtaGen))
+                             ) * 180/3.1415927 - 8.5
+                           ) * 128 / (45.0-8.5),
                            pt,
                            mypt,
                            dPhi12,
@@ -104,7 +112,7 @@ zb <- rbind(zb,s3)
 
 testSetZB <- with(subset(zb,mode==15), data.frame(
                                  ptRef = ptEMTF,
-                                 theta = theta,
+                                 theta = theta_i,
                                  dPhi12 = phi1-phi2,
                                  dPhi13 = phi1-phi3,
                                  dPhi14 = phi1-phi4,
@@ -141,26 +149,20 @@ require("gridExtra")
 
 source("../metrics.R")
 
-## The code below crashes if ran it in slidify with full data set (that I shouldn't do anyway):
+## Unless I clean the environment of preprocess function, the code below may crash complaining:
 ##  "Error in lazyLoadDBinsertValue(data, datafile, ascii, compress, envhook)"
 pp <- preprocess(modelFit,
-                 testSet, #vars, #
+                 testSet,
 ##                 rateShape = data.frame( true_pT = seq(1.01,1000.01,0.5), trigRate = 1/seq(1,1000,0.5)^3 ),
                  rateShapeBinned = c(1,1/seq(2,200,0.5)^3), # don't forget the underflow
                  binning = seq(2,200,0.5)
                 )
 
-## so if I'll ever need a bigger dataset, I first should run it interactively
- myTurnOn        <- pp$getMyTurnOn()
- refTurnOn       <- pp$getRefTurnOn()
- binning         <- pp$getBinning()
- rateShapeBinned <- pp$getRateShapeBinned()
- nBins           <- length(binning)
-## save the results
-# save(file="pp.RData",binning,rateShapeBinned,refTurnOn,myTurnOn)
-# and then restore the results here from the file:
-# load("pp.RData")
-## but I don't do that because the testSet fits, and vars has been seen to model and shouldn't be used
+myTurnOn        <- pp$getMyTurnOn()
+refTurnOn       <- pp$getRefTurnOn()
+binning         <- pp$getBinning()
+rateShapeBinned <- pp$getRateShapeBinned()
+nBins           <- length(binning)
 
 ```
 
@@ -170,8 +172,7 @@ pp <- preprocess(modelFit,
 
 source("../metrics.R")
 
-tt <- turnOns(#pp,
-              rateShapeBinned = rateShapeBinned,
+tt <- turnOns(rateShapeBinned = rateShapeBinned,
               myModelTurnOn = myTurnOn,
               referenceTurnOn = refTurnOn,
               binning = binning,
