@@ -24,9 +24,16 @@ sPART_0 <- with( subset(mb,track_nTracks>0),
                             fr1      = track_hit_FR.0.,
                             fr2      = track_hit_FR.1.,
                             fr3      = track_hit_FR.2.,
-                            fr4      = track_hit_FR.3.
+                            fr4      = track_hit_FR.3.,
+                            isRPC1   = track_hit_isRPC.0.,
+                            isRPC2   = track_hit_isRPC.1.,
+                            isRPC3   = track_hit_isRPC.2.,
+                            isRPC4   = track_hit_isRPC.3.,
+                            ring1    = track_hit_ring.0.,
+                            ring2    = track_hit_ring.1.,
+                            ring3    = track_hit_ring.2.,
+                            ring4    = track_hit_ring.3.
                  )
                )
 
 save(file="sPART_0.RData",sPART_0)
-
