@@ -195,9 +195,9 @@ for number of bits for predictors are used:</p>
 <tr>
 <td>#2</td>
 <td>10</td>
-<td>7</td>
-<td>5</td>
-<td>5</td>
+<td><code>7</code></td>
+<td><code>5</code></td>
+<td><code>5</code></td>
 <td>1</td>
 <td>1</td>
 <td>5</td>
@@ -219,9 +219,9 @@ for number of bits for predictors are used:</p>
 <td>1</td>
 <td>0</td>
 <td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
+<td><code>0</code></td>
+<td><code>0</code></td>
+<td><code>3</code></td>
 <td>0</td>
 <td>4,4,4,4</td>
 <td>1,1,1,1</td>
@@ -240,8 +240,8 @@ for number of bits for predictors are used:</p>
 <td>0</td>
 <td>3</td>
 <td>0</td>
-<td>4,0,0,0</td>
-<td>1,0,0,0</td>
+<td>4,<code>0,0,0</code></td>
+<td>1,<code>0,0,0</code></td>
 </tr>
 <tr>
 <td>#5</td>
@@ -255,10 +255,10 @@ for number of bits for predictors are used:</p>
 <td>0</td>
 <td>0</td>
 <td>0</td>
-<td>2</td>
+<td>3</td>
 <td>0</td>
-<td>2,0,0,0</td>
-<td>0,0,0,0</td>
+<td><code>2</code>,0,0,0</td>
+<td><code>0</code>,0,0,0</td>
 </tr>
 </tbody></table>
 
@@ -296,20 +296,10 @@ for number of bits for predictors are used:</p>
 
 <slide class="" id="slide-7" style="background:;">
   <hgroup>
-    <h2>Scheme #1 \(\rightarrow\) #2 transition</h2>
+    <h2>Tuning compression further</h2>
   </hgroup>
   <article data-timings="">
-    
-<div style='float:left;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-25-1.svg" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" /></p>
-
-</div>
-<div style='float:right;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-26-1.svg" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" style="display: block; margin: auto;" /></p>
-
-</div>
-<div>
-  <table><thead>
+    <table><thead>
 <tr>
 <th>type</th>
 <th>\(\theta\)</th>
@@ -318,85 +308,59 @@ for number of bits for predictors are used:</p>
 <th>\(\Delta\phi_{34}\)</th>
 <th>\(S^\phi_{12,23}\)</th>
 <th>\(S^\phi_{12,34}\)</th>
-<th>\(\Delta\theta_{12}\)</th>
-<th>\(\Delta\theta_{23}\)</th>
-<th>\(\Delta\theta_{34}\)</th>
-<th>\(\Delta\theta_{13}\)</th>
 <th>\(\Delta\theta_{14}\)</th>
-<th>\(\Delta\theta_{24}\)</th>
 <th>clct</th>
 <th>fr</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>#1</td>
-<td>10</td>
-<td>10</td>
+<td>#3&#39;</td>
+<td>7</td>
+<td><code>10</code></td>
 <td>10</td>
 <td>10</td>
 <td>1</td>
 <td>1</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
+<td>[3:0]</td>
 <td>4,4,4,4</td>
 <td>1,1,1,1</td>
 </tr>
 <tr>
-<td>#4&#39;</td>
-<td>5</td>
-<td>10</td>
-<td>5</td>
-<td>5</td>
+<td>#5&#39;</td>
+<td>[7:2]</td>
+<td><code>[10:3]</code></td>
+<td><code>[5:0]</code></td>
+<td><code>[5:0]</code></td>
 <td>1</td>
 <td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>4,0,0,0</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
 <td>1,0,0,0</td>
 </tr>
 <tr>
-<td>#5&#39;</td>
-<td>5</td>
-<td>10</td>
-<td>5</td>
-<td>5</td>
-<td>1</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>2</td>
-<td>0</td>
-<td>2,0,0,0</td>
-<td>0,0,0,0</td>
-</tr>
-<tr>
 <td>#5&#39;&#39;</td>
-<td>5</td>
-<td>10</td>
-<td>4</td>
-<td>4</td>
+<td>[7:2]</td>
+<td><code>[10:3]</code></td>
+<td><code>[8:3]</code></td>
+<td><code>[8:3]</code></td>
 <td>1</td>
 <td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>2</td>
-<td>0</td>
+<td>[2:0]</td>
 <td>2,0,0,0</td>
-<td>0,0,0,0</td>
+<td>1,0,0,0</td>
 </tr>
 </tbody></table>
+
+<div style='float:left;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-34-1.svg" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-35-1.svg" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Chopping off LSBs of \(\Delta\phi\) affects high-pT muons (bottom-left) and MSBs - low-pT (top-right)</p>
 
 </div>
   </article>
@@ -405,10 +369,11 @@ for number of bits for predictors are used:</p>
 
 <slide class="" id="slide-8" style="background:;">
   <hgroup>
-    <h2>Tuned compression schemes</h2>
+    <h2>Observations on the tuned schemes</h2>
   </hgroup>
   <article data-timings="">
-    
+    <p>Relative importance of predictors in Scheme #1 (left) and #5&#39;&#39; (right):</p>
+
 <div style='float:left;width:48%;'>
   <p><img src="assets/fig/unnamed-chunk-36-1.svg" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" style="display: block; margin: auto;" /></p>
 
@@ -418,7 +383,7 @@ for number of bits for predictors are used:</p>
 
 </div>
 <div>
-  
+  NA
 </div>
   </article>
   <!-- Presenter Notes -->
@@ -476,13 +441,13 @@ for number of bits for predictors are used:</p>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=7 title='Scheme #1 \(\rightarrow\) #2 transition'>
+        data-slide=7 title='Tuning compression further'>
          7
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=8 title='Tuned compression schemes'>
+        data-slide=8 title='Observations on the tuned schemes'>
          8
       </a>
     </li>
