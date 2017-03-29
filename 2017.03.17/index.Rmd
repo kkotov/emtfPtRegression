@@ -1168,7 +1168,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 
 vars4p <- with(vars,data.frame( muPtGenInv,
                                 ptTrg,
-                           abs(msb(theta,10,0)) + ifelse(ring==1 || ring==4, 0, 6),
+                           abs(msb(theta,10,0)) + ifelse(ring1==1 || ring1==4, 0, 6),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,10)),
                            abs(sat(dPhi34,10)),
