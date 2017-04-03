@@ -1354,7 +1354,7 @@ rate5p  <- sapply(binning, function(x) sum(tszb5p$res>x) )
 ```{r message = F, echo = F}
 
 tszb5pp <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,6,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
                            abs(msb(dPhi12,10,3)),
                            abs(msb(dPhi23,8,3)),
                            abs(msb(dPhi34,8,3)),
@@ -1534,8 +1534,8 @@ suppressWarnings( invisible( capture.output(
 #                   )
 effRateCompspDF <- #rbind( 
                           data.frame( eff   = roc3p[["myEff"]],
-                                     rate  = rate3p,
-                                     model = rep("scheme #3'",nBins)
+                                      rate  = rate3p,
+                                      model = rep("scheme #3'",nBins)
                           )#,
 #                          effRateCompspDF
 #                   )
@@ -1594,6 +1594,290 @@ effRateCompspPlot <- ggplot(effRateCompspDF, aes(x = rate, y = eff, group = mode
 
 suppressWarnings( invisible( capture.output(
   effRateCompspPlot + ylim(0.75, 1)
+) ) )
+
+```
+
+*** =fullwidth
+
+Chopping off LSBs of $\Delta\phi$ affects high-pT muons (bottom-left) and MSBs - low-pT (top-right)
+
+
+
+--- &twocol
+
+## MSB vs LSB in $\Delta\phi$ compression
+
+type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{14}$ | clct | fr
+----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|------|-----
+#3' |  7       |     `10`          |       10          |        10         |         1        |        1         |       [3:0]         | 4,4,4,4 | 1,1,1,1
+#6  | '[7:2]'  |  `[10:2]`         |       `5`         |        `5`        |         1        |        1         |       [2:0]         | 2,0,0,0 | '0',0,0,0
+#7  | '[7:3]'  |  `[10:1]`         |       `5`         |        `5`        |         1        |        1         |       [2:0]         | 2,0,0,0 | '0',0,0,0
+
+```{r message = F, echo = F}
+# type #6
+
+vars6 <- with(vars,data.frame( muPtGenInv,
+                               ptTrg,
+                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           abs(msb(dPhi12,10,2)),
+                           abs(sat(dPhi23,5)),
+                           abs(sat(dPhi34,5)),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           abs(msb(dPhi12,10,2)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(msb(dPhi12,10,2)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,5))    + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dTheta14,2)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                             )
+         )
+
+colnames(vars6) <- c("muPtGenInv", "ptTrg", predictors5)
+
+set.seed(1)
+
+trainSet6 <- vars6[part,]
+testSet6 <- vars6[-part,]
+
+invisible( capture.output( modelFit6 <- ranger(f5, data=trainSet6, importance="impurity") ) )
+
+```
+
+```{r message = F, echo = F}
+# type #7
+
+vars7 <- with(vars,data.frame( muPtGenInv,
+                               ptTrg,
+                           abs(msb(theta,7,3)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           abs(msb(dPhi12,10,1)),
+                           abs(sat(dPhi23,5)),
+                           abs(sat(dPhi34,5)),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           abs(msb(dPhi12,10,1)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(msb(dPhi12,10,1)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,5))    + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dTheta14,2)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                             )
+         )
+
+colnames(vars7) <- c("muPtGenInv", "ptTrg", predictors5)
+
+set.seed(1)
+
+trainSet7 <- vars7[part,]
+testSet7 <- vars7[-part,]
+
+invisible( capture.output( modelFit7 <- ranger(f5, data=trainSet7, importance="impurity") ) )
+```
+
+```{r message = F, echo = F}
+
+tszb6 <- with(tszb,data.frame( ptRef,
+                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           abs(msb(dPhi12,10,2)),
+                           abs(sat(dPhi23,5)),
+                           abs(sat(dPhi34,5)),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           abs(msb(dPhi12,10,2)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(msb(dPhi12,10,2)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,5))    + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dTheta14,2)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                             )
+         )
+
+colnames(tszb6) <- c("ptRef", predictors5)
+
+invisible( capture.output( tszb6$res <- 1/predict(modelFit6,tszb6)$predictions ) )
+
+rate6  <- sapply(binning, function(x) sum(tszb6$res>x) )
+
+```
+
+```{r message = F, echo = F}
+
+tszb7 <- with(tszb,data.frame( ptRef,
+                           abs(msb(theta,6,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           abs(msb(dPhi12,10,1)),
+                           abs(sat(dPhi23,5)),
+                           abs(sat(dPhi34,5)),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+                           abs(msb(dPhi12,10,1)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)), # analogous to dPhi13
+                           abs(msb(dPhi12,10,1)) + ifelse(dPhi23*dPhi12>=0,1,-1)*abs(sat(dPhi23,5)) + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)),
+                           abs(sat(dPhi23,5))    + ifelse(dPhi34*dPhi12>=0,1,-1)*abs(sat(dPhi34,5)), # analogous to dPhi24
+                           abs(sat(dTheta14,2)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+                             )
+         )
+
+colnames(tszb7) <- c("ptRef", predictors5)
+
+invisible( capture.output( tszb7$res <- 1/predict(modelFit7,tszb7)$predictions ) )
+
+rate7  <- sapply(binning, function(x) sum(tszb7$res>x) )
+
+```
+
+```{r message = F, echo = F}
+invisible( capture.output(
+pp6 <- preprocess( modelFit = modelFit6,
+                   testSet  = testSet6,
+                   rateShapeBinned,
+                   binning
+                 )
+) )
+myTurnOnComp6 <- pp6$getMyTurnOn()
+```
+
+```{r message = F, echo = F}
+invisible( capture.output(
+pp7 <- preprocess( modelFit = modelFit7,
+                   testSet  = testSet7,
+                   rateShapeBinned,
+                   binning
+                 )
+) )
+myTurnOnComp7 <- pp7$getMyTurnOn()
+```
+
+*** =left
+
+```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+roc6 <- rocMetric( rateShapeBinned = rateShapeBinned,
+                   myModelTurnOn = myTurnOnComp6,
+                   referenceTurnOn = myTurnOnComp1,
+                   binning = binning,
+                   refScale = 1.0
+        )
+
+roc7 <- rocMetric( rateShapeBinned = rateShapeBinned,
+                   myModelTurnOn = myTurnOnComp7,
+                   referenceTurnOn = myTurnOn,
+                   binning = binning,
+                   refScale = 1.0
+        )
+
+comp6ROCdf   <- data.frame( truePos  = roc6[["myEff"]],
+                            falsePos = roc6[["myFake"]],
+                            model    = rep("scheme #6",nBins)
+                )
+comp7ROCdf   <- data.frame( truePos  = roc7[["myEff"]],
+                            falsePos = roc7[["myFake"]],
+                            model    = rep("scheme #7",nBins)
+                )
+
+start <- sum(rateShapeBinned==0) + 1
+comp6ROCdf   <- comp6ROCdf [start:nBins,]
+comp7ROCdf   <- comp6ROCdf [start:nBins,]
+
+comps67DF <- comp3pROCdf
+comps67DF <- rbind(comps67DF,comp6ROCdf)
+comps67DF <- rbind(comps67DF,comp7ROCdf)
+
+comps67Plot <- ggplot(comps67DF, aes(y = truePos, x = falsePos, group = model, colour = model)) +
+        geom_line() +
+        geom_point(shape=1,size=0.1) +
+        theme(
+            title = element_text(size=15),
+            axis.title.x = element_text(size=15),
+            axis.text.x  = element_text(size=15),
+            legend.position = c(.20, .78),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.2)),
+            legend.title=element_blank()  #element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        labs( y="true positive",
+              x="false positive",
+              title="ROC curves"
+        ) +
+        scale_colour_manual(values = c(
+                                       "scheme #3'" = "#CD9600",
+                                       "scheme #6"  = "#00BE67",
+                                       "scheme #7"  = "#00A9FF"
+                                     ),
+                            breaks = c(
+                                       "scheme #3'",
+                                       "scheme #6",
+                                       "scheme #7"
+                                     ),
+                            labels = c(
+                                       "scheme #3'",
+                                       "scheme #6",
+                                       "scheme #7"
+                                     )
+        ) +
+        scale_x_log10(limits = c(0.0001,1))
+
+suppressWarnings( invisible( capture.output( 
+  comps67Plot + ylim(0.75,1)
+) ) )
+
+```
+
+*** =right
+
+```{r, fig.height=3.5, fig.width=4., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+effRateComps67DF <-
+                          data.frame(eff   = roc3p[["myEff"]],
+                                     rate  = rate3p,
+                                     model = rep("scheme #3'",nBins)
+                          )
+effRateComps67DF <- rbind( data.frame( eff   = roc6[["myEff"]],
+                                       rate  = rate6,
+                                       model = rep("scheme #6",nBins)
+                          ),
+                          effRateCompspDF
+                    )
+effRateComps67DF <- rbind( data.frame( eff   = roc7[["myEff"]],
+                                       rate  = rate7,
+                                       model = rep("scheme #7",nBins)
+                           ),
+                           effRateCompspDF
+                    )
+
+effRateComps67Plot <- ggplot(effRateComps67DF, aes(x = rate, y = eff, group = model, colour = model) ) +
+               geom_point(shape=1,size=0.1) + 
+               geom_line() + 
+               theme(
+                    title = element_text(size=15),
+                    axis.title.x = element_text(size=15),
+                    axis.text.x  = element_text(size=15),
+                    legend.position = c(.20, .78),
+                    legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+                    legend.text = element_text(size=rel(1.2)),
+                    legend.title = element_blank() #element_text(size=rel(0.8), face="bold", hjust=0)
+               ) +
+               labs(y = "efficiency",
+                    x = "total rate",
+                    title = "Efficiency-rate curves"
+               ) +
+               scale_colour_manual(values = c(
+                                              "scheme #3'" = "#CD9600",
+                                              "scheme #6"  = "#00BE67",
+                                              "scheme #7"  = "#00A9FF"
+                                            ),
+                                   breaks = c(
+                                              "scheme #3'",
+                                              "scheme #6",
+                                              "scheme #7"
+                                            ),
+                                   labels = c(
+                                              "scheme #3'",
+                                              "scheme #6",
+                                              "scheme #7"
+                                            )
+               ) +
+               scale_x_log10(limits = c(30,30000))
+
+suppressWarnings( invisible( capture.output(
+  effRateComps67Plot + ylim(0.75, 1)
 ) ) )
 
 ```
