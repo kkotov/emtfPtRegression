@@ -84,7 +84,7 @@ vars <- with(d,data.frame( 1/muPtGen,
             )
 predictors <- c("dPhi12", "dPhi13", "dPhi14", "dPhi23", "dPhi24", "dPhi34", "dTheta12", "dTheta13", "dTheta14", "dTheta23", "dTheta24", "dTheta34", "clct1", "clct2", "clct3", "clct4", "fr1", "fr2", "fr3", "fr4")
 colnames(vars) <- c("muPtGenInv", "theta", "ring1", "ptTrg", "mypt", predictors )
-predictors <- c("theta", predictors)
+predictors <- c("theta", "ring1", predictors)
 
 set.seed(1)
 
@@ -509,13 +509,46 @@ suppressWarnings( invisible( capture.output(
 
 Baseline put on "myModel" scale (turn-ons cross at 50%) by multiplying thresholds with $1.43$
 
+
+--- .class #id
+
+## Relative importance of the inputs
+
+```{r, fig.height=4., fig.width=8., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+#barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
+
+barPlot <- ggplot( data.frame( importance = modelFit$variable.importance,
+                               name       = names(modelFit$variable.importance)
+                   ), aes(x=reorder(name,c(13,14,1:12,15:22)), y=importance)
+                 ) +
+                 geom_bar(stat="identity", col="red", fill="red") +
+                 coord_flip() +
+                 theme(
+                     title = element_text(size=15),
+                     axis.title.x = element_text(size=15),
+                     axis.text.x  = element_text(size=15)
+                 ) +
+                 labs(x = "",
+                     y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
+                     title = "myModel"
+                 )
+
+barPlot
+
+```
+
+The most important predictors are $\Delta\phi$ followed by $clct1$ (!), $\Delta\theta$, and $\theta + ring$
+
+Compression (stipping most/least significant bits - MSB/LSB) should be guided by relative the importance of specific bits
+
 --- .class #id
 
 ## Input compression
 
 As proposed [earlier](https://kkotov.github.io/emtfPtRegression/2017.01.19/#12), I perform input transformations:
 * "unsign" predictors; keep a bit for relative sign (e.g. ($S^\phi_{12,23}$) $\equiv$ sign($\Delta\phi_{23}*\Delta\phi_{12}$))
-* "saturate" predictors at $N$ bits (e.g. $|\Delta\theta_{12}|_2\in\{0,1,2,3\}$)
+* "saturate" predictors at $N$ least significant bits (e.g. $|\Delta\theta_{12}|_{2 LSBs}\in\{0,1,2,3\}$)
 * calculate dependent predictors "on the fly" (e.g. $\Delta\phi_{14} = \Delta\phi_{12} + \Delta\phi_{23} + \Delta\phi_{34}$) 
 
 Following schemes (inspired by
@@ -1143,107 +1176,18 @@ suppressWarnings( invisible( capture.output(
 
 *** =fullwidth
 
-Bottom-left part of the graphs corresponds to thresholds above ~50 GeV/$c$ $\rightarrow$ ignore it
+Bottom-left part of the graphs corresponds to thresholds above ~50 GeV/$c$ $\rightarrow$ ignore $y < 0.8$
 
 Efficiency drop (0.85 < $y$ < 0.95, scheme #1 $\rightarrow$ #2) appears at $\Delta\phi$ precision truncation
 
 Schemes #2,3, and 4 show almost identical performance for thresholds <50&nbsp;GeV/$c$ (top-right)
 
 
---- &twocol
-
-## Relative importance of predictors
-
-*** =left
-
-```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-
-#barplot( modelFit1$variable.importance[1:18], horiz=T, col='red', xlab='Delta MSE', las=2, main='Scheme #1' )
-
-barPlotScheme1 <- ggplot( data.frame( importance = modelFit1$variable.importance[c(1:4,10:12,15:25)],
-                                      name       = names(modelFit1$variable.importance[c(1:4,10:12,15:25)])
-                          ), aes(x=reorder(name,c(18,1:17)), y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red", fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')), 
-                       title = "Scheme #1"
-                  )
-
-barPlotScheme1
-
-barPlotScheme4 <- ggplot( data.frame( importance = modelFit4$variable.importance[c(1:4,7:12)],
-                                      name       = names(modelFit4$variable.importance[c(1:4,7:12)])
-                          ), aes(x=reorder(name,c(10,1:9)), y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red",fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
-                       title = "Scheme #4"
-                  )
-
-barPlotScheme4
-
-```
-
-*** =right
-
-```{r, fig.height=3., fig.width=4.5, fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
-
-barPlotScheme2 <- ggplot( data.frame( importance = modelFit2$variable.importance[c(1:4,10:12,15:25)],
-                                      name       = names(modelFit2$variable.importance[c(1:4,10:12,15:25)])
-                          ), aes(x=reorder(name,c(18,1:17)), y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red",fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
-                       title = "Scheme #2"
-                  )
-
-barPlotScheme2
-
-barPlotScheme5 <- ggplot( data.frame( importance = modelFit5$variable.importance[c(1:4,7:11)],
-                                      name       = names(modelFit5$variable.importance[c(1:4,7:11)])
-                          ), aes(x=reorder(name,c(9,1:8)), y=importance)
-                  ) +
-                  geom_bar(stat="identity", col="red",fill="red") +
-                  coord_flip() +
-                  theme(
-                      title = element_text(size=15),
-                      axis.title.x = element_text(size=15),
-                      axis.text.x  = element_text(size=15)
-                  ) +
-                  labs(x = "",
-                       y = expression(paste("Importance (", Delta ,"MSE)",sep='')),
-                       title = "Scheme #5"
-                  )
-
-barPlotScheme5
-
-```
 
 
 --- &twocol
 
-## Tuning compression further
+## MSB vs LSB in $\Delta\phi$ compression
 
 type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{14}$ | clct | fr
 -----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|------|-----
