@@ -77,7 +77,7 @@
 <a href="https://kkotov.github.io/emtfPtRegression/2017.03.03/#6">\(1/p_T ^3\) spectrum</a>\(^*\)
 and turn-ons for &quot;myModel&quot;\(^{**}\) and EMTF (&quot;baseline&quot;):</p>
 
-<div style='float:left;width:48%;'>
+<div style='float:left;width:48%;' class='centered'>
   <p><img src="assets/fig/unnamed-chunk-3-1.svg" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
 
 </div>
@@ -123,7 +123,7 @@ and turn-ons for &quot;myModel&quot;\(^{**}\) and EMTF (&quot;baseline&quot;):</
 
 <p>Comparing baseline to itself for different scales shows apples-to-oranges problem:</p>
 
-<div style='float:left;width:48%;'>
+<div style='float:left;width:48%;' class='centered'>
   <p><img src="assets/fig/unnamed-chunk-6-1.svg" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
 
 </div>
@@ -141,6 +141,21 @@ and turn-ons for &quot;myModel&quot;\(^{**}\) and EMTF (&quot;baseline&quot;):</
 
 <slide class="class" id="id" style="background:;">
   <hgroup>
+    <h2>Relative importance of the inputs</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-8-1.svg" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /></p>
+
+<p>The most important predictors are \(\Delta\phi\) followed by \(clct1\) (!), \(\Delta\theta\), and \(\theta + ring\)</p>
+
+<p>Compression (stipping most/least significant bits - MSB/LSB) should be guided by relative the importance of specific bits</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
     <h2>Input compression</h2>
   </hgroup>
   <article data-timings="">
@@ -148,7 +163,7 @@ and turn-ons for &quot;myModel&quot;\(^{**}\) and EMTF (&quot;baseline&quot;):</
 
 <ul>
 <li>&quot;unsign&quot; predictors; keep a bit for relative sign (e.g. (\(S^\phi_{12,23}\)) \(\equiv\) sign(\(\Delta\phi_{23}*\Delta\phi_{12}\)))</li>
-<li>&quot;saturate&quot; predictors at \(N\) bits (e.g. \(|\Delta\theta_{12}|_2\in\{0,1,2,3\}\))</li>
+<li>&quot;saturate&quot; predictors at \(N\) least significant bits (e.g. \(|\Delta\theta_{12}|_{2 LSBs}\in\{0,1,2,3\}\))</li>
 <li>calculate dependent predictors &quot;on the fly&quot; (e.g. \(\Delta\phi_{14} = \Delta\phi_{12} + \Delta\phi_{23} + \Delta\phi_{34}\)) </li>
 </ul>
 
@@ -268,35 +283,35 @@ for number of bits for predictors are used:</p>
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="" id="slide-6" style="background:;">
+<slide class="" id="slide-7" style="background:;">
   <hgroup>
     <h2>Testing compression schemes</h2>
   </hgroup>
   <article data-timings="">
     
-<div style='float:left;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-18-1.svg" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" /></p>
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-19-1.svg" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-24-1.svg" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" style="display: block; margin: auto;" /></p>
+  <p><img src="assets/fig/unnamed-chunk-25-1.svg" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" /></p>
 
 </div>
 <div>
-  <p>Left&nbsp;part of the graphs (\(y\) &lt; 0.8) corresponds to thresholds above ~50 GeV/\(c\) \(\rightarrow\) ignore it</p>
+  <p>Bottom-left part of the graphs corresponds to thresholds above ~50 GeV/\(c\) \(\rightarrow\) ignore \(y < 0.8\)</p>
 
 <p>Efficiency drop (0.85 &lt; \(y\) &lt; 0.95, scheme #1 \(\rightarrow\) #2) appears at \(\Delta\phi\) precision truncation</p>
 
-<p>Schemes #2, #3, and #4 show almost identical performance for thresholds <50&nbsp;GeV/$c$ ($y$>0.8)</p>
+<p>Schemes #2,3, and 4 show almost identical performance for thresholds &lt;50&nbsp;GeV/\(c\) (top-right)</p>
 
 </div>
   </article>
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="" id="slide-7" style="background:;">
+<slide class="" id="slide-8" style="background:;">
   <hgroup>
-    <h2>Tuning compression further</h2>
+    <h2>MSB vs LSB in \(\Delta\phi\) compression</h2>
   </hgroup>
   <article data-timings="">
     <table><thead>
@@ -351,12 +366,12 @@ for number of bits for predictors are used:</p>
 </tr>
 </tbody></table>
 
-<div style='float:left;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-34-1.svg" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" style="display: block; margin: auto;" /></p>
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-35-1.svg" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-35-1.svg" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" style="display: block; margin: auto;" /></p>
+  <p><img src="assets/fig/unnamed-chunk-36-1.svg" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" style="display: block; margin: auto;" /></p>
 
 </div>
 <div>
@@ -367,23 +382,147 @@ for number of bits for predictors are used:</p>
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="" id="slide-8" style="background:;">
+<slide class="" id="slide-9" style="background:;">
   <hgroup>
-    <h2>Observations on the tuned schemes</h2>
+    <h2>MSB vs LSB in \(\Delta\phi\) compression (2)</h2>
   </hgroup>
   <article data-timings="">
-    <p>Relative importance of predictors in Scheme #1 (left) and #5&#39;&#39; (right):</p>
+    <table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#3&#39;</td>
+<td>7</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>[3:0]</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#6</td>
+<td>[7:2]</td>
+<td><code>[9:2]</code></td>
+<td><code>[8:3]</code></td>
+<td><code>[8:3]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#7</td>
+<td>[7:2]</td>
+<td><code>[9:2]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
 
-<div style='float:left;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-36-1.svg" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" style="display: block; margin: auto;" /></p>
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-43-1.svg" title="plot of chunk unnamed-chunk-43" alt="plot of chunk unnamed-chunk-43" style="display: block; margin: auto;" /></p>
 
 </div>
 <div style='float:right;width:48%;'>
-  <p><img src="assets/fig/unnamed-chunk-37-1.svg" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" style="display: block; margin: auto;" /></p>
+  <p><img src="assets/fig/unnamed-chunk-44-1.svg" title="plot of chunk unnamed-chunk-44" alt="plot of chunk unnamed-chunk-44" style="display: block; margin: auto;" /></p>
 
 </div>
 <div>
-  NA
+  <p>Scheme #7 is marginally better than #6; both get close to &#39;no compression&#39; scheme #3&#39;</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>MSB vs LSB in \(\Delta\phi\) compression (3)</h2>
+  </hgroup>
+  <article data-timings="">
+    <table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#3&#39;</td>
+<td>7</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>[3:0]</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#8</td>
+<td>[7:3]</td>
+<td><code>[10:2]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#9</td>
+<td>[7:3]</td>
+<td><code>[9:1]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-51-1.svg" title="plot of chunk unnamed-chunk-51" alt="plot of chunk unnamed-chunk-51" style="display: block; margin: auto;" /></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-52-1.svg" title="plot of chunk unnamed-chunk-52" alt="plot of chunk unnamed-chunk-52" style="display: block; margin: auto;" /></p>
+
+</div>
+<div>
+  <p>Trade-off: getting better at higer pT (bottom-left) means loosing at low pT (top-right)</p>
+
 </div>
   </article>
   <!-- Presenter Notes -->
@@ -394,7 +533,47 @@ for number of bits for predictors are used:</p>
     <h2>Summary</h2>
   </hgroup>
   <article data-timings="">
-    
+    <p>The best compression scheme appears to be scheme #7 (consistent with 
+<a href="https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf">Andrew&#39;s proposal</a>):</p>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#7</td>
+<td>[7:2]</td>
+<td>[9:2]</td>
+<td>[7:2]</td>
+<td>[7:2]</td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<ul>
+<li>all other \(\Delta\theta\) are dropped</li>
+<li>predictors are unsigned and saturated (i.e. stuck to the largest allowed value if needed)</li>
+<li>\(ring1\) and \(\theta\) are combined according to Andrew&#39;s proposal</li>
+</ul>
+
+<p>I didn&#39;t show most of the performance plots, but I can assure you that \(fr1\) is important</p>
+
+<p>Now I&#39;ll move on modes other then #15 and include RPCs</p>
+
   </article>
   <!-- Presenter Notes -->
 </slide>
@@ -429,32 +608,44 @@ for number of bits for predictors are used:</p>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=5 title='Input compression'>
+        data-slide=5 title='Relative importance of the inputs'>
          5
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=6 title='Testing compression schemes'>
+        data-slide=6 title='Input compression'>
          6
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=7 title='Tuning compression further'>
+        data-slide=7 title='Testing compression schemes'>
          7
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=8 title='Observations on the tuned schemes'>
+        data-slide=8 title='MSB vs LSB in \(\Delta\phi\) compression'>
          8
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=9 title='Summary'>
+        data-slide=9 title='MSB vs LSB in \(\Delta\phi\) compression (2)'>
          9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='MSB vs LSB in \(\Delta\phi\) compression (3)'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Summary'>
+         11
       </a>
     </li>
   </ul>
