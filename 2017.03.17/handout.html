@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Outline</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h2>Outline</h2>
+
+<p>Metrics</p>
+
+<ul>
+<li>ROC curves</li>
+<li>Efficiency-rate curves</li>
+</ul>
+
+<p>Scaling baseline EMTF model for proper comparison</p>
+
+<p>Input compression</p>
+
+<ul>
+<li>several test schemes</li>
+<li>overal performance</li>
+<li>sources of impact on efficiency </li>
+</ul>
+
+<p>Summary</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>Constructing ROC curves</h2>
+
+<p><a href="https://kkotov.github.io/emtfPtRegression/2017.02.10/#6">ROC curves</a> built with
+<a href="https://kkotov.github.io/emtfPtRegression/2017.03.03/#6">\(1/p_T ^3\) spectrum</a>\(^*\)
+and turn-ons for &ldquo;myModel&rdquo;\(^{**}\) and EMTF (&ldquo;baseline&rdquo;):</p>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-3-1.svg" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-4-1.svg" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>\(^*\)&nbsp;any&nbsp;shape do well for qualitative comparison of the two models (i.e. relative behavior)</p>
+
+<p>\(^{**}\) &ldquo;myModel&rdquo; is trained with \(\Delta\phi \times 6\), \(\Delta\theta \times 6\), \(CLCT \times 4\), \(FR \times 4\) (all full precision)</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Constructing efficiency-rate metric</h2>
+
+<p>Like for ROCs, efficiency results from convolution of spectrum with turn-on above threshold</p>
+
+<p>Fraction of fakes is replaced with absolute number of events with predicted pT &gt; threshold</p>
+
+<p>Comparing baseline and &ldquo;myModel&rdquo; using Andrew&#39;s zero bias ntuples:</p>
+
+<p><img src="figure/unnamed-chunk-5-1.svg" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>Scaling baseline turn-ons</h2>
+
+<p>Baseline model was originally scaled to have ~90% efficiency at any given threshold</p>
+
+<!--Rescaling causes a small horizontal and large vertical shifts ([consequence of falling rate](https://kkotov.github.io/emtfPtRegression/2017.02.10/#6)):-->
+
+<p>Comparing baseline to itself for different scales shows apples-to-oranges problem:</p>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-6-1.svg" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-7-1.svg" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Baseline put on &ldquo;myModel&rdquo; scale (turn-ons cross at 50%) by multiplying thresholds with \(1.43\)</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Relative importance of the inputs</h2>
+
+<p><img src="figure/unnamed-chunk-8-1.svg" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /></p>
+
+<p>The most important predictors are \(\Delta\phi\) followed by \(clct1\) (!), \(\Delta\theta\), and \(\theta + ring\)</p>
+
+<p>Compression (stipping most/least significant bits - MSB/LSB) should be guided by relative the importance of specific bits</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Input compression</h2>
+
+<p>As proposed <a href="https://kkotov.github.io/emtfPtRegression/2017.01.19/#12">earlier</a>, I perform input transformations:</p>
+
+<ul>
+<li>&ldquo;unsign&rdquo; predictors; keep a bit for relative sign (e.g. (\(S^\phi_{12,23}\)) \(\equiv\) sign(\(\Delta\phi_{23}*\Delta\phi_{12}\)))</li>
+<li>&ldquo;saturate&rdquo; predictors at \(N\) least significant bits (e.g. \(|\Delta\theta_{12}|_{2 LSBs}\in\{0,1,2,3\}\))</li>
+<li>calculate dependent predictors &ldquo;on the fly&rdquo; (e.g. \(\Delta\phi_{14} = \Delta\phi_{12} + \Delta\phi_{23} + \Delta\phi_{34}\)) </li>
+</ul>
+
+<p>Following schemes (inspired by
+<a href="https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf">Andrew&#39;s talk</a>)
+for number of bits for predictors are used:</p>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{12}\)</th>
+<th>\(\Delta\theta_{23}\)</th>
+<th>\(\Delta\theta_{34}\)</th>
+<th>\(\Delta\theta_{13}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>\(\Delta\theta_{24}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#1</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#2</td>
+<td>10</td>
+<td><code>7</code></td>
+<td><code>5</code></td>
+<td><code>5</code></td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#3</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td><code>0</code></td>
+<td><code>0</code></td>
+<td><code>3</code></td>
+<td>0</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#4</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>4,<code>0,0,0</code></td>
+<td>1,<code>0,0,0</code></td>
+</tr>
+<tr>
+<td>#5</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td><code>2</code>,0,0,0</td>
+<td><code>0</code>,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p>(type #0 = &ldquo;myModel&rdquo; on previous slides, applies no compression; everything is mode=15 here)</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>Testing compression schemes</h2>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-19-1.svg" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-25-1.svg" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Bottom-left part of the graphs corresponds to thresholds above ~50 GeV/\(c\) \(\rightarrow\) ignore \(y < 0.8\)</p>
+
+<p>Efficiency drop (0.85 &lt; \(y\) &lt; 0.95, scheme #1 \(\rightarrow\) #2) appears at \(\Delta\phi\) precision truncation</p>
+
+<p>Schemes #2,3, and 4 show almost identical performance for thresholds &lt;50&nbsp;GeV/\(c\) (top-right)</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>MSB vs LSB in \(\Delta\phi\) compression</h2>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#3&#39;</td>
+<td>7</td>
+<td><code>10</code></td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>[3:0]</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#5&#39;</td>
+<td>[7:2]</td>
+<td><code>[10:3]</code></td>
+<td><code>[5:0]</code></td>
+<td><code>[5:0]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#5&#39;&#39;</td>
+<td>[7:2]</td>
+<td><code>[10:3]</code></td>
+<td><code>[8:3]</code></td>
+<td><code>[8:3]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-35-1.svg" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-36-1.svg" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Chopping off LSBs of \(\Delta\phi\) affects high-pT muons (bottom-left) and MSBs - low-pT (top-right)</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>MSB vs LSB in \(\Delta\phi\) compression (2)</h2>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#3&#39;</td>
+<td>7</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>[3:0]</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#6</td>
+<td>[7:2]</td>
+<td><code>[9:2]</code></td>
+<td><code>[8:3]</code></td>
+<td><code>[8:3]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#7</td>
+<td>[7:2]</td>
+<td><code>[9:2]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-43-1.svg" title="plot of chunk unnamed-chunk-43" alt="plot of chunk unnamed-chunk-43" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-44-1.svg" title="plot of chunk unnamed-chunk-44" alt="plot of chunk unnamed-chunk-44" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Scheme #7 is marginally better than #6; both get close to &#39;no compression&#39; scheme #3&#39;</p>
+
+<p>&mdash; &amp;twocol</p>
+
+<h2>MSB vs LSB in \(\Delta\phi\) compression (3)</h2>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#3&#39;</td>
+<td>7</td>
+<td>10</td>
+<td>10</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>[3:0]</td>
+<td>4,4,4,4</td>
+<td>1,1,1,1</td>
+</tr>
+<tr>
+<td>#8</td>
+<td>[7:3]</td>
+<td><code>[10:2]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+<tr>
+<td>#9</td>
+<td>[7:3]</td>
+<td><code>[9:1]</code></td>
+<td><code>[7:2]</code></td>
+<td><code>[7:2]</code></td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p>*** =left</p>
+
+<p><img src="figure/unnamed-chunk-51-1.svg" title="plot of chunk unnamed-chunk-51" alt="plot of chunk unnamed-chunk-51" style="display: block; margin: auto;" /></p>
+
+<p>*** =right</p>
+
+<p><img src="figure/unnamed-chunk-52-1.svg" title="plot of chunk unnamed-chunk-52" alt="plot of chunk unnamed-chunk-52" style="display: block; margin: auto;" /></p>
+
+<p>*** =fullwidth</p>
+
+<p>Trade-off: getting better at higer pT (bottom-left) means loosing at low pT (top-right)</p>
+
+<p>&mdash; .class #id</p>
+
+<h2>Summary</h2>
+
+<p>The best compression scheme appears to be scheme #7, consistent with 
+<a href="https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf">Andrew&#39;s proposal</a>):</p>
+
+<table><thead>
+<tr>
+<th>type</th>
+<th>\(\theta\)</th>
+<th>\(\Delta\phi_{12}\)</th>
+<th>\(\Delta\phi_{23}\)</th>
+<th>\(\Delta\phi_{34}\)</th>
+<th>\(S^\phi_{12,23}\)</th>
+<th>\(S^\phi_{12,34}\)</th>
+<th>\(\Delta\theta_{14}\)</th>
+<th>clct</th>
+<th>fr</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>#7</td>
+<td>[7:2]</td>
+<td>[9:2]</td>
+<td>[7:2]</td>
+<td>[7:2]</td>
+<td>1</td>
+<td>1</td>
+<td>[2:0]</td>
+<td>2,0,0,0</td>
+<td>1,0,0,0</td>
+</tr>
+</tbody></table>
+
+<p><br></p>
+
+<ul>
+<li>all other \(\Delta\theta\) are dropped</li>
+<li>predictors are unsigned and saturated (i.e. stuck to the largest allowed value if needed)</li>
+<li>\(ring1\) and \(\theta\) are combined according to Andrew&#39;s proposal</li>
+</ul>
+
+<p>I didn&#39;t show most of the performance plots, but I can assure you that \(fr1\) is important to keep</p>
+
+<p>Now I&#39;ll move on modes other then #15 and include RPCs</p>
+
+</body>
+
+</html>
