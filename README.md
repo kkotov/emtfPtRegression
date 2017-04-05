@@ -26,4 +26,5 @@ comparing their performance. Findings are summarized by the date:
 ([single page](https://kkotov.github.io/emtfPtRegression/2017.02.10/handout.html)),
 [2017.03.03](https://kkotov.github.io/emtfPtRegression/2017.03.03)
 ([single page](https://kkotov.github.io/emtfPtRegression/2017.03.03/handout.html)),
-[2017.03.17](https://kkotov.github.io/emtfPtRegression/2017.03.17).
+[2017.03.17](https://kkotov.github.io/emtfPtRegression/2017.03.17)
+([single page](https://kkotov.github.io/emtfPtRegression/2017.03.17/handout.html)).
