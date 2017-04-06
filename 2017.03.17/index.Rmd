@@ -576,7 +576,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 source("../utils.R")
 
 vars1 <- with(vars,data.frame( muPtGenInv,
-                           abs(msb(theta,10,0)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),10,0),
                            ptTrg,
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,10)),
@@ -624,7 +624,7 @@ invisible( capture.output( modelFit1 <- ranger(f1, data=trainSet1, importance="i
 # type #2
 
 vars2 <- with(vars,data.frame( muPtGenInv,
-                           abs(msb(theta,10,0)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),10,0),
                            ptTrg,
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
@@ -671,7 +671,7 @@ invisible( capture.output( modelFit2 <- ranger(f2, data=trainSet2, importance="i
 # type #3
 
 vars3 <- with(vars,data.frame( muPtGenInv,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            ptTrg,
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
@@ -711,7 +711,7 @@ invisible( capture.output( modelFit3 <- ranger(f3, data=trainSet3, importance="i
 # type #4
 
 vars4 <- with(vars,data.frame( muPtGenInv,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            ptTrg,
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
@@ -745,7 +745,7 @@ invisible( capture.output( modelFit4 <- ranger(f4, data=trainSet4, importance="i
 # type #5
 
 vars5 <- with(vars,data.frame( muPtGenInv,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            ptTrg,
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
@@ -947,7 +947,7 @@ suppressWarnings( invisible( capture.output(
 ```{r message = F, echo = F}
 
 tszb1 <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,10,0)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),10,0),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,10)),
                            abs(sat(dPhi34,10)),
@@ -986,7 +986,7 @@ rate1  <- sapply(binning, function(x) sum(tszb1$res>x) )
 ```{r message = F, echo = F}
 
 tszb2 <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,10,0)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),10,0),
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1025,7 +1025,7 @@ rate2  <- sapply(binning, function(x) sum(tszb2$res>x) )
 ```{r message = F, echo = F}
 
 tszb3 <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1056,7 +1056,7 @@ rate3  <- sapply(binning, function(x) sum(tszb3$res>x) )
 ```{r message = F, echo = F}
 
 tszb4 <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1081,7 +1081,7 @@ rate4  <- sapply(binning, function(x) sum(tszb4$res>x) )
 ```{r message = F, echo = F}
 
 tszb5 <- with(tszb,data.frame( ptRef,
-                           abs(msb(theta,7,2)) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            abs(sat(dPhi12,7)),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1200,7 +1200,7 @@ type | $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S
 
 vars3p <- with(vars,data.frame( muPtGenInv,
                                 ptTrg,
-                           msb(abs(theta),7,0) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,0),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,10)),
                            abs(sat(dPhi34,10)),
@@ -1236,7 +1236,7 @@ invisible( capture.output( modelFit3p <- ranger(f3, data=trainSet3p, importance=
 
 vars5p <- with(vars,data.frame( muPtGenInv,
                                 ptTrg,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,10)),10,3),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1267,7 +1267,7 @@ invisible( capture.output( modelFit5p <- ranger(f4, data=trainSet5p, importance=
 
 vars5pp <- with(vars,data.frame( muPtGenInv,
                                  ptTrg,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,10)),10,3),
                            msb(abs(sat(dPhi23,8)),8,3),
                            msb(abs(sat(dPhi34,8)),8,3),
@@ -1296,7 +1296,7 @@ invisible( capture.output( modelFit5pp <- ranger(f4, data=trainSet5pp, importanc
 ```{r message = F, echo = F}
 
 tszb3p <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,0) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,0),
                            abs(sat(dPhi12,10)),
                            abs(sat(dPhi23,10)),
                            abs(sat(dPhi34,10)),
@@ -1328,7 +1328,7 @@ rate3p  <- sapply(binning, function(x) sum(tszb3p$res>x) )
 ```{r message = F, echo = F}
 
 tszb5p <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,10)),10,3),
                            abs(sat(dPhi23,5)),
                            abs(sat(dPhi34,5)),
@@ -1354,7 +1354,7 @@ rate5p  <- sapply(binning, function(x) sum(tszb5p$res>x) )
 ```{r message = F, echo = F}
 
 tszb5pp <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,10)),10,3),
                            msb(abs(sat(dPhi23,8)),8,3),
                            msb(abs(sat(dPhi34,8)),8,3),
@@ -1619,7 +1619,7 @@ type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^
 
 vars6 <- with(vars,data.frame( muPtGenInv,
                                ptTrg,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,9)),9,2),
                            msb(abs(sat(dPhi23,8)),8,3),
                            msb(abs(sat(dPhi34,8)),8,3),
@@ -1650,7 +1650,7 @@ invisible( capture.output( modelFit6 <- ranger(f4, data=trainSet6, importance="i
 
 vars7 <- with(vars,data.frame( muPtGenInv,
                                ptTrg,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,9)),9,2),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
@@ -1678,7 +1678,7 @@ invisible( capture.output( modelFit7 <- ranger(f4, data=trainSet7, importance="i
 ```{r message = F, echo = F}
 
 tszb6 <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,9)),9,2),
                            msb(abs(sat(dPhi23,8)),8,3),
                            msb(abs(sat(dPhi34,8)),8,3),
@@ -1704,7 +1704,7 @@ rate6  <- sapply(binning, function(x) sum(tszb6$res>x) )
 ```{r message = F, echo = F}
 
 tszb7 <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,2) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,2),
                            msb(abs(sat(dPhi12,9)),9,2),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
@@ -1909,7 +1909,7 @@ type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^
 
 vars8 <- with(vars,data.frame( muPtGenInv,
                                ptTrg,
-                           msb(abs(theta),7,3) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,3),
                            msb(abs(sat(dPhi12,10)),10,2),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
@@ -1940,7 +1940,7 @@ invisible( capture.output( modelFit8 <- ranger(f4, data=trainSet8, importance="i
 
 vars9 <- with(vars,data.frame( muPtGenInv,
                                ptTrg,
-                           msb(abs(theta),7,3) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,3),
                            msb(abs(sat(dPhi12,9)),9,1),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
@@ -1968,7 +1968,7 @@ invisible( capture.output( modelFit9 <- ranger(f4, data=trainSet9, importance="i
 ```{r message = F, echo = F}
 
 tszb8 <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,3) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,3),
                            msb(abs(sat(dPhi12,10)),10,2),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
@@ -1994,7 +1994,7 @@ rate8  <- sapply(binning, function(x) sum(tszb8$res>x) )
 ```{r message = F, echo = F}
 
 tszb9 <- with(tszb,data.frame( ptRef,
-                           msb(abs(theta),7,3) + ifelse(ring1==1 || ring1==4, 0, 6),
+                           msb(theta + ifelse(ring1==1 || ring1==4, 0, 6),7,3),
                            msb(abs(sat(dPhi12,9)),9,1),
                            msb(abs(sat(dPhi23,7)),7,2),
                            msb(abs(sat(dPhi34,7)),7,2),
