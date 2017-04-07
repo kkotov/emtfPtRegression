@@ -23,8 +23,8 @@ address2predictors15 <- function(address){
   df$dPhi12 <- bitwShiftL(bitwAnd(bitwShiftR(address,0),    0x7F),2)
   df$dPhi23 <- bitwShiftL(bitwAnd(bitwShiftR(address,0+7),  0x1F),2)
   df$dPhi34 <- bitwShiftL(bitwAnd(bitwShiftR(address,0+7+5),0x1F),2)
-  df$dPhi23 <- df$dPhi23 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5),  0x1)==1, -1 , 1)
-  df$dPhi34 <- df$dPhi34 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5+1),0x1)==1, -1 , 1)
+  df$dPhi23 <- df$dPhi23 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5),  0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
+  df$dPhi34 <- df$dPhi34 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5+1),0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
   df$dPhi13 <- df$dPhi12 + df$dPhi23
   df$dPhi14 <- df$dPhi12 + df$dPhi23 + df$dPhi34
   df$dPhi24 <- df$dPhi23 + df$dPhi34
@@ -43,24 +43,26 @@ address2predictors15 <- function(address){
   df$fr3 <- 0
   df$fr4 <- 0
   df$theta <- bitwAnd(bitwShiftR(address,0+7+5+5+1+1+2+2+1),0x1F)
-  df$ring1 <- ifelse(df$theta>50, rep(2,dim(df)[2]),rep(1,dim(df)[2]))
+  df$ring1 <- ifelse(df$theta>50, rep(2,length(address)),rep(1,length(address)))
   df$theta <- ifelse(df$ring==2, df$theta-6, df$theta)
   df
 }
 
 compressPredictors <- function(df){
   comp <- data.frame( theta = msb(df$theta + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2) )
-  comp$dPhi12 <- msb(abs(sat(df$dPhi12,9)),9,2),
-  comp$dPhi23 <- msb(abs(sat(df$dPhi23,7)),7,2),
-  comp$dPhi34 <- msb(abs(sat(df$dPhi34,7)),7,2),
-  comp$sPhi123 <- as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
-  comp$sPhi134 <- as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
-  comp$dPhi13 <- msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,1,-1)*msb(abs(sat(dPhi23,7)),7,2)
-  comp$dPhi14 <- msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,1,-1)*msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,1,-1)*msb(abs(sat(dPhi34,7)),7,2)
-  comp$dPhi24 <- msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,1,-1)*msb(abs(sat(dPhi34,7)),7,2)
-abs(sat(dTheta14,2)),
-  comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
-  comp fr1
+  comp$zero <- 0
+  comp$one  <- 0
+  comp$dPhi12 <- msb(abs(sat(df$dPhi12,9)),9,2)
+  comp$dPhi23 <- msb(abs(sat(df$dPhi23,7)),7,2)
+  comp$dPhi34 <- msb(abs(sat(df$dPhi34,7)),7,2)
+  comp$sPhi123 <- as.factor(ifelse(df$dPhi23*df$dPhi12>=0,comp$zero,comp$one))
+  comp$sPhi134 <- as.factor(ifelse(df$dPhi34*df$dPhi12>=0,comp$zero,comp$one))
+  comp$dPhi13 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(df$dPhi23*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2)
+  comp$dPhi14 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(df$dPhi23*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
+  comp$dPhi24 <- msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
+  comp$dTheta14 <- abs(sat(df$dTheta14,2))
+  comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1]
+  comp$fr1
   comp
 }
 
