@@ -1,21 +1,19 @@
 #source("utils.R")
 
-sat <- function(x, n){ m <- bitwShiftL(1L,n)-1 ; y <- x ; y[ y>m ] = m ; y[ y < -m ] = -m ; y }
-
 predictors2address15 <- function(df){
   # df should contain full precision: theta, ring1, dPhi12, dPhi23, dPhi34, dTheta14, clct1, fr1
   # set highest bit [29:29] to indicate this was mode_inv=15
-  address <- rep(0x20000000,nrow(df))
+  address <- rep(0x00000000,nrow(df))
   # truncate precision
-  address <- bitwOr(address, bitwShiftL(bitwAnd(bitwShiftR(msb(abs(sat(df$dPhi12,9)),9,2),2) ,0x7F),0) )
-  address <- bitwOr(address, bitwShiftL(bitwAnd(bitwShiftR(msb(abs(sat(df$dPhi23,7)),7,2),2) ,0x1F),0+7) )
-  address <- bitwOr(address, bitwShiftL(bitwAnd(bitwShiftR(msb(abs(sat(df$dPhi34,7)),7,2),2) ,0x1F),0+7+5) )
-  address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi23*df$dPhi12>=0,0,1),0+7+5+5) )
-  address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi34*df$dPhi12>=0,0,1),0+7+5+5+1) )
+  address <- bitwOr(address, bitwShiftL(bitwAnd(msb(abs(sat(df$dPhi12,9)),9,2),0x7F),0) )
+  address <- bitwOr(address, bitwShiftL(bitwAnd(msb(abs(sat(df$dPhi23,7)),7,2),0x1F),0+7) )
+  address <- bitwOr(address, bitwShiftL(bitwAnd(msb(abs(sat(df$dPhi34,7)),7,2),0x1F),0+7+5) )
+  address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi23*df$dPhi12>=0,rep(0,dim(df)[2]),rep(1,dim(df)[2])),0+7+5+5) )
+  address <- bitwOr(address, bitwShiftL(ifelse(df$dPhi34*df$dPhi12>=0,rep(0,dim(df)[2]),rep(1,dim(df)[2])),0+7+5+5+1) )
   address <- bitwOr(address, bitwShiftL(sat(abs(df$dTheta14),2),0+7+5+5+1+1) )
   address <- bitwOr(address, bitwShiftL(c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1],0+7+5+5+1+1+2) ) # factor with integer levels is ok here
   address <- bitwOr(address, bitwShiftL(bitwAnd(as.integer(as.character(df$fr1)),0x1),0+7+5+5+1+1+2+2) )
-  address <- bitwOr(address, bitwShiftL(bitwAnd(bitwShiftR(msb(abs(theta) + c(0,6,6,0)[as.integer(as.character(ring1))],7,2),2),0x1F),0+7+5+5+1+1+2+2+1) )
+  address <- bitwOr(address, bitwShiftL(bitwAnd(msb(abs(df$theta) + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2),0x1F),0+7+5+5+1+1+2+2+1) )
   address
 }
 
@@ -47,6 +45,7 @@ address2predictors15 <- function(address){
   df$theta <- bitwAnd(bitwShiftR(address,0+7+5+5+1+1+2+2+1),0x1F)
   df$ring1 <- ifelse(df$theta>50, rep(2,dim(df)[2]),rep(1,dim(df)[2]))
   df$theta <- ifelse(df$ring==2, df$theta-6, df$theta)
+  df
 }
 
 generatePtLUT15 <- function(modelFit){
