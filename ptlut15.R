@@ -48,6 +48,22 @@ address2predictors15 <- function(address){
   df
 }
 
+compressPredictors <- function(df){
+  comp <- data.frame( theta = msb(df$theta + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2) )
+  comp$dPhi12 <- msb(abs(sat(df$dPhi12,9)),9,2),
+  comp$dPhi23 <- msb(abs(sat(df$dPhi23,7)),7,2),
+  comp$dPhi34 <- msb(abs(sat(df$dPhi34,7)),7,2),
+  comp$sPhi123 <- as.factor(ifelse(dPhi23*dPhi12>=0,0,1)),
+  comp$sPhi134 <- as.factor(ifelse(dPhi34*dPhi12>=0,0,1)),
+  comp$dPhi13 <- msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,1,-1)*msb(abs(sat(dPhi23,7)),7,2)
+  comp$dPhi14 <- msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,1,-1)*msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,1,-1)*msb(abs(sat(dPhi34,7)),7,2)
+  comp$dPhi24 <- msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,1,-1)*msb(abs(sat(dPhi34,7)),7,2)
+abs(sat(dTheta14,2)),
+  comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1]
+  comp fr1
+  comp
+}
+
 generatePtLUT15 <- function(modelFit){
   space <- data.frame(address=0:(bitwShiftL(1L,20)-1))
   df <- as.data.frame( apply(space,2,function(x){address2predictors15(x)}) )
