@@ -143,6 +143,9 @@ testSetZB <- with(subset(zb,mode==15), data.frame(
 
 tszb <- testSetZB[-which(is.na(testSetZB$clct1) | is.na(testSetZB$clct2) | is.na(testSetZB$clct3) | is.na(testSetZB$clct4) ),]
 
+tszb$zero <- 0
+tszb$one  <- 1
+
 invisible( capture.output( tszb$res <- 1/predict(modelFit,tszb)$predictions ) )
 
 ```
