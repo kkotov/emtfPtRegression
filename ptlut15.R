@@ -23,8 +23,10 @@ address2predictors15 <- function(address){
   df$dPhi12 <- bitwShiftL(bitwAnd(bitwShiftR(address,0),    0x7F),2)
   df$dPhi23 <- bitwShiftL(bitwAnd(bitwShiftR(address,0+7),  0x1F),2)
   df$dPhi34 <- bitwShiftL(bitwAnd(bitwShiftR(address,0+7+5),0x1F),2)
-  df$dPhi23 <- df$dPhi23 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5),  0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
-  df$dPhi34 <- df$dPhi34 * ifelse( bitwAnd(bitwShiftR(address,0+7+5+5+1),0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
+  df$sPhi123 <- ifelse( bitwAnd(bitwShiftR(address,0+7+5+5),  0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
+  df$sPhi134 <- ifelse( bitwAnd(bitwShiftR(address,0+7+5+5+1),0x1)==1, rep(-1,length(address)) , rep(1,length(address)))
+  df$dPhi23 <- df$dPhi23 * df$sPhi123
+  df$dPhi34 <- df$dPhi34 * df$sPhi134
   df$dPhi13 <- df$dPhi12 + df$dPhi23
   df$dPhi14 <- df$dPhi12 + df$dPhi23 + df$dPhi34
   df$dPhi24 <- df$dPhi23 + df$dPhi34
@@ -51,7 +53,7 @@ address2predictors15 <- function(address){
 compressPredictors <- function(df){
   comp <- data.frame( theta = msb(df$theta + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2) )
   comp$zero <- 0
-  comp$one  <- 0
+  comp$one  <- 1
   comp$dPhi12 <- msb(abs(sat(df$dPhi12,9)),9,2)
   comp$dPhi23 <- msb(abs(sat(df$dPhi23,7)),7,2)
   comp$dPhi34 <- msb(abs(sat(df$dPhi34,7)),7,2)
@@ -62,28 +64,29 @@ compressPredictors <- function(df){
   comp$dPhi24 <- msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
   comp$dTheta14 <- abs(sat(df$dTheta14,2))
   comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1]
-  comp$fr1
+  comp$fr1 <- df$fr1
   comp
 }
 
 generatePtLUT15 <- function(modelFit){
-  space <- data.frame(address=0:(bitwShiftL(1L,20)-1))
+  space <- data.frame(address=0:(bitwShiftL(1L,21)-1))
   df <- as.data.frame( apply(space,2,function(x){address2predictors15(x)}) )
   colnames(df) <- sub("address\\.","",colnames(df))
   # iterate manually over the rest of the predictors:
   address_high = 0
-  max_addr_high = bitwShiftL(1L,2+2+1+4)
+  max_addr_high = bitwShiftL(1L,2+1+5)
+  df$one <- 1
 
   while( address_high < max_addr_high ){
-    df$dTheta14  <- bitwAnd(bitwShiftR(address_high,0),0x3)
-    df$clct1     <- factor( c(3,5,7,10)[bitwAnd(bitwShiftR(address_high,0+2),0x3)+1], levels=c(3,5,7,10) )
-    df$fr1       <- bitwAnd(bitwShiftR(address_high,0+2+2),0x1)
-    df$theta     <- bitwAnd(bitwShiftR(address_high,0+2+2+1),0xF)
-    df$dPhi13    <- df$dPhi12 + ifelse(df$sPhi123, -1, 1) * df$dPhi23
-    df$dPhi14    <- df$dPhi12 + ifelse(df$sPhi123, -1, 1) * df$dPhi23 + ifelse(df$sPhi134, -1, 1) * df$dPhi34
-    df$dPhi24    <- df$dPhi23 + ifelse(df$sPhi134, -1, 1) * df$dPhi34
+    df$clct1     <- factor( c(3,5,7,10)[bitwAnd(bitwShiftR(address_high,0),0x3)+1], levels=c(3,5,7,10) )
+    df$fr1       <- bitwAnd(bitwShiftR(address_high,0+2),0x1)
+    df$theta     <- bitwAnd(bitwShiftR(address_high,0+2+1),0x1F)
 
-    print(paste("dTheta14=",df[1,"dTheta14"],"clct1=",df[1,"clct1"],"fr1=",df[1,"fr1"],"theta=",df[1,"theta"]))
+    df$dPhi13    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23
+    df$dPhi14    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
+    df$dPhi24    <- df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
+
+    print(paste("clct1=",df[1,"clct1"],"fr1=",df[1,"fr1"],"theta=",df[1,"theta"]))
     write.table(file=paste("lut15_",address_high,".txt",sep=""), x = cbind(space, round(1/predict(modelFit,df)$predictions,2)), row.names=F, col.names=F )
     print(paste("Finished ",address_high) )
 
