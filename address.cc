@@ -1,6 +1,6 @@
 #include<tuple>
 
-unsigned int sat(unsigned int x, unsigned int n){ unsigned int m = (1<<n)-1; if(x>m) return m; if(x<-m) return -m; return x; }
+int sat(int x, unsigned int n){ int m = (1<<n)-1; if(x>m) return m; if(x<-m) return -m; return x; }
 unsigned int lsb(unsigned int x, unsigned int n){ return (x&((1<<n)-1)); }
 unsigned int msb(unsigned int x, unsigned int n, unsigned int m){ return (x>>m)&((1<<(n+1-m))-1); }
 
@@ -15,9 +15,9 @@ unsigned int predictors2address15(int dPhi12, int dPhi23, int dPhi34, int dTheta
   address |= (dPhi23*dPhi12>=0?0:1) << (7+5+5);
   address |= (dPhi34*dPhi12>=0?0:1) << (7+5+5+1);
   address |= (sat(abs(dTheta14),2) & 0x3) << (7+5+5+1+1);
-  address |= ((const int[]){0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0})[(clct1&0xF)] << (7+5+5+1+1+2);
+  address |= ((const int[]){0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0}[(clct1&0xF)]) << (7+5+5+1+1+2);
   address |= fr1 << (0+7+5+5+1+1+2+2);
-  address |= (msb(theta + c(0,0,6,6,0)[ring1],7,2)&0x1F) << (0+7+5+5+1+1+2+2+1);
+  address |= (msb(theta + (const int[]){0,0,6,6,0}[ring1],7,2)&0x1F) << (0+7+5+5+1+1+2+2+1);
   return address;
 }
 

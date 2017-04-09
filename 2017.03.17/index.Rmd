@@ -39,7 +39,7 @@ and turn-ons for "myModel"$^{**}$ and EMTF ("baseline"):
 ```{r message = F, echo = F}
 mode_inv <- 15
 mode = c(0, 0, 12, 0, 10, 5, 14, 0, 9, 5, 13, 3, 11, 7, 15)
-df <- read.csv(file="../../pt/SingleMu_Pt1To1000_FlatRandomOneOverPt_plusRPC.csv",header=T,sep=',')
+df <- read.csv(file="../../pt/SingleMu_Pt1To1000_FlatRandomOneOverPt_plusRPC_2.csv",header=T,sep=',')
 d1 <- df[df[,"mode.0."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".0.",colnames(df),fixed=T) ) ]
 d2 <- df[df[,"mode.1."]==mode[mode_inv], c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".1.",colnames(df),fixed=T) ) ]
 colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
@@ -52,11 +52,12 @@ require(ranger)
 # https://github.com/jiafulow/L1TriggerSep2016/blob/master/L1TMuonEndCap/src/PtAssignmentEngineAux.cc#L352-L353
 
 vars <- with(d,data.frame( 1/muPtGen,
-                           ( ifelse( 2*atan(exp(-muEtaGen))<3.1415927/2,
-                                     2*atan(exp(-muEtaGen)),
-                                     3.1415927-2*atan(exp(-muEtaGen))
-                             ) * 180/3.1415927 - 8.5
-                           ) * 128 / (45.0-8.5),
+                           theta_i,
+#                           as.integer(( ifelse( 2*atan(exp(-muEtaGen))<3.1415927/2,
+#                                     2*atan(exp(-muEtaGen)),
+#                                     3.1415927-2*atan(exp(-muEtaGen))
+#                             ) * 180/3.1415927 - 8.5
+#                           ) * 128 / (45.0-8.5)),
                            factor(ring1,levels=c(1,2,4)),
                            pt,
                            mypt,
