@@ -87,7 +87,11 @@ generatePtLUT15 <- function(modelFit){
     df$dPhi24    <- df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
 
     print(paste("clct1=",df[1,"clct1"],"fr1=",df[1,"fr1"],"theta=",df[1,"theta"]))
-    write.table(file=paste("lut15_",address_high,".txt",sep=""), x = cbind(space, round(1/predict(modelFit,df)$predictions,2)), row.names=F, col.names=F )
+    write.table(file = paste("lut15_",address_high,".txt",sep=""),
+                x = cbind(space, round(1/predict(modelFit,compressPredictors(df))$predictions,2)),
+                row.names = F,
+                col.names = F
+    )
     print(paste("Finished ",address_high) )
 
     address_high <- address_high + 1
