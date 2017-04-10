@@ -44,7 +44,7 @@ address2predictors15 <- function(address){
   df$fr2 <- 0
   df$fr3 <- 0
   df$fr4 <- 0
-  df$theta <- bitwAnd(bitwShiftR(address,0+7+5+5+1+1+2+2+1),0x1F)
+  df$theta <- bitwShiftL(bitwAnd(bitwShiftR(address,0+7+5+5+1+1+2+2+1),0x1F),2)
   df$ring1 <- ifelse(df$theta>50, rep(2,length(address)),rep(1,length(address)))
   df$theta <- ifelse(df$ring1==2, df$theta-6, df$theta)
   df
