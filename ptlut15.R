@@ -80,7 +80,7 @@ generatePtLUT15 <- function(modelFit){
   while( address_high < max_addr_high ){
     df$clct1     <- factor( c(3,5,7,10)[bitwAnd(bitwShiftR(address_high,0),0x3)+1], levels=c(3,5,7,10) )
     df$fr1       <- bitwAnd(bitwShiftR(address_high,0+2),0x1)
-    df$theta     <- bitwAnd(bitwShiftR(address_high,0+2+1),0x1F)
+    df$theta     <- bitwShiftL(bitwAnd(bitwShiftR(address_high,0+2+1),0x1F),2)
 
     df$dPhi13    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23
     df$dPhi14    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
