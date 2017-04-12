@@ -35,9 +35,6 @@
     <h2></h2>
     <p>Khristian Kotov<br/></p>
   </hgroup>
-    <a href="https://github.com/kkotov/emtfPtRegression/zipball/gh-pages" class="example">
-     Download
-    </a>
   <article></article>  
 </slide>
     
@@ -536,7 +533,7 @@ for number of bits for predictors are used:</p>
     <h2>Summary</h2>
   </hgroup>
   <article data-timings="">
-    <p>The best compression scheme appears to be scheme #7 (compatible with 
+    <p>The best compression scheme appears to be scheme #7 (inspired by 
 <a href="https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf">Andrew&#39;s proposal</a>):</p>
 
 <table><thead>
@@ -575,7 +572,11 @@ for number of bits for predictors are used:</p>
 
 <p>I didn&#39;t show most of the performance plots, but I can assure you that \(fr1\) is important</p>
 
-<p>Now I&#39;ll move on modes other then #15 and include RPCs</p>
+<p><a href="https://github.com/kkotov/framework/blob/master/workdir/Analyser.cc#L12-L38">An example</a> of using the new pT LUT is awailable in my <a href="http://koskot77.github.io/framework/">processing tool</a></p>
+
+<p>The current version of the pT LUT is currently present on my eos:</p>
+
+<p><code>/store/user/kkotov/lut15.txt</code> (an update is imminent today)</p>
 
   </article>
   <!-- Presenter Notes -->
