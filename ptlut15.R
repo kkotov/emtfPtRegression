@@ -64,7 +64,7 @@ compressPredictors <- function(df){
   comp$dPhi24 <- msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
   comp$dTheta14 <- abs(sat(df$dTheta14,2))
   comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1]
-  comp$fr1 <- df$fr1
+  comp$fr1 <- factor(as.integer(as.character(df$fr1)),levels=c(0,1))
   comp
 }
 
