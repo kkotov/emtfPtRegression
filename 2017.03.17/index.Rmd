@@ -221,8 +221,12 @@ truePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
                        axis.title.x = element_text(size=15),
                        axis.text.x  = element_text(size=15)
                  ) +
-                 labs(x = expression(paste(p[T] ^{true}," (GeV/c)")),
+                 labs(x = expression(paste(p[T] ^{thr.}," (GeV/c)")),
                       y = "true positive"
+                 ) +
+                 scale_colour_manual(values = c("myModel" = "#F8766D", "baseline" = "#00BFC4"),
+                                     breaks = c("myModel", "baseline"),
+                                     labels = c("myModel", "baseline")
                  )
 
 falsePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
@@ -237,8 +241,12 @@ falsePosPlot <- ggplot(data.frame(pT = c( binning, binning ),
                       axis.title.x = element_text(size=15),
                       axis.text.x  = element_text(size=15)
                 ) +
-                labs(x = expression(paste(p[T] ^{true}," (GeV/c)")),
+                labs(x = expression(paste(p[T] ^{thr.}," (GeV/c)")),
                      y = "false positive"
+                ) +
+                scale_colour_manual(values = c("myModel" = "#F8766D", "baseline" = "#00BFC4"),
+                                    breaks = c("myModel", "baseline"),
+                                    labels = c("myModel", "baseline")
                 ) +
                 scale_y_log10()
 
@@ -2194,7 +2202,7 @@ Trade-off: getting better at higer pT (bottom-left) means loosing at low pT (top
 
 ## Summary
 
-The best compression scheme appears to be scheme #7 (compatible with 
+The best compression scheme appears to be scheme #7 (inspired by
 [Andrew's proposal](https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf)):
 
 type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{14}$ | clct | fr
@@ -2207,4 +2215,70 @@ type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^
 
 I didn't show most of the performance plots, but I can assure you that $fr1$ is important
 
-Now I'll move on modes other then #15 and include RPCs
+[An example](https://github.com/kkotov/framework/blob/master/workdir/Analyser.cc#L12-L38)
+of using the new pT LUT is available in my [processing tool](http://koskot77.github.io/framework/)
+
+The current version of the pT LUT is currently present on my eos:
+
+`/store/user/kkotov/lut15.txt`
+
+--- .class #id
+
+## Summary (2)
+
+```{r, fig.height=4., fig.width=8., fig.align = 'center', comment = NA, message = F, echo = F, dev='svg'}
+
+uncompROCdf   <- data.frame( truePos  = roc[["myEff"]],
+                             falsePos = roc[["myFake"]],
+                             model    = rep("uncompressed",nBins)
+                 )
+refROCdf     <- data.frame( truePos  = roc[["refEff"]],
+                            falsePos = roc[["refFake"]],
+                            model    = rep("reference",nBins)
+                )
+
+compsFinalDF <- comp7ROCdf
+compsFinalDF <- rbind(compsFinalDF,uncompROCdf)
+compsFinalDF <- rbind(compsFinalDF,refROCdf)
+
+compsFinalPlot <- ggplot(compsFinalDF, aes(y = truePos, x = falsePos, group = model, colour = model)) +
+        geom_line() +
+        geom_point(shape=1,size=0.1) +
+        theme(
+            title = element_text(size=15),
+            axis.title.x = element_text(size=15),
+            axis.text.x  = element_text(size=15),
+            legend.position = c(.20, .78),
+            legend.background = element_rect(fill = 'grey92', colour = 'black', size=0),
+            legend.text=element_text(size=rel(1.2)),
+            legend.title=element_blank()  #element_text(size=rel(0.8), face="bold", hjust=0)
+        ) +
+        labs( y="true positive",
+              x="false positive",
+              title="ROC curves"
+        ) +
+        scale_colour_manual(values = c(
+                                       "uncompressed" = "#CD9600",
+                                       "reference"    = "#00BE67",
+                                       "scheme #7"    = "#00A9FF"
+                                     ),
+                            breaks = c(
+                                       "uncompressed",
+                                       "reference",
+                                       "scheme #7"
+                                     ),
+                            labels = c(
+                                       "uncomressed",
+                                       "reference",
+                                       "scheme #7"
+                                     )
+        ) +
+        scale_x_log10(limits = c(0.0001,1))
+
+
+suppressWarnings( invisible( capture.output( 
+  compsFinalPlot + ylim(0.75,1)
+) ) )
+
+```
+
