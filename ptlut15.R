@@ -52,7 +52,7 @@ address2predictors15 <- function(address){
   df
 }
 
-compressPredictors <- function(df, ...){
+compressPredictors <- function(df){
   comp <- data.frame( theta = msb(df$theta + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2) )
   comp$zero <- 0
   comp$one  <- 1
@@ -62,12 +62,12 @@ compressPredictors <- function(df, ...){
 
   comp$sPhi123 <- factor(ifelse(df$dPhi23*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
   comp$sPhi134 <- factor(ifelse(df$dPhi34*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
-  # override previous lines if corresponding arguments are given
-  if( "sPhi123" %in% names(list(...)) ){
-    comp$sPhi123 <- list(...)[["sPhi123"]]
+  # override previous lines if corresponding fields are explicitly present as input
+  if( "sPhi123" %in% colnames(df) ){
+    comp$sPhi123 <- df$sPhi123
   }
-  if( "sPhi134" %in% names(list(...)) ){
-    comp$sPhi134 <- list(...)[["sPhi134"]]
+  if( "sPhi134" %in% colnames(df) ){
+    comp$sPhi134 <- df$sPhi134
   }
 
   comp$dPhi13 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(comp$sPhi123==0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2)
