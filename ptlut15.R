@@ -63,11 +63,10 @@ compressPredictors <- function(df, ...){
   comp$sPhi123 <- factor(ifelse(df$dPhi23*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
   comp$sPhi134 <- factor(ifelse(df$dPhi34*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
   # override previous lines if corresponding arguments are given
-print(list(...))
-  if( "sPhi123" %in% list(...) ){
+  if( "sPhi123" %in% names(list(...)) ){
     comp$sPhi123 <- list(...)[["sPhi123"]]
   }
-  if( "sPhi134" %in% list(...) ){
+  if( "sPhi134" %in% names(list(...)) ){
     comp$sPhi134 <- list(...)[["sPhi134"]]
   }
 
