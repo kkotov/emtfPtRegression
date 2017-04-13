@@ -86,7 +86,7 @@ generatePtLUT15 <- function(modelFit){
   colnames(df) <- sub("address\\.","",colnames(df))
   # iterate manually over the rest of the predictors:
   address_high = 0
-  max_addr_high = 64 #bitwShiftL(1L,2+1+5)
+  max_addr_high = bitwShiftL(1L,2+1+5)
   df$one <- 1
 
   while( address_high < max_addr_high ){
