@@ -86,7 +86,7 @@ generatePtLUT15 <- function(modelFit){
   colnames(df) <- sub("address\\.","",colnames(df))
   # iterate manually over the rest of the predictors:
   address_high = 0
-  max_addr_high = bitwShiftL(1L,2+1+5)
+  max_addr_high = 64 #bitwShiftL(1L,2+1+5)
   df$one <- 1
 
   while( address_high < max_addr_high ){
@@ -94,9 +94,9 @@ generatePtLUT15 <- function(modelFit){
     df$fr1       <- bitwAnd(bitwShiftR(address_high,0+2),0x1)
     df$theta     <- bitwShiftL(bitwAnd(bitwShiftR(address_high,0+2+1),0x1F),2)
 
-    df$dPhi13    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23
-    df$dPhi14    <- df$dPhi12 + ifelse(df$sPhi123, -df$one, df$one) * df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
-    df$dPhi24    <- df$dPhi23 + ifelse(df$sPhi134, -df$one, df$one) * df$dPhi34
+    df$dPhi13    <- df$dPhi12 + ifelse(df$sPhi123==1, -df$one, df$one) * df$dPhi23
+    df$dPhi14    <- df$dPhi12 + ifelse(df$sPhi123==1, -df$one, df$one) * df$dPhi23 + ifelse(df$sPhi134==1, -df$one, df$one) * df$dPhi34
+    df$dPhi24    <- df$dPhi23 + ifelse(df$sPhi134==1, -df$one, df$one) * df$dPhi34
 
     print(paste("clct1=",df[1,"clct1"],"fr1=",df[1,"fr1"],"theta=",df[1,"theta"]))
     write.table(file = paste("lut15_",address_high,".txt",sep=""),
