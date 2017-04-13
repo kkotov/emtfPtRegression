@@ -30,6 +30,8 @@ address2predictors15 <- function(address){
   df$dPhi13 <- df$dPhi12 + df$dPhi23
   df$dPhi14 <- df$dPhi12 + df$dPhi23 + df$dPhi34
   df$dPhi24 <- df$dPhi23 + df$dPhi34
+  df$sPhi123 <- factor( ifelse(df$sPhi123==1,rep(0,length(address)),rep(1,length(address))), levels=c(0,1) )
+  df$sPhi134 <- factor( ifelse(df$sPhi134==1,rep(0,length(address)),rep(1,length(address))), levels=c(0,1) )
   df$dTheta12 <- 0
   df$dTheta23 <- 0
   df$dTheta34 <- 0
@@ -50,18 +52,29 @@ address2predictors15 <- function(address){
   df
 }
 
-compressPredictors <- function(df){
+compressPredictors <- function(df, ...){
   comp <- data.frame( theta = msb(df$theta + c(0,6,6,0)[as.integer(as.character(df$ring1))],7,2) )
   comp$zero <- 0
   comp$one  <- 1
   comp$dPhi12 <- msb(abs(sat(df$dPhi12,9)),9,2)
   comp$dPhi23 <- msb(abs(sat(df$dPhi23,7)),7,2)
   comp$dPhi34 <- msb(abs(sat(df$dPhi34,7)),7,2)
+
   comp$sPhi123 <- factor(ifelse(df$dPhi23*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
   comp$sPhi134 <- factor(ifelse(df$dPhi34*df$dPhi12>=0,comp$zero,comp$one),levels=c(0,1))
-  comp$dPhi13 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(df$dPhi23*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2)
-  comp$dPhi14 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(df$dPhi23*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
-  comp$dPhi24 <- msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(df$dPhi34*df$dPhi12>=0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
+  # override previous lines if corresponding arguments are given
+print(list(...))
+  if( "sPhi123" %in% list(...) ){
+    comp$sPhi123 <- list(...)[["sPhi123"]]
+  }
+  if( "sPhi134" %in% list(...) ){
+    comp$sPhi134 <- list(...)[["sPhi134"]]
+  }
+
+  comp$dPhi13 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(comp$sPhi123==0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2)
+  comp$dPhi14 <- msb(abs(sat(df$dPhi12,9)),9,2) + ifelse(comp$sPhi123==0,comp$one,-comp$one)*msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(comp$sPhi134==0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
+  comp$dPhi24 <- msb(abs(sat(df$dPhi23,7)),7,2) + ifelse(comp$sPhi134==0,comp$one,-comp$one)*msb(abs(sat(df$dPhi34,7)),7,2)
+
   comp$dTheta14 <- abs(sat(df$dTheta14,2))
   comp$clct1 <- c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(df$clct1)),0xF)+1]
   comp$fr1 <- factor(as.integer(as.character(df$fr1)),levels=c(0,1))
