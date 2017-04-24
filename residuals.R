@@ -1,10 +1,6 @@
 require("gridExtra")
 
-plot.residuals <- function(modelFit, cutoff=30, binning = seq(-2,5,0.1), inverse=F){ 
-    results <- data.frame( ptTrue = 1/testSet$muPtGenInv,
-                           myPt   = 1/predict(modelFit,testSet[,-POI])$predictions,
-                           refPt  = testSet[,"ptTrg"]
-               )
+plot.residuals <- function(results, cutoff = 30, binning = seq(-2,5,0.1), inverse = F){ 
 
     if( inverse ){
         reference <- data.frame( observable = 1/results$ptTrue,
@@ -17,8 +13,8 @@ plot.residuals <- function(modelFit, cutoff=30, binning = seq(-2,5,0.1), inverse
                                  delta      = with(results, 1/myPt - 1/ptTrue),
                                  deltaRel   = with(results, ptTrue/myPt -1)
                                )
-        reference <- reference[ reference$observable>cutoff, ]
-        myModel   <- myModel  [   myModel$observable>cutoff, ]
+        reference <- reference[ reference$observable>1./cutoff, ]
+        myModel   <- myModel  [   myModel$observable>1./cutoff, ]
     } else {
         reference <- data.frame( observable = results$ptTrue,
                                  fitted     = results$refPt,
