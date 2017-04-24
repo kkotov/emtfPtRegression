@@ -294,19 +294,29 @@ Trade-off: getting better at higer pT (bottom-left) means loosing at low pT (top
 
 ## Summary
 
-The best compression scheme appears to be scheme #7, consistent with 
+The best compression scheme appears to be scheme #7 (inspired by
 [Andrew's proposal](https://indico.cern.ch/event/623713/contributions/2516606/subcontributions/222725/attachments/1429297/2194604/2017_03_09_EMTF_LUT_bit_assignment.pdf)):
 
 type| $\theta$ | $\Delta\phi_{12}$ | $\Delta\phi_{23}$ | $\Delta\phi_{34}$ | $S^\phi_{12,23}$ | $S^\phi_{12,34}$ | $\Delta\theta_{14}$ | clct | fr
 ----|----------|-------------------|-------------------|-------------------|------------------|------------------|---------------------|------|-----
 #7  |  [7:2]   |     [9:2]         |      [7:2]        |       [7:2]       |         1        |        1         |       [2:0]         | 2,0,0,0 | 1,0,0,0
 
-<br>
-
 * all other $\Delta\theta$ are dropped
-* predictors are unsigned and saturated (i.e. stuck to the largest allowed value if needed)
+* predictors are unsigned and saturated (i.e. stuck to the largest allowed value if above)
 * $ring1$ and $\theta$ are combined according to Andrew's proposal
 
-I didn't show most of the performance plots, but I can assure you that $fr1$ is important to keep
+I didn't show most of the performance plots, but I can assure you that $fr1$ is important
 
-Now I'll move on modes other then #15 and include RPCs
+[An example](https://github.com/kkotov/framework/blob/master/workdir/Analyser.cc#L12-L38)
+of using the new pT LUT is available in my [processing tool](http://koskot77.github.io/framework/)
+
+The current version of the pT LUT is currently present on my eos:
+
+`/store/user/kkotov/lut15.txt`
+
+--- .class #id
+
+## Summary (2)
+
+<img src="figure/unnamed-chunk-53-1.png" title="plot of chunk unnamed-chunk-53" alt="plot of chunk unnamed-chunk-53" style="display: block; margin: auto;" />
+
