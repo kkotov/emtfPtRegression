@@ -56,3 +56,52 @@ rateShapeBinned = c(1,1/seq(2,200,0.5)^3)
 binning = seq(2,200,0.5)
 nBins <- length(binning)
 
+##############################
+
+source("../utils.R")
+
+vars7 <- with(vars,data.frame( muPtGenInv,
+                               ptTrg,
+                           msb(theta + c(0,6,6,0)[as.integer(as.character(ring1))],7,2),
+                           msb(abs(sat(dPhi12,9)),9,2),
+                           msb(abs(sat(dPhi23,7)),7,2),
+                           msb(abs(sat(dPhi34,7)),7,2),
+                           as.factor(ifelse(dPhi23*dPhi12>=0,zero,one)),
+                           as.factor(ifelse(dPhi34*dPhi12>=0,zero,one)),
+                           msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,one,-one)*msb(abs(sat(dPhi23,7)),7,2), # analogous to dPhi13
+                           msb(abs(sat(dPhi12,9)),9,2) + ifelse(dPhi23*dPhi12>=0,one,-one)*msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,one,-one)*msb(abs(sat(dPhi34,7)),7,2),
+                           msb(abs(sat(dPhi23,7)),7,2) + ifelse(dPhi34*dPhi12>=0,one,-one)*msb(abs(sat(dPhi34,7)),7,2), # analogous to dPhi24
+                           abs(sat(dTheta14,2)),
+                           c(0,0,0,0,1,1,2,2,3,3,3,0,0,0,0,0)[bitwAnd(as.integer(as.character(clct1)),0xF)+1],
+                           fr1
+                             )
+         )
+
+predictors4 <- c("dPhi12", "dPhi23", "dPhi34", "sPhi123", "sPhi134", "dPhi13", "dPhi14", "dPhi24", "dTheta14", "clct1", "fr1")
+
+colnames(vars7) <- c("muPtGenInv", "ptTrg", predictors4)
+
+set.seed(1)
+
+trainSet7 <- vars7[part,]
+testSet7 <- vars7[-part,]
+
+###############################
+
+require(h2o)
+
+h2o.init(nthreads=-1)
+
+df <- as.h2o(vars7)
+
+splits <- h2o.splitFrame(df, c(0.6,0.2), seed=1234)
+train  <- h2o.assign(splits[[1]], "train.hex") # 60%
+valid  <- h2o.assign(splits[[2]], "valid.hex") # 20%
+test   <- h2o.assign(splits[[3]], "test.hex")  # 20%
+
+model <- h2o.deeplearning(x=c(3:14), y=1, training_frame = train, validation_frame = valid, input_dropout_ratio = 0.2, hidden = c(80,80), epochs = 500)
+
+pred <- as.data.frame( h2o.predict(model,test) )
+
+mse <- sum( (test$muPtGenInv - pred$predict)^2)
+
