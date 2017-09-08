@@ -23,7 +23,7 @@ sdev <- sd(testSet$muPtGenInv - predict(modelFit,testSet)$prediction)
 print(paste("mean",m," dev",sdev))
 
 skim$trainIdx <- trainIdx
-skim$ranger <- 1./predict(modelFit,skim)$prediction
+skim$ranger <- round(1./predict(modelFit,skim)$prediction,digits=6)
 write.csv(file="one.csv",skim[,-which(colnames(skim)=="muPtGenInv")], row.names=FALSE)
 colnames(skim)
 
