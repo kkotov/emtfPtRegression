@@ -53,6 +53,12 @@ int main(void){
         );
         df.rbind( DataRow(row) );
     }
+    if( input.bad() )
+    {
+        std::cerr << "Error: the input file format differs from the described one" << std::endl;
+        return 0;
+    }
+
     // countAllLevels has to be called in the end of reading input with categorical variables
     df.countAllLevels();
 
@@ -87,7 +93,7 @@ int main(void){
                  dTheta14, dPhiS4, dPhiS4A, dPhiS3, dPhiS3A, clct1, fr1, rpc1, rpc2, rpc3, rpc4 }; //outStPhi ?
 
     unsigned int responseIdx = ptGenInv;
-    rf1.train(dfTrain,predictorsIdx,responseIdx,200,std::cout);
+    rf1.train(dfTrain,predictorsIdx,responseIdx,500,std::cout);
 
     // A simple unit test for the IO
     std::ofstream file1("rf2.model");
