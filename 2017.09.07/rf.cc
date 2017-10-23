@@ -25,7 +25,7 @@ int main(void){
     csvUtils::setCommaDelim(input);
 
     // specify input format
-    std::tuple<float,float,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int,int,int,int,int,int,int,float,int,float> format;
+    std::tuple<float,float,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int,int,int,int,int,int,int,float,int,float,float> format;
     // and introduce symbolic names for the columns
     const int ptGenInv = 0, theta = 1, st1_ring2 = 2;
     const int dPhi12   = 3, dPhi13   = 4,  dPhi14   = 5,  dPhi23   = 6,  dPhi24   = 7,  dPhi34   = 8;
@@ -34,12 +34,12 @@ int main(void){
     const int clct1 = 19, clct2 = 20, clct3 = 21, clct4 = 22;
     const int fr1   = 23, fr2   = 24, fr3   = 25, fr4   = 26;
     const int rpc1  = 27, rpc2  = 28, rpc3  = 29, rpc4  = 30;
-    const int ptXML = 31, trainIdx = 32, ranger = 33;
+    const int ptXML = 31, trainIdx = 32, ranger = 33, gbm = 34;
  
     // read file to the end
     while( csvUtils::read_tuple(input,format) )
     {
-        std::tuple<float,float,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int,int,int,int,int,int,int,float,int,float> row = std::make_tuple(
+        std::tuple<float,float,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int,int,int,int,int,int,int,float,int,float,float> row = std::make_tuple(
                 1./std::get<ptGenInv>(format),  std::get<theta>(format),  std::get<st1_ring2>(format),
                 std::get<dPhi12>(format),    std::get<dPhi13>(format),   std::get<dPhi14>(format),
                 std::get<dPhi23>(format),    std::get<dPhi24>(format),   std::get<dPhi34>(format),
@@ -49,7 +49,7 @@ int main(void){
                 std::get<clct1>(format),  std::get<clct2>(format),   std::get<clct3>(format),  std::get<clct4>(format),
                 std::get<fr1>(format),    std::get<fr2>(format),     std::get<fr3>(format),    std::get<fr4>(format),
                 std::get<rpc1>(format),   std::get<rpc2>(format),    std::get<rpc3>(format),   std::get<rpc4>(format),
-                std::get<ptXML>(format),  std::get<trainIdx>(format),std::get<ranger>(format)
+                std::get<ptXML>(format),  std::get<trainIdx>(format),std::get<ranger>(format), std::get<gbm>(format)
         );
         df.rbind( DataRow(row) );
     }
@@ -87,10 +87,10 @@ int main(void){
                  dTheta14, dPhiS4, dPhiS4A, dPhiS3, dPhiS3A, clct1, fr1, rpc1, rpc2, rpc3, rpc4 }; //outStPhi ?
 
     unsigned int responseIdx = ptGenInv;
-    rf1.train(dfTrain,predictorsIdx,responseIdx,200,std::cout);
+    rf1.train(dfTrain,predictorsIdx,responseIdx,500,std::cout);
 
     // A simple unit test for the IO
-    std::ofstream file1("rf2.model");
+    std::ofstream file1("rf3.model");
     rf1.save(file1);
     file1.close();
 
@@ -105,7 +105,7 @@ int main(void){
         double truth      = dfTest[row][responseIdx].asFloating;
         bias +=  prediction - truth;
         var  += (prediction - truth) * (prediction - truth);
-        result.push_back(prediction);
+        result.push_back(1./prediction);
     }
     double sd = sqrt((var - bias*bias/cnt)/(cnt - 1));
     bias /= cnt;

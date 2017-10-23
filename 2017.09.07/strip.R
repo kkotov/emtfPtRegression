@@ -1,4 +1,4 @@
-df <- read.csv(file="../../pt/oldSim.csv",header=T,sep=',')
+df <- read.csv(file="../../../oldSim.csv",header=T,sep=',')
 d1 <- df[df[,"mode.0."]==15, c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".0.",colnames(df),fixed=T) ) ]
 d2 <- df[df[,"mode.1."]==15, c( grep("\\.[0-1]\\.",colnames(df),invert=T) , grep(".1.",colnames(df),fixed=T) ) ]
 colnames(d1) <- sub(".0.", "", colnames(d1),fixed=T)
@@ -14,16 +14,21 @@ predictors <- c("theta", "st1_ring2", "dPhi12", "dPhi13", "dPhi14", "dPhi23", "d
 skim[,"muPtGenInv"] <- 1./skim[,"muPtGen"]
 f <- as.formula(paste("muPtGenInv ~ ", paste(predictors, collapse= "+")))
 trainIdx <- rbinom(nrow(skim), 1, 0.5)
+skim$trainIdx <- trainIdx
+
 require(ranger)
 modelFit <- ranger(f, data=skim[which(trainIdx==1),], importance="impurity")
+skim$ranger <- signif(1./predict(modelFit,skim)$prediction,digits=6)
 
 testSet <- skim[which(trainIdx==0),]
 m <- mean(testSet$muPtGenInv - predict(modelFit,testSet)$prediction)
 sdev <- sd(testSet$muPtGenInv - predict(modelFit,testSet)$prediction)
 print(paste("mean",m," dev",sdev))
 
-skim$trainIdx <- trainIdx
-skim$ranger <- signif(1./predict(modelFit,skim)$prediction,digits=6)
+require(gbm)
+modelFit2 <- gbm(f,data=skim[which(trainIdx==1),],distribution="gaussian",n.trees=1000,shrinkage=0.001,interaction.depth=4)
+skim$gbm <- signif(1./predict(modelFit2,skim,n.trees=1000),digits=6)
+
 write.csv(file="one.csv",skim[,-which(colnames(skim)=="muPtGenInv")], row.names=FALSE)
 colnames(skim)
 
