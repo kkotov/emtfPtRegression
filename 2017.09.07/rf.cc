@@ -53,6 +53,12 @@ int main(void){
         );
         df.rbind( DataRow(row) );
     }
+    if( input.bad() )
+    {
+        std::cerr << "Error: the input file format differs from the described one" << std::endl;
+        return 0;
+    }
+
     // countAllLevels has to be called in the end of reading input with categorical variables
     df.countAllLevels();
 
