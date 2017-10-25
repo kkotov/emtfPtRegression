@@ -27,15 +27,17 @@ int clct1,
 int fr1,
 int rpc1, int rpc2, int rpc3, int rpc4
 ){
-        DataRow row(tuple<float,int,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int>(
-theta, st1_ring2,
-dPhi12, dPhi13,  dPhi14,  dPhi23,  dPhi24,  dPhi34,
-dTheta14,
-dPhiS4, dPhiS4A, dPhiS3, dPhiS3A,
-clct1,
-fr1,
-rpc1, rpc2, rpc3, rpc4
-)); 
+
+        DataRow row(tuple<float,float,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,int,int,int,int,int,int,int,int,int,int,int,int,float,int,float,float>(
+                0,  theta,  st1_ring2, dPhi12, dPhi13, dPhi14, dPhi23, dPhi24, dPhi34,
+                0,  0, dTheta14,
+                0,  0, 0,
+                dPhiS4, dPhiS4A, dPhiS3, dPhiS3A,
+                clct1,  0,  0,  0,
+                fr1,    0,  0,  0,
+                rpc1, rpc2, rpc3, rpc4,
+                0, 0, 0, 0));
+
         return rf->regress(row);
     }
 }
