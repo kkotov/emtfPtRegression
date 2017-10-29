@@ -93,10 +93,10 @@ int main(void){
                  dTheta14, dPhiS4, dPhiS4A, dPhiS3, dPhiS3A, clct1, fr1, rpc1, rpc2, rpc3, rpc4 }; //outStPhi ?
 
     unsigned int responseIdx = ptGenInv;
-    rf1.train(dfTrain,predictorsIdx,responseIdx,500,std::cout);
+    rf1.train(dfTrain,predictorsIdx,responseIdx,512,std::cout);
 
     // A simple unit test for the IO
-    std::ofstream file1("rf3.model");
+    std::ofstream file1("rf.model");
     rf1.save(file1);
     file1.close();
 
@@ -117,7 +117,7 @@ int main(void){
     bias /= cnt;
     std::cout << "bias = "<< bias << " sd = " << sd << std::endl;
 
-    std::vector<float> rownames(dfTest.nrow());
+    std::vector<int> rownames(dfTest.nrow());
     std::iota(rownames.begin(),rownames.end(),1);
     if( dfTest.cbind(result) && dfTest.cbind(rownames) ) {
         std::ofstream file2("two.csv");
