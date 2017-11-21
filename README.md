@@ -13,9 +13,9 @@ also available for a reference as a series of presentations summarized by the da
 ([single page](https://kkotov.github.io/emtfPtRegression/2017.03.17/handout.html)).
 
 The track pT assignment in the [electronic boards](http://iopscience.iop.org/1748-0221/8/12/C12034)
-is done with the values precomputed using the developed regression models and
-stored in a fast look-up table (LUT) memory. Thirty bits available for the
-pT LUT address encode track's deflection angles given by relative positions
-of track segments, bend patters of individual track segments, and several
-other track's parameters covered in the description above.
-
+is done using a fast look-up table (LUT) memory that is filled with the pT values
+computed in an independent offline study. Thirty bits available for the pT LUT
+address encode relative positions of the recorded track segments, bend patters
+of individual track segments, and types of these track segments. These are the
+very same parameters used as predictors for training the offline regression model
+that is used for generating pT values for the LUT. 
