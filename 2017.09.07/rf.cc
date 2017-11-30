@@ -4,6 +4,7 @@
 #include <string>
 #include <stdlib.h>
 #include <math.h>
+#include<iomanip>
 
 #include "DataFrame.h"
 #include "RandomForest.h"
@@ -35,7 +36,7 @@ int main(void){
     const int fr1   = 23, fr2   = 24, fr3   = 25, fr4   = 26;
     const int rpc1  = 27, rpc2  = 28, rpc3  = 29, rpc4  = 30;
     const int ptXML = 31, trainIdx = 32, ranger = 33, gbm = 34;
- 
+
     // read file to the end
     while( csvUtils::read_tuple(input,format) )
     {
@@ -57,6 +58,10 @@ int main(void){
     {
         std::cerr << "Error: the input file format differs from the described one" << std::endl;
         return 0;
+    }
+    else
+    {
+        std::cout << "" << df.nrow() << " rows read " << std::endl;
     }
 
     // countAllLevels has to be called in the end of reading input with categorical variables
@@ -93,13 +98,12 @@ int main(void){
                  dTheta14, dPhiS4, dPhiS4A, dPhiS3, dPhiS3A, clct1, fr1, rpc1, rpc2, rpc3, rpc4 }; //outStPhi ?
 
     unsigned int responseIdx = ptGenInv;
-    rf1.train(dfTrain,predictorsIdx,responseIdx,512,std::cout);
+    rf1.train(dfTrain,predictorsIdx,responseIdx,500,std::cout,4);
 
     // A simple unit test for the IO
     std::ofstream file1("rf.model");
     rf1.save(file1);
     file1.close();
-
 
     std::vector<float> result;
     result.reserve( dfTest.nrow() );
@@ -107,8 +111,8 @@ int main(void){
     double bias = 0, var = 0;
     long cnt = 0;
     for(unsigned int row = 0; row>=0 && row < dfTest.nrow(); row++,cnt++){
-        double prediction = rf1.regress( dfTest[row] );
         double truth      = dfTest[row][responseIdx].asFloating;
+        double prediction = rf1.regress( dfTest[row] );
         bias +=  prediction - truth;
         var  += (prediction - truth) * (prediction - truth);
         result.push_back(1./prediction);
